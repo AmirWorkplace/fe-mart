@@ -1,0 +1,36 @@
+
+
+            // return response()->json(empty($shipping_address));
+            // $upozila_id = $shipping_address->upozila_id;!property_exists($shipping_address, 'upozila_id') || !property_exists($shipping_address, 'district_id')
+            // $district_id = $shipping_address->district_id;
+
+use App\Models\Category;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+// Route::get('/experiment', function () {
+//     // Hash the new password
+//     $newPassword = "admin@12345678";
+//     $hashedPassword = Hash::make($newPassword);
+
+//     // Update the password in the database
+//     User::where('id', 1)->update(['password' => $hashedPassword]);
+
+//     return response()->json(['message' => 'Password Updated!']);
+// });
+
+// Route::get('/experiment', function () {
+//     $password = Hash::make("admin@12345678");
+
+//     User::where('id', 1)->update(['password'=> $password]);
+//     return response()->json(['password' => $password, 'data'=> "admin@12345678", 'message'=> 'Password Updated!']);
+    // $all_data = Category::latest('id')->where('status', false)->get(); 
+    // $ids = object_get($all_data, 'id');
+    // $2y$10$6Ug1btShXsgUu3YmgZ9tWuJTsbMHOHkkc9uC81S8Z.02cEuIYjCoy 
+    // $ids = $all_data->pluck('id');
+    
+    // Category::whereIn('id', $ids)->update(['status'=> false]);
+    // Category::whereIn('id', $ids)->delete();
+
+    // return response()->json(['ids' => $ids, 'data'=> $all_data]);
+// });
+// ------------ utility end ----------
