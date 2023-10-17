@@ -1,0 +1,274 @@
+  public static function getCategories(){
+    $categories = Category::select('id', 'name', 'parent_id')->get();
+
+    $parentCategories = [];
+    foreach ($categories as $category) {
+        if ($category['parent_id'] === null) {
+            $parentCategories[] = $category;
+        }
+    }
+
+    $childCategories = [];
+    foreach ($parentCategories as $parentCategory) {
+        $parentId = $parentCategory['id'];
+        $children = [];
+        foreach ($categories as $category) {
+            if ($category['parent_id'] === $parentId) {
+                $children[] = $category;
+            }
+        }
+        $childCategories[$parentId] = $children;
+    }
+
+    $subchildCategories = [];
+    foreach ($childCategories as $parentId => $children) {
+        foreach ($children as $child) {
+            $childId = $child['id'];
+            $subchildren = [];
+            foreach ($categories as $category) {
+                if ($category['parent_id'] === $childId) {
+                    $subchildren[] = $category;
+                }
+            }
+            $subchildCategories[$childId] = $subchildren;
+        }
+    }
+
+    return ['parent_categories' => $parentCategories, 'child_categories'=> $childCategories, 'children_categories'=> $subchildCategories];
+  }
+
+  public static function getParentCategories(){
+    return AdditionalDataResource::getCategories()['parent_categories'];
+  }
+  public static function getChildCategoriesByParentId($parent_id){
+    $categories = AdditionalDataResource::getCategories()['child_categories'];
+
+    return $categories[$parent_id];
+  }
+
+  public static function getChildrenCategoriesByParentId($child_parent_id){
+    $categories = AdditionalDataResource::getCategories()['children_categories'];
+
+    return $categories[$child_parent_id];
+  }
+                                                  {{-- {{ json_encode($get_parent_categories) }} --}}
+                                                    {{-- <option value="" selected disabled></option> --}}
+                                                            {{-- {{ $category->id == $parent_id ? 'selected' : '' }}> --}}
+                                                            {{-- {{ $category->id == $parent_id ? 'selected' : '' }}> --}}
+                                            {{-- <option value="" selected disabled></option> --}}
+                                                    {{-- {{ $category->id == $child_id ? 'selected' : '' }} --}}
+                                            {{-- <option value="" selected disabled></option> --}}
+                                                    {{-- {{ $category->id == $subchild_id ? 'selected' : '' }} --}}
+
+                                                    {{-- @foreach ($parent_categories as $key => $category)
+                                                        <option value="{{ $category->id }}" selected disabled>
+                                                            {{ $category->name }}</option>
+                                                    @endforeach --}}
+
+                                                            // return AdditionalDataResource::getCategories();
+        // return AdditionalDataResource::getChildCategoriesByParentId(18);
+
+        // return $get_parent_categories;
+
+        
+
+        // return Category::select('id', 'name', 'parent_id')->get();
+
+        // $child_categories = Category::latest('updated_at')->whereIn('id', $category_ids->child_category_id)->get();
+        // $subchild_categories = Category::latest('updated_at')->whereIn('id', $category_ids->subchild_category_id)->get();
+        
+        // $subchild_categories = AdditionalDataResource::getChildrenCategoriesByParentId($category_ids->subchild_category_id);
+        // $child_categories = AdditionalDataResource::getChildCategoriesByParentId($category_ids->child_category_id);
+        // dd($category_ids->child_category_id);
+
+        // return ['cci'=> $category_ids->child_category_id,'category_ids' => $category_ids,'parent_category'=>$parent_category, 'child_category'=>$child_category, 'subchild_category'=>$subchild_category,];
+
+
+        // $product = Product::with(['category'])->findOrFail($id);
+        // $parent_id = NULL;
+        // $child_id = NULL;
+        // $subchild_id = NULL;
+
+        // return $product;
+        // $product_categories = ProductCategory::select('id', 'product_id', 'category_id')->where('product_id', $id)->latest('id')->get();
+
+        // return $product_categories->pluck($product_categories->category_id);
+
+        // $categories = Category::WhereIn('id', $product_categories->pluck('category_id'))->get();
+
+        // return [$categories,$product,$product_categories];
+
+        // $product_category = $product->category;
+        // if (!is_null($product->parent_id)) {
+        //     $check_parent = Category::findOrFail($product->parent_id);
+        //     if ($check_parent->parent_id) {
+        //         $parent_id = $check_parent->parent_id;
+        //         $child_id = $check_parent->id;
+        //         $subchild_id = $product->category->id;
+        //     } else {
+        //         $parent_id = $check_parent->id;
+        //         $child_id = $product->category->id;
+        //     }
+        // } else {
+        //     $parent_id = $product->category->id;
+        // }
+
+        // $parent_categories =  Category::where('status', 1)->get();
+        // // return $parent_categories;
+        // $child_categories = Category::where('parent_id', $parent_id)->get();
+        // $subchild_categories = Category::where('parent_id', $child_id)->get();
+
+        // return array_diff($parent_categories, $get_pa)
+
+        // store category id
+        
+        // if(!empty($request->parent_category)){
+        //     foreach($request->parent_category as $key => $value) {
+        //         ProductCategory::create(['category_id'=> $value, 'product_id'=> $product->id]);
+        //     }
+        // }
+
+        // if(!empty($request->child_category)){
+        //     foreach($request->child_category as $key => $value) {
+        //         ProductCategory::create(['category_id'=> $value, 'product_id'=> $product->id]);
+        //     }
+        // }
+
+        // if(!empty($request->subchild_category)){
+        //     foreach($request->subchild_category as $key => $value) {
+        //         ProductCategory::create(['category_id'=> $value, 'product_id'=> $product->id]);
+        //     }
+        // }
+
+        {
+    "status": "success",
+    "child_categories": [
+        [
+            {
+                "id": 59,
+                "name": "Shari",
+                "parent_id": 18
+            },
+            {
+                "id": 60,
+                "name": "Three Pcs",
+                "parent_id": 18
+            },
+            {
+                "id": 61,
+                "name": "Two Pcs",
+                "parent_id": 18
+            },
+            {
+                "id": 62,
+                "name": "One Pcs",
+                "parent_id": 18
+            },
+            {
+                "id": 63,
+                "name": "Salwar Kameez",
+                "parent_id": 18
+            }
+        ]
+    ]
+}
+
+
+                                        // $new_arrival_products = App\Models\Product::with(['price'])
+                                        //     ->whereIn('category_id', $category_ids)
+                                        //     ->where('status', 1)
+                                        //     ->where('product_type', 'new_arrival')
+                                        //     ->inRandomOrder()
+                                        //     ->limit(50)
+                                        //     ->get();
+                                        // $best_seller_products = App\Models\Product::with(['price'])
+                                        //     ->whereIn('category_id', $category_ids)
+                                        //     ->where('status', 1)
+                                        //     ->where('product_type', 'best_seller')
+                                        //     ->inRandomOrder()
+                                        //     ->limit(50)
+                                        //     ->get();
+                                        // $featured_products = App\Models\Product::with(['price'])
+                                        //     ->whereIn('category_id', $category_ids)
+                                        //     ->where('status', 1)
+                                        //     ->where('product_type', 'featured')
+                                        //     ->inRandomOrder()
+                                        //     ->limit(50)
+                                        //     ->get();
+            // $query = $this->where(function ($query) use ($parent_category_id){
+            //     $query->whereJsonContains('category_id->child_category_id', $parent_category_id);
+            // })->with(['price'])->where('status', true);
+
+            // if($product_type){
+            //     $query->where('product_type', $product_type);
+            // }
+
+            // return $query->latest('updated_at')->get();
+
+            // $all_data = [];
+
+            // foreach ($parent_category_id as $key => $value) {
+            //     $all_data = array_merge($all_data, $this->whereJsonContains('category_id->main_category_id', [$value])->with('price')->where('status', true)->where('product_type', $product_type)->latest('updated_at')->get());
+            // }
+
+            // return $all_data;
+
+
+            // get all the product where the main category id is included inside the products data!
+            // $products = Product::whereJsonContains('category_id->main_category_id', [strval($category->id)])
+            //     ->with('price')
+            //     ->where('status', true)
+            //     ->latest('updated_at')
+            //     ->paginate(9);
+                                        {{-- @if ($items = count(App\Helper\AdditionalDataResource::getParentCategoryProducts($featured_category->id)))
+                                            {{ $items }}
+                                        @elseif ($items = count(App\Helper\AdditionalDataResource::getChildCategoryProducts($featured_category->id)))
+                                            {{ $items }}
+                                        @else
+                                            {{ count(App\Helper\AdditionalDataResource::getChildrenCategoryProducts($featured_category->id)) }}
+                                        @endif --}}
+            // $all_data = [];
+            // $addedProducts = [];
+            // $product_ids = array();
+            // info('From Product Model');
+
+            // $data = $this->whereJsonContains('category_id->main_category_id', $parent_category_id)
+            //     ->with(['price'])
+            //     ->where('status', true)
+            //     ->where('product_type', $product_type)
+            //     ->latest('updated_at')->get();
+
+            // info(json_encode([$all_data,$addedProducts, $parent_category_id, $data]));
+
+
+
+            // foreach ($parent_category_id as $value) {
+            //     $query = $this->whereJsonContains('category_id->main_category_id', $value)
+            //         ->with(['price'])
+            //         ->where('status', true)
+            //         ->where('product_type', $product_type)
+            //         ->latest('updated_at');
+
+            //     // Get products matching the criteria
+            //     $products = $query->get();
+            //     array_push($product_ids, $products->pluck('id'));
+            //     array_push($all_data, $products);
+
+                // Filter out products that have already been added
+                // $products = $products->filter(function ($product) use ($all_data) {
+                //     // return !in_array($product->id, $addedProducts);
+                //     if(!in_array($product->id, $all_data)){
+                //         array_push($all_data, $product);
+                //     }
+                // });
+                
+                // info(json_encode($products));
+                // Add new products to $all_data
+                // $all_data = array_merge($all_data, $products->toArray());
+
+                // Update the list of added products
+                // $addedProducts = array_merge($addedProducts, $products->pluck('id')->toArray());
+            // }
+
+            // info(json_encode(["Message: ",call_user_func_array('array_merge', $product_ids)]));
+            // return json_encode([$all_data,$addedProducts, $parent_category_id]);
