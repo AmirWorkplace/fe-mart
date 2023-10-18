@@ -1,7 +1,44 @@
+<style>
+    .fixed-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: #e6e6e6;
+        z-index: 10;
+        color: #ffffff
+    }
+
+    .fixed-header .container-fluid.fx {
+        background: #0e4f93;
+    }
+
+    @media (min-width: 1400px){ 
+            .fixed-header .container-fluid.fx {
+                max-width: 1300px;
+                width: 100%;
+        }
+    }
+
+    @media (max-width: 900px){
+        .mobile-cateogry__toggler{
+            display: none;
+        }
+    }
+</style>
+
+@push('header-links')
+    <link rel="stylesheet" href="{{ asset('frontend/assets/css/hover-dropdown-menu.css') }}">
+@endpush
 
 <header class="header">
-  <div class="d-lg-block d-none header-top p-0">
-      <div class="container-fluid">
+  <div class="d-lg-block d-none p-0 fixed-header">
+
+      <div class="container-fluid fx">
           @auth 
             <div class="footer-area text-end"><a href="#" class="text-light">{{ Auth::user()->name }}</a></div>
           @endauth
@@ -23,8 +60,64 @@
                           <li class="desktop-menu__item">
                               <a href="#" title="About Us"><i class="zmdi zmdi-file-text"></i>About Us</a>
                           </li>
-                          <li class="desktop-menu__item"><a href="#" title="Product Category"><i
+                          {{-- <li class="desktop-menu__item"><a href="#" title="Product Category"><i
                                       class="zmdi zmdi-assignment"></i>Product Category</a>
+                          </li> --}}
+                          <li class="mega-menu">
+                            <a href="#" class="has-submenu">Associate<span class="sub-arrow">...</span></a>
+        
+                            <ul class="dropdown-menu sm-nowrap" style="width: auto; display: none; top: auto; left: 0px; margin-left: -616.875px; margin-top: 0px; min-width: 200px; max-width: 400px;">
+                              <li>
+                                <!-- Home Mage Menu grids Begins -->
+                                <div class="row">
+                                  
+                                  <!-- Services Category and it's ordered posts -->
+                                                              <div class="col-sm-3">
+                                      <h6 class="title">Reselling Business</h6>
+                                      <div class="page-links">
+                                        
+                                                                          <div>
+                                            <a href="https://technoparkbd.com/associate/reselling-business/reselling-business">Lead Mart Bangladesh</a>
+                                          </div>
+                                                                        
+                                      </div>
+                                    </div>
+                                                              <div class="col-sm-3">
+                                      <h6 class="title">Online Courier</h6>
+                                      <div class="page-links">
+                                        
+                                                                          <div>
+                                            <a href="https://technoparkbd.com/associate/online-courier/online-courier">Quick Express Bangladesh</a>
+                                          </div>
+                                                                        
+                                      </div>
+                                    </div>
+                                                              <div class="col-sm-3">
+                                      <h6 class="title">E Commerce</h6>
+                                      <div class="page-links">
+                                        
+                                                                          <div>
+                                            <a href="https://technoparkbd.com/associate/e-commerce/ecommearce-portal">Nakshi Ghor</a>
+                                          </div>
+                                                                        
+                                      </div>
+                                    </div>
+                                                              <div class="col-sm-3">
+                                      <h6 class="title">Marketplace</h6>
+                                      <div class="page-links">
+                                        
+                                                                          <div>
+                                            <a href="https://technoparkbd.com/associate/marketplace/reselling-business">Nijer Bazar</a>
+                                          </div>
+                                                                        
+                                      </div>
+                                    </div>
+                                  
+                                </div>
+                                <!-- Ends Home Mage Menu Block -->
+                              </li>
+                            </ul>
+        
                           </li>
                           <li class="desktop-menu__item"><a href="#" title="Daily deals"><i
                                       class="zmdi zmdi-tag"></i>Daily deals</a>

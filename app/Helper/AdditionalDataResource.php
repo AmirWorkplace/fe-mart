@@ -115,5 +115,11 @@ class AdditionalDataResource {
     $products_instance = new Product();
     return $products_instance->getProductsByCategoryId($category_id, null, true);
   }
+
+  public static function getProductsBySpecialOffer(string $offer_id, int|NULL $showcase = null){
+    $ids = json_decode($offer_id, true);
+
+    return Product::whereIn('id', $ids)->where('status', true)->latest('updated_at')->paginate($showcase);
+  }
 }
 

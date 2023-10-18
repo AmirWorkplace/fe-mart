@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SliderController;
+use App\Http\Controllers\Admin\SpecialOfferProductsController;
 
 Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
     Route::get('/', [AdminController::class, 'index'])->name('login.index');
@@ -123,4 +124,7 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin', 'middleware' => ['admin_per
 
     // Flash Deal Management
     Route::resource('/deal', FlashdealController::class);
+
+    // Special Offer Management
+    Route::resource('/special-offer-products', SpecialOfferProductsController::class);
 });

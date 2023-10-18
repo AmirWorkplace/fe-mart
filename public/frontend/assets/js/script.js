@@ -300,14 +300,17 @@ $(document).ready(function () {
         // Sticky_Menu();
     });
 
+    // console.log($('.fx').height())
+
+    $('#main-site').css('margin-top', $('.fx').height() + 'px');
     
-    $(window).scroll(function(){
-        if($(this).scrollTop() > 97){
-            $('[alt="Logo"]').css("display", "none");
-            $('.desktop-menu').addClass('desktop-menu--fixed');
-        }else{
-            $('[alt="Logo"]').css("display", "block");
-            $('.desktop-menu').removeClass('desktop-menu--fixed');
-        }
-    });
+    // $(window).scroll(function(){
+    //     if($(this).scrollTop() > 97){
+    //         $('[alt="Logo"]').css("display", "none");
+    //         $('.desktop-menu').addClass('desktop-menu--fixed');
+    //     }else{
+    //         $('[alt="Logo"]').css("display", "block");
+    //         $('.desktop-menu').removeClass('desktop-menu--fixed');
+    //     }
+    // });
 });

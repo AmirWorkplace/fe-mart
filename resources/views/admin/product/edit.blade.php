@@ -609,7 +609,7 @@
                             $('#subchild_category').empty();
                             $('#child_category').empty();
                             $('#child_category').append(
-                                '<option value="" disabled selected> Choose.. </option>');
+                                '<option value="" disabled> Choose.. </option>');
                             $.each(res.child_categories, function(key, value) {
                                 $('#child_category').append('<option value="' + value
                                     .id + '">' + value.name + '</option>');
@@ -636,7 +636,7 @@
                         if (res.status == 'success') {
                             $('#subchild_category').empty();
                             $('#subchild_category').append(
-                                '<option value="" disabled selected> Choose.. </option>');
+                                '<option value="" disabled> Choose.. </option>');
                             $.each(res.child_categories, function(key, value) {
                                 $('#subchild_category').append('<option value="' + value
                                     .id + '">' + value.name + '</option>');

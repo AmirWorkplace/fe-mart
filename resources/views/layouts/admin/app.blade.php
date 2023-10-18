@@ -19,6 +19,8 @@
             --bs-secondary: {{ $admin_setting && $admin_setting->secondary_color ? $admin_setting->secondary_color : '#415FFF' }};
         }
     </style>
+
+    @stack('header-links')
 </head>
 
 <body class="bg-light">

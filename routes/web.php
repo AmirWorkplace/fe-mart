@@ -4,6 +4,7 @@ use App\Helper\AdditionalDataResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Frontend\FrontpageController;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -58,8 +59,8 @@ Route::get('/toggle-debug', function () {
 
 /**
  * @uses Test anything Nam
- * @routes {update products id} http://127.0.0.1:8000/experiment/product
- * 
+ * @routes {update products id} http://127.0.0.1:8000/experiment/
+ *
  Route::get('/experiment', function(){
     $user = User::findOrFail(1);
     $pass = 'tpbd@admin-1234';
@@ -70,20 +71,21 @@ Route::get('/toggle-debug', function () {
 
     return ["password updated"];
 });
-
+ */
 // mapping to update category Id
 Route::get('/experiment/product', function () {
-    $products = Product::latest()->get();
+    // return Category::whereNotIn('id', ["66","18","58"])->get()->pluck('id');
+    $products = Product::get();
     $product_ids = $products->pluck('id')->toArray();
 
-    $category_id = '{"main_category_id":["9","18","58"],"child_category_id":["60","61","62","63","65","66"],"subchild_category_id":["67"]}';
+    $category_id = '{"main_category_id":["66","18","58"],"child_category_id":["59","60","61","62","63","65"],"subchild_category_id":[]}';
 
     Product::whereIn('id', $product_ids)->update(['category_id'=> $category_id]);
 
     return ["message"=> 'Updated Successfully!', 'data'=> Product::get()];
 });
- */
 
+/* 
  Route::get('/experiment/product/{id}', function ($id) {
     // $products = Product::select('id', 'category_id', 'name')->latest()->get();
     // $product_ids = $products->pluck('id')->toArray();
@@ -120,4 +122,4 @@ Route::get('/experiment/product', function () {
     }
 
     return ["message"=> 'Updated Successfully!', 'data'=> $products];
-});
+}); */

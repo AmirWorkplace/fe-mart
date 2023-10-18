@@ -122,6 +122,7 @@
         <!-- End Offer Section -->
     @endif
 
+    <!-- Featured Category Section -->
     <section class="py-md-5 py-4 bg-light">
         <div class="container-fluid">
             <h3 class="h3 mb-4 text-uppercase text-center">Shop by Categories</h3>
@@ -152,7 +153,11 @@
             </div>
         </div>
     </section>
-    <!-- End Featured Category Section -->
+
+    <!-- Started Offer Products -->
+    @include('frontend.my.offer_products')
+    <!-- Ended Offer Products -->
+
 
     @if (count($product_sections) > 0) 
         <section id="wrapper-site">
@@ -164,19 +169,30 @@
                                 <div class="product-sidebar__area d-flex flex-column justify-content-between">
                                     <div class="flex-grow-1" style="background-color: #e8f2f7;">
                                         <h2 class="title_block">
-                                            <img src="{{ asset($section->category->image) }}" alt="icon title">
+                                            
+                                            @if ($section->category->image && file_exists($section->category->image))
+                                                <img src="{{ asset($section->category->image) }}" 
+                                                    alt="{{ $section->category->name }}">
+                                            @endif
+                                            
                                             <span>{{ $section->category->name }}</span>
                                         </h2>
                                         <ul class="sidebar-category__list">
+                                            
                                             @foreach ($section->category->limitChildren as $key => $child)
                                                 @if ($key > 8)
-                                                @break
-                                            @endif
-                                            <li><a class="sidebar-category__link" href="{{ Route('frontend.products', $child->slug) }}">{{ $child->name }}</a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
+                                                    @break
+                                                @endif
+                                                
+                                                <li>
+                                                    <a class="sidebar-category__link" 
+                                                        href="{{ Route('frontend.products', $child->slug) }}">{{ $child->name }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                <!-- </div> -->
                                 @if ($section->second_row_content == 'product')
                                     <div class="sidebar-brands">
                                         <div class="row g-0">
@@ -228,20 +244,12 @@
                                             }
                                         }
 
-                                        // $pdt = new App\Models\Product();
-                                        // $new_arrival_products = $pdt->getProductsByParentCategoryId($category_ids, 'best_seller');
-
-                                        // info('From home.blade.php');
-                                        // info('From home.blade.php');
-
                                         $new_arrival_products = App\Helper\AdditionalDataResource::getParentCategoryProducts($category_ids, 'new_arrival');
 
                                         $best_seller_products = App\Helper\AdditionalDataResource::getParentCategoryProducts($category_ids, 'best_seller');
 
                                         $featured_products = App\Helper\AdditionalDataResource::getParentCategoryProducts($category_ids, 'featured');
                                     @endphp
-
-                                    {{-- <h3>{{ json_encode([$new_arrival_products, $category_ids]) }}</h3> --}}
 
                                     <div class="tab-pane fade show active" id="nav-{{ $key }}-new-arrivals"
                                         role="tabpanel" aria-labelledby="nav-{{ $key }}-new-arrivals-tab">

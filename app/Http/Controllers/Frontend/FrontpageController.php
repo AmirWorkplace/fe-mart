@@ -15,18 +15,21 @@ use App\Models\FlashdealProduct;
 use App\Models\HomeProductSection;
 use App\Http\Controllers\Controller;
 use App\Models\ProductStock;
+use App\Models\SpecialOfferProduct;
 
 class FrontpageController extends Controller
 {
     public function home()
     {
-        $featured_categories = Category::where('featured', 1)->where('status', 1)->latest('id')->limit(20)->get();
-        $sliders = Slider::where('status', 1)->latest('id')->limit(8)->get();
-        $brands = Brand::where('status', 1)->latest('id')->limit(50)->get();
-        $product_sections = HomeProductSection::with(['category'])->where('status', 1)->orderBy('order')->get();
+        $special_offers = SpecialOfferProduct::where('status', true)->orderBy("serial","asc")->get();
         $time_now = Carbon::now();
+        $brands = Brand::where('status', 1)->latest('id')->limit(50)->get();
+        $sliders = Slider::where('status', 1)->latest('id')->limit(8)->get();
+        $product_sections = HomeProductSection::with(['category'])->where('status', 1)->orderBy('order')->get();
+        $featured_categories = Category::where('featured', 1)->where('status', 1)->latest('id')->limit(20)->get();
         $flash_deal = Flashdeal::with(['items'])->where('start_date', '<=', $time_now)->where('end_date', '>=', $time_now)->where('featured', 1)->where('status', 1)->latest('id')->first();
-        return view('frontend.home', compact('featured_categories', 'sliders', 'brands', 'product_sections', 'flash_deal'));
+
+        return view('frontend.home', compact('featured_categories', 'sliders', 'brands', 'product_sections', 'flash_deal', 'special_offers'));
     }
 
     public function quickView(Request $request)
@@ -327,5 +330,9 @@ class FrontpageController extends Controller
     {
         $page = Page::where('slug', $slug)->first();
         return view('frontend.page', compact('page'));
+    }
+
+    public function specialOffer(){
+        return view('');
     }
 }
