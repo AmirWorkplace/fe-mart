@@ -7,7 +7,7 @@
 @section('content')
     <div class="row g-3" id="vue-offer-product-page">
         <div class="col-12">
-            <form action="{{ Route('admin.special-offer-products.update', $data->id) }}" id="choice_form" method="POST">
+            <form action="{{ Route('admin.special-offer-products.update', $data->id) }}" id="choice_form" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="card">
@@ -28,6 +28,16 @@
                                     <label for="name" class="form-label"><b>Offer Name</b></label>
                                     <input type="text" id="name" class="form-control" name="name" required
                                         value="{{ $data->name }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="image" class="form-label require"><b>Banner Image 
+                                    <span class="text-danger">(870x545)</span></b>
+                                </label>
+                                <input type="file" class="form-control custom-input" id="image" name="image">
+    
+                                @if (file_exists($data->image))
+                                    <img src="{{  asset($data->image) }}" alt="home banner 1" height="100" />
+                                @endif
                             </div>
                             <div class="col-sm-4">
                                     <label for="serial" class="form-label"><b>Priority Serial</b></label>

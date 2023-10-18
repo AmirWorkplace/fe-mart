@@ -22,6 +22,14 @@
                             value="{{ $data ? $data->title : '' }}">
                         </div>
                         <div class="col-12">
+                            <label for="image" class="form-label require"><b>Banner Image</b></label>
+                            <input type="file" class="form-control custom-input" id="image" name="image" required>
+
+                            @if (file_exists($data->image))
+                                <img src="{{  asset($data->image) }}" alt="home banner 1" height="100" />
+                            @endif
+                        </div>
+                        <div class="col-12">
                             <label for="serial" class="form-label require"><b>Priority Serial</b></label>
                             <input type="text" placeholder="Priority Serial" class="form-control custom-input" id="serial" name="serial" value="{{ $data->serial }}" required>
                         </div>

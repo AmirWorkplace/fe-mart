@@ -78,6 +78,7 @@
         opacity: 0;
     }
 
+    .verticalmenu-content:not(.show),
     .home .verticalmenu-content:not(.show) {
         visibility: visible !important;
         opacity: 1 !important;
@@ -155,6 +156,11 @@
     .verticalmenu-content.show,
     .verticalmenu-content {
         display: none;
+    }
+
+    .banner-area { display: none; }
+    .banner-area img{
+        height: auto !important;
     }
 }
 

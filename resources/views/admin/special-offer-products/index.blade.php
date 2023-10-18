@@ -20,8 +20,8 @@
                         <tr class="text-nowrap">
                             <th width="3"></th>
                             <th>Serial</th>
+                            <th>Thumbnail</th>
                             <th>Name</th>
-                            {{-- <th>Product Items</th> --}}
                             <th>Status</th>
                             <th width="110" class="text-end">Actions</th>
                         </tr>
@@ -73,6 +73,10 @@
                         name: 'serial',
                         orderable: false,
                         searchable: false,
+                    },
+                    {
+                        data: 'image',
+                        name: 'image',
                     },
                     {
                         data: 'name',

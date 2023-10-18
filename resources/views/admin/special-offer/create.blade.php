@@ -22,6 +22,10 @@
                                 name="title">
                         </div>
                         <div class="col-12">
+                            <label for="image" class="form-label require"><b>Banner Image</b></label>
+                            <input type="file" class="form-control custom-input" id="image" name="image" required> 
+                        </div>
+                        <div class="col-12">
                             <label for="serial" class="form-label require"><b>Priority Serial</b></label>
                             <input type="text" placeholder="Priority Serial" class="form-control custom-input" id="serial" name="serial" required>
                         </div>

@@ -11,7 +11,7 @@
                             <a class="verticalmenu-link" href="{{ Route('frontend.products', $rootItem->category->slug) }}"
                                 title="{{ $rootItem->category->name }}">
                                 <i class="hasicon nov-icon"
-                                    style="background:url({{ asset($rootItem->category->image) }}) no-repeat scroll center center;"></i>
+                                    style="background:url({{ file_exists($rootItem->category->image) ? asset($rootItem->category->image) : asset('frontend/assets/images/icons/no-image.png') }}) no-repeat scroll center center;"></i>
                                 {{ $rootItem->category->name }}
                             </a>
                         @endisset

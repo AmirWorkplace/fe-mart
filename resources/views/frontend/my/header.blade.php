@@ -24,11 +24,11 @@
         }
     }
 
-    @media (max-width: 900px){
+    /* @media (max-width: 900px){
         .mobile-cateogry__toggler{
             display: none;
         }
-    }
+    } */
 </style>
 
 @push('header-links')

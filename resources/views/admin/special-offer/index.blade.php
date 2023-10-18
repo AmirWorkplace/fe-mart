@@ -20,6 +20,7 @@
                         <tr class="text-nowrap">
                             <th width="3"></th>
                             <th>Serial</th>
+                            <th>Thumbnail</th>
                             <th>Title</th>
                             <th>Description</th>
                             <th>Status</th>
@@ -73,6 +74,10 @@
                         name: 'serial',
                         orderable: false,
                         searchable: false,
+                    },
+                    {
+                        data: 'image',
+                        name: 'image',
                     },
                     {
                         data: 'title',

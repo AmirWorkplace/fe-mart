@@ -25,6 +25,12 @@
                                     <input type="text" id="name" class="form-control" name="name" required
                                         placeholder="Offer Name.">
                             </div>
+                            <div class="col-12">
+                                <label for="image" class="form-label require"><b>Banner Image
+                                    <span class="text-danger">(870x545)</span></b>
+                                </label>
+                                <input type="file" class="form-control custom-input" id="image" name="image"> 
+                            </div>
                             <div class="col-sm-4">
                                     <label for="serial" class="form-label"><b>Priority Serial</b></label>
                                     <input type="number" class="form-control" id="serial" name="serial"

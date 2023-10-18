@@ -27,7 +27,7 @@ class SpecialOfferProductsController extends Controller
     // Display a listing of the resource.
     public function index()
     {
-        return helperClass::resourceDataView(SpecialOfferProduct::query(), ['name', 'serial'], null, $this->route);
+        return helperClass::resourceDataView(SpecialOfferProduct::query(), ['name', 'serial'], ['image'], $this->route);
     }
 
     // Show the form for creating a new resource.
@@ -57,12 +57,14 @@ class SpecialOfferProductsController extends Controller
         }
 
         $slug = helperClass::createSlug($this->table, $request->name);
+        $image = helperClass::saveImage($request->file('image'), "media/special-offer/");
 
         SpecialOfferProduct::create([
             "product_ids" => $request->product_ids,
             "name" => $request->name,
             "serial" => $request->serial,
             "slug" => $slug,
+            "image" => $image,
             "status" => true,
         ]);
 
@@ -109,12 +111,14 @@ class SpecialOfferProductsController extends Controller
         }
 
         $slug = helperClass::createSlug($this->table, $request->name);
-
+        $image = helperClass::saveImage($request->file('image'), "media/special-offer/", $data->image); 
+        
         $updated_data = [
             "product_ids" => $request->product_ids,
             "name" => $request->name,
             "serial" => $request->serial,
             "slug" => $slug,
+            "image" => $image,
             "status" => true,
         ];
 
@@ -126,6 +130,6 @@ class SpecialOfferProductsController extends Controller
     // Remove the specified resource from storage.
     public function destroy(Request $request, string $id)
     {
-        return helperClass::resourceDataDelete($this->table, $request, $id, null, null);
+        return helperClass::resourceDataDelete($this->table, $request, $id, ['image'], null);
     }
 }

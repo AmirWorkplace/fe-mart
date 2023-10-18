@@ -1,35 +1,6 @@
-{{-- <section class="py-md-5 py-4 bg-light">
-  <div class="container-fluid">
-      <h3 class="h3 mb-4 text-uppercase text-center">Shop by Categories</h3>
-      <div class="pb-2">
-          <div class="carousel category-carousel" data-items="9" data-xl-items="7" data-lg-items="5" data-md-items="4"
-              data-sm-items="3" data-xs-items="3" data-arrows="true" data-infinite="true" data-dots="false"
-              data-timeout="5000">
-              @foreach ($featured_categories as $featured_category)
-                  <div class="px-sm-3 px-2">
-                      <div class="featured-category">
-                          <figure class="featured-category__image">
-                              <a href="{{ Route('frontend.products', $featured_category->slug) }}">
-                                  <img class="lazyload"
-                                      data-src="{{ file_exists($featured_category->image) ? asset($featured_category->image) : asset('frontend/assets/images/icons/deal.png') }}"
-                                      alt="{{ $featured_category->name }}" width="124" height="124">
-                              </a>
-                          </figure>
-                          <div class="featured-category__text">
-                              <a href="#" class="featured-category__link">{{ $featured_category->name }}</a>
-                              <div class="text-xxs fw-400 text-muted pt-1">
-                                  {{ App\Helper\AdditionalDataResource::getCategoryProductsCount($featured_category->id) }} Item(s)
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              @endforeach
-          </div>
-      </div>
-  </div>
-</section> --}}
 
-<style>
+
+{{-- <style>
   .special-offer-title {
       background: #1399bf;
       text-align: center;
@@ -37,20 +8,26 @@
       border-radius: 4px;
       color: #e4e4e4;
   }
-</style>
+</style> --}}
 
-<section class="pb-md-5 pb-4 bg-light">
-  <!-- <h3 class="h3 bg-light text-uppercase text-center pb-2">Special Offers</h3> -->
+<section class="pt-md-5 pt-4 bg-light">
   <div class="container-fluid">
     @foreach ($special_offers as $key => $special_offer) 
-      <h3 class="special-offer-title text-uppercase">{{ $special_offer->name }}</h3>
+      <h3 class="h3 bg-light text-uppercase text-center pb-2">{{ $special_offer->name }}</h3>
+        <div class="d-md-none">
+            
+            @if (file_exists($special_offer->image))
+                <img src="{{  asset($special_offer->image) }}" alt="home banner 1" width="100%" style="min-height: 20vh;" />
+            @endif
+
+        </div>
+      {{-- <h3 class="special-offer-title text-uppercase">{{ $special_offer->name }}</h3> --}}
       <div class="tab-pane fade show active pb-2" id="nav-{{ $key }}-new-arrivals"
         role="tabpanel" aria-labelledby="nav-{{ $key }}-new-arrivals-tab">
 
         @php 
             $products = App\Helper\AdditionalDataResource::getProductsBySpecialOffer($special_offer->product_ids, 15);
             $showcase_items = 3;
-            // $showcase_items = count($products) > 11 
             if(count($products) < 10){
                 $showcase_items = 2;
             }else if(count($products) < 5){

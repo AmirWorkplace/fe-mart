@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->text('product_ids');
             $table->string('name');
+            $table->string('image')->nullable();
             $table->boolean('status')->default(true);
             $table->integer('serial')->nullable()->default(1);
             $table->string('slug')->unique();

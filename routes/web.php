@@ -59,7 +59,7 @@ Route::get('/toggle-debug', function () {
 
 /**
  * @uses Test anything Nam
- * @routes {update products id} http://127.0.0.1:8000/experiment/
+ * @routes {update products id} http://127.0.0.1:8000/experiment/product
  *
  Route::get('/experiment', function(){
     $user = User::findOrFail(1);
@@ -78,7 +78,7 @@ Route::get('/experiment/product', function () {
     $products = Product::get();
     $product_ids = $products->pluck('id')->toArray();
 
-    $category_id = '{"main_category_id":["66","18","58"],"child_category_id":["59","60","61","62","63","65"],"subchild_category_id":[]}';
+    $category_id = '{"main_category_id":["66","18"],"child_category_id":["59","60","61","62","63","65"],"subchild_category_id":[]}';
 
     Product::whereIn('id', $product_ids)->update(['category_id'=> $category_id]);
 
