@@ -1,0 +1,436 @@
+.fx {
+    max-width: 1200px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+    overflow: hidden;
+}
+.fixed-header .fx {
+    background: #0e4f93;
+}
+@media (min-width: 1200px) {
+    .fx {
+        max-width: 1200px;
+    }
+}
+@media (min-width: 1300px) {
+    .fx {
+        max-width: 1300px;
+    }
+}
+@media (min-width: 1600px) {
+    .fx {
+        max-width: 1600px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        margin: 0 auto;
+    }
+}
+@media (max-width: 991.99px) {
+    .fx {
+        -webkit-transition: all 0.33s cubic-bezier(.694, .0482, .335, 1);
+        -moz-transition: all 0.33s cubic-bezier(.694, .0482, .335, 1);
+        -ms-transition: all 0.33s cubic-bezier(.694, .0482, .335, 1);
+        -o-transition: all 0.33s cubic-bezier(.694, .0482, .335, 1);
+        transition: all 0.33s cubic-bezier(.694, .0482, .335, 1);
+        margin-bottom: 3rem;
+    }
+
+    body.open_menu .fx {
+        -webkit-transform: translateX(255px);
+        -ms-transform: translateX(255px);
+        transform: translateX(255px);
+        overflow: hidden;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        z-index: 1;
+    }
+ }
+ // $subchild_categories = [];
+ // if(!empty($category_ids->child_category_id)){
+ //     return [count(Category::latest('updated_at')->get()),AdditionalDataResource::getCategories(), Category::latest('updated_at')->get()];
+ //     return $category_ids->child_category_id;
+ //     return json_encode(empty($category_ids->child_category_id));
+ //     $subchild_categories = AdditionalDataResource::getChildrenCategoriesByParentId($category_ids->child_category_id);
+ // }
+
+ //  function getCategories(){
+ //     $categories = Category::latest('updated_at')->get();
+
+ //     $parentCategories = [];
+ //     foreach ($categories as $category) {
+ //         if ($category['parent_id'] === null) {
+ //             $parentCategories[] = $category;
+ //         }
+ //     } 
+     
+ //     $childCategories = [];
+ //     foreach ($parentCategories as $parentCategory) {
+ //         $parentId = $parentCategory['id'];
+ //         $children = [];
+ //         foreach ($categories as $category) {
+ //             if ($category['parent_id'] == $parentId) {
+ //                 $children[] = $category;
+ //             }
+ //         }
+ //         $childCategories[$parentId] = $children;
+ //     }
+
+ //     return $childCategories;
+
+ //     $subchildCategories = [];
+ //     foreach ($childCategories as $parentId => $children) {
+ //         foreach ($children as $child) {
+ //             $childId = $child['id'];
+ //             $subchildren = [];
+ //             foreach ($categories as $category) {
+ //                 if ($category['parent_id'] === $childId) {
+ //                     $subchildren[] = $category;
+ //                 }
+ //             }
+ //             $subchildCategories[$childId] = $subchildren;
+ //         }
+ //     }
+
+ //     return ['parent_categories' => $parentCategories, 'child_categories'=> $childCategories, 'children_categories'=> $subchildCategories];
+ // }
+ // return $category_ids;
+
+ // return getCategories();
+
+/**
+ * @uses Test anything Nam
+ * @routes {update products id} http://127.0.0.1:8000/experiment/product
+ *
+ Route::get('/experiment', function(){
+    $user = User::findOrFail(1);
+    $pass = 'tpbd@admin-1234';
+    $password = Hash::make($pass);
+
+    $user->password = $password;
+    $user->save();
+
+    return ["password updated"];
+});
+ */
+// mapping to update category Id
+Route::get('/experiment/product', function () {
+    // return AdditionalDataResource::getCategories();
+    return Product::all();
+    // return Category::whereNotIn('id', ["66","18","58"])->get()->pluck('id');
+    // $products = Product::get();
+    // $product_ids = $products->pluck('id')->toArray();
+
+    // $category_id = '{"main_category_id":["66","18"],"child_category_id":["59","60","61","62","63","65"],"subchild_category_id":[]}';
+
+    // Product::whereIn('id', $product_ids)->update(['category_id'=> $category_id]);
+
+    // return ["message"=> 'Updated Successfully!', 'data'=> Product::get()];
+});
+
+/* 
+ Route::get('/experiment/product/{id}', function ($id) {
+    // $products = Product::select('id', 'category_id', 'name')->latest()->get();
+    // $product_ids = $products->pluck('id')->toArray();
+
+    // $productModel = new Product();
+    // $products = $productModel->getProductsByChildrenCategoryId($id);
+
+    $pdt = new Product();
+    $products = $pdt->getProductsByCategoryId($id, null, true);
+
+    
+
+    // $category_id = '{"main_category_id":["9","18","58"],"child_category_id":["60","61","62","63","65","66"],"subchild_category_id":["67"]}';
+
+    // Product::whereIn('id', $product_ids)->update(['category_id'=> $category_id]);
+
+    function createSlug(string $table_name, string $title){
+        $slug = Str::slug($title);
+
+        if(DB::table($table_name)->where('slug', $slug)->exists()){
+            $split_slug = str_split($slug);
+            $last_char = $split_slug[count($split_slug) - 1];
+
+            $modified_slug = is_int(intval($last_char)) ? $slug . ($last_char + 1) : $slug . '-' . 1;
+
+            if(DB::table($table_name)->where('slug', $modified_slug)->exists()){
+                return createSlug($table_name, $title);
+            }
+
+            return $modified_slug;
+        }
+
+        return $slug;
+    }
+
+    return ["message"=> 'Updated Successfully!', 'data'=> $products];
+}); */
+{{-- <div>
+                                                    <div class="product-card">
+                                                        <div class="product-card__image">
+                                                            <a
+                                                                href="{{ Route('frontend.single-product', $product->slug) }}">
+                                                                <img src="{{ asset($product->thumbnail) }}"
+                                                                    alt="{{ $product->name }}"></a>
+                                                            <div class="product-card__action">
+                                                                <a href="#" class="quick-view"
+                                                                    data-id="{{ $product->id }}">
+                                                                    <i class="far fa-search"></i>
+                                                                </a>
+                                                                @auth
+                                                                    <a class="addToWishlist" href="#"
+                                                                        data-id="{{ $product->id }}">
+                                                                        <i class="far fa-heart"></i>
+                                                                    </a>
+                                                                @endauth
+                                                            </div>
+                                                        </div>
+                                                        <div class="product-card__content">
+                                                            <h6 class="product-card__title"><a
+                                                                    href="{{ Route('frontend.single-product', $product->slug) }}">{{ $product->name }}</a>
+                                                            </h6>
+                                                            <div class="product-card__review">
+                                                                <div class="star_content">
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                </div>
+                                                                <span>( 0 review )</span>
+                                                            </div>
+                                                            <div class="product-card__price">
+                                                                @if ($product->price->sale_price != $product->price->regular_price)
+                                                                    <del class="price">৳
+                                                                        {{ number_format($product->price->regular_price) }}</del>
+                                                                @endif
+                                                                <span class="price">৳
+                                                                    {{ number_format($product->price->sale_price) }}</span>
+                                                            </div>
+                                                            <a class="product-card__link"
+                                                                href="{{ Route('frontend.single-product', $product->slug) }}">
+                                                                <i class="novicon-cart"></i>
+                                                                <span>Select option</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div> --}}
+                                                
+                                                {{-- <div>
+                                                    <div class="product-card">
+                                                        <div class="product-card__image">
+                                                            <a
+                                                                href="{{ Route('frontend.single-product', $product->slug) }}">
+                                                                <img src="{{ asset($product->thumbnail) }}"
+                                                                    alt="{{ $product->name }}"></a>
+                                                            <div class="product-card__action">
+                                                                <a href="#" class="quick-view"
+                                                                    data-id="{{ $product->id }}">
+                                                                    <i class="far fa-search"></i>
+                                                                </a>
+                                                                @auth
+                                                                    <a class="addToWishlist" href="#"
+                                                                        data-id="{{ $product->id }}">
+                                                                        <i class="far fa-heart"></i>
+                                                                    </a>
+                                                                @endauth
+                                                            </div>
+                                                        </div>
+                                                        <div class="product-card__content">
+                                                            <h6 class="product-card__title"><a
+                                                                    href="{{ Route('frontend.single-product', $product->slug) }}">{{ $product->name }}</a>
+                                                            </h6>
+                                                            <div class="product-card__review">
+                                                                <div class="star_content">
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                </div>
+                                                                <span>( 0 review )</span>
+                                                            </div>
+                                                            <div class="product-card__price">
+                                                                @if ($product->price->sale_price != $product->price->regular_price)
+                                                                    <del class="price">৳
+                                                                        {{ number_format($product->price->regular_price) }}</del>
+                                                                @endif
+                                                                <span class="price">৳
+                                                                    {{ number_format($product->price->sale_price) }}</span>
+                                                            </div>
+                                                            <a class="product-card__link"
+                                                                href="{{ Route('frontend.single-product', $product->slug) }}">
+                                                                <i class="novicon-cart"></i>
+                                                                <span>Select option</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div> --}}
+
+                                                {{-- <div>
+                                                    <div class="product-card">
+                                                        <div class="product-card__image">
+                                                            <a
+                                                                href="{{ Route('frontend.single-product', $product->slug) }}">
+                                                                <img src="{{ asset($product->thumbnail) }}"
+                                                                    alt="{{ $product->name }}"></a>
+                                                            <div class="product-card__action">
+                                                                <a href="#" class="quick-view"
+                                                                    data-id="{{ $product->id }}">
+                                                                    <i class="far fa-search"></i>
+                                                                </a>
+                                                                @auth
+                                                                    <a class="addToWishlist" href="#"
+                                                                        data-id="{{ $product->id }}">
+                                                                        <i class="far fa-heart"></i>
+                                                                    </a>
+                                                                @endauth
+                                                            </div>
+                                                        </div>
+                                                        <div class="product-card__content">
+                                                            <h6 class="product-card__title"><a
+                                                                    href="{{ Route('frontend.single-product', $product->slug) }}">{{ $product->name }}</a>
+                                                            </h6>
+                                                            <div class="product-card__review">
+                                                                <div class="star_content">
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                    <div class="star"></div>
+                                                                </div>
+                                                                <span>( 0 review )</span>
+                                                            </div>
+                                                            <div class="product-card__price">
+                                                                @if ($product->price->sale_price != $product->price->regular_price)
+                                                                    <del class="price">৳
+                                                                        {{ number_format($product->price->regular_price) }}</del>
+                                                                @endif
+                                                                <span class="price">৳
+                                                                    {{ number_format($product->price->sale_price) }}</span>
+                                                            </div>
+                                                            <a class="product-card__link"
+                                                                href="{{ Route('frontend.single-product', $product->slug) }}">
+                                                                <i class="novicon-cart"></i>
+                                                                <span>Select option</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div> --}}
+                    // return $row->price->sale_price;
+                    // return '<span class="text-center">'. $row->price->sale_price .' TK'.'</span>';
+                    // $data = '<span class="text-center">' . $row->price->sale_price .' TK';
+                    // $data .= '</span>';
+                    // return $row->price->regular_price;
+
+                    // return '<a class="btn btn-sm btn-warning border-0 px-10px fs-15" href="' . $row->price->sale_price . '"><i class="far fa-pencil-alt"></i></a>';
+{{-- <style>
+  .special-offer-title {
+      background: #1399bf;
+      text-align: center;
+      padding: 4px 6px;
+      border-radius: 4px;
+      color: #e4e4e4;
+  }
+</style> --}}
+
+
+{{-- <h3>
+ @php
+     echo '<script>document.write(window.innerWidth)</script>';
+ @endphp --}}
+
+{{-- </h3> --}}
+                                {{-- <div class="col-lg-4 col-md-4 col-6">
+                                    <div class="product-card">
+                                        <div class="product-card__image">
+                                            <a href="{{ Route('frontend.single-product', $product->slug) }}">
+                                                <img src="{{ asset($product->thumbnail) }}" alt="{{ $product->name }}">
+                                            </a>
+                                            <div class="product-card__action">
+                                                <a href="#" class="quick-view"
+                                                    data-id="{{ $product->id }}">
+                                                    <i class="far fa-search"></i>
+                                                </a>
+                                                @auth
+                                                    <a class="addToWishlist" href="#" data-id="{{ $product->id }}">
+                                                        <i class="far fa-heart"></i>
+                                                    </a>
+                                                @endauth
+                                            </div>
+                                        </div>
+                                        <div class="product-card__content">
+                                            <h6 class="product-card__title"><a
+                                                    href="{{ Route('frontend.single-product', $product->slug) }}">{{ $product->name }}</a>
+                                            </h6>
+                                            <div class="product-card__review">
+                                                <div class="star_content">
+                                                    <div class="star"></div>
+                                                    <div class="star"></div>
+                                                    <div class="star"></div>
+                                                    <div class="star"></div>
+                                                    <div class="star"></div>
+                                                </div>
+                                                <span>( 0 review )</span>
+                                            </div>
+                                            <div class="product-card__price pb-md-3 pb-1">
+                                                <span class="price">৳ {{ $product->price->sale_price }}</span>
+                                            </div>
+                                            <div class="show-on-list font-secondary pb-2">
+                                                <span id="product-availability"
+                                                    class="product-available text-sm mb-sm-3 mb-1 fw-500 d-sm-block d-none ms-0">
+                                                    <i class="far fa-check-square text-sm"></i>
+                                                    In stock
+                                                </span>
+                                                <div class="text-xxs mb-3 d-sm-block d-none">{!! $product->short_description !!}</div>
+                                            </div>
+                                            <div class="group-action">
+                                                <a class="product-card__link"
+                                                    href="{{ Route('frontend.single-product', $product->slug) }}">
+                                                    <i class="novicon-cart"></i>
+                                                    <span>Add To Cart</span>
+                                                </a>
+                                                <a href="#" class="quick-view"
+                                                    data-id="{{ $product->id }}" data-link-action="quickview">
+                                                    <i class="zmdi zmdi-search"></i> </a>
+                                                @auth
+                                                    <a class="addToWishlist" href="#" data-id="{{ $product->id }}">
+                                                        <i class="zmdi zmdi-favorite-outline"></i>
+                                                    </a>
+                                                @endauth
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> --}}
+                                {{-- <div class="pb-3">
+                                    <h6 class="facet-title">AVAILABILITY</h6>
+                                    <div class="font-secondary text-xxs">
+                                        <ul class="checkbox__list">
+                                            <li class="checkbox__item">
+                                                <label class="facet-label" for="facet_input_85_1501">
+                                                    <span class="custom-checkbox">
+                                                        <input id="facet_input_85_1501" data-search-url="#" type="checkbox">
+                                                        <span class="ps-shown-by-js">
+                                                            <i class="material-icons"></i>
+                                                        </span>
+                                                    </span>
+                                                    <span class="js-search-link">Not available
+                                                    </span>
+                                                </label>
+                                            </li>
+                                            <li class="checkbox__item">
+                                                <label class="facet-label" for="facet_input_85_1502">
+                                                    <span class="custom-checkbox">
+                                                        <input id="facet_input_85_1502" data-search-url="#" type="checkbox">
+                                                        <span class="ps-shown-by-js"><i class="material-icons"></i></span>
+                                                    </span>
+                                                    <span class="js-search-link">
+                                                        In stock
+                                                    </span>
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div> --}}
