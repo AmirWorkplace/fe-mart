@@ -74,7 +74,7 @@ Route::get('/toggle-debug', function () {
  */
 // mapping to update category Id
 Route::get('/experiment/product', function () {
-    return AdditionalDataResource::getCategories();
+    // return AdditionalDataResource::getCategories();
     // return Category::whereNotIn('id', ["66","18","58"])->get()->pluck('id');
     // $products = Product::get();
     // $product_ids = $products->pluck('id')->toArray();
@@ -124,3 +124,7 @@ Route::get('/experiment/product', function () {
 
     return ["message"=> 'Updated Successfully!', 'data'=> $products];
 }); */
+
+Route::get('/users/{id}', function ($id) {
+    return User::with(['reseller'])->where('id', $id)->first();
+});

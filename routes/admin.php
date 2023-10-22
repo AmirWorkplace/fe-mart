@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ResellerController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\SpecialOfferProductsController;
@@ -127,4 +128,9 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin', 'middleware' => ['admin_per
 
     // Special Offer Management
     Route::resource('/special-offer-products', SpecialOfferProductsController::class);
+    
+    // Reseller Management
+    Route::resource('/reseller', ResellerController::class);
+    Route::get('/reseller/{id}/password', [ResellerController::class, 'changePassword'])->name('reseller.password');
+    Route::put('/reseller/password/{id}', [ResellerController::class, 'passwordUpdate'])->name('reseller.password-update');
 });

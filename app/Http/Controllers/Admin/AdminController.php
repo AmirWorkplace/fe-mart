@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Reseller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
@@ -22,6 +23,8 @@ class AdminController extends Controller
                 return redirect()->route('admin.dashboard');
             } elseif (Auth::user()->role == 0){
                 return redirect()->route('customer.profile');
+            } elseif (Auth::user()->role == 2){
+                return redirect()->route('admin.dashboard');
             }
         } else {
             if (!session()->has('intended_url')) {
@@ -34,15 +37,57 @@ class AdminController extends Controller
     public function login(Request $request)
     {
 
-        $input = $request->all();
+        // return $input = $request->all();
 
-        if (auth()->attempt(array('user_name' => $input['user_name'], 'password' => $input['password']))) {
-            // if (session()->has('intended_url')) {
-            //     return redirect(session('intended_url'));
-            // }
-            return redirect()->route('admin.dashboard')->with('success', 'Logged in Successfully!');
+        // if (auth()->attempt(array('user_name' => $input['user_name'], 'password' => $input['password']))) {
+        //     return redirect()->route('admin.dashboard')->with('success', 'Logged in Successfully!');
+        // } else {
+        //     return redirect()->back()->with('error', 'Invalid Email or Password!');
+        // }
+
+        $request->validate([
+            'user_name' => 'required',
+            'password' => 'required',
+        ]);
+
+        $login_id = $request->user_name;
+        $password = $request->password;
+
+        if(filter_var($login_id, FILTER_VALIDATE_EMAIL)) {
+            $user = User::with('reseller')->where('email', $login_id)->first();
+            if($user){
+                if(Hash::check($password, $user->password)) {
+                    if($user->status){
+                        Auth::login($user);
+
+                        return redirect()->route('admin.dashboard')->withSuccessMessage('Login Successfully!');
+                    } else {
+                        return redirect()->back()->withSuccessMessage('Your Account Approval is pending. Please wait a little bit!');
+                    }
+                } else {
+                    return redirect()->back()->withErrors("Your Password doesn't match with your credentials!");
+                }
+            } else {
+                return redirect()->back()->withErrors("There has no account exists on `{$login_id}` that's email!");
+            }
         } else {
-            return redirect()->back()->with('error', 'Invalid Email or Password!');
+           $user = User::with('reseller')->where('user_name', $login_id)->first();
+
+            if($user){
+                if(Hash::check($password, $user->password)) {
+                    if($user->status){
+                        Auth::login($user);
+
+                        return redirect()->route('admin.dashboard')->withSuccessMessage('Login Successfully!');
+                    } else {
+                        return redirect()->back()->withSuccessMessage('Your Account Approval is pending. Please wait a little bit!');
+                    }
+                } else {
+                    return redirect()->back()->withErrors("Your Password doesn't match with your credentials!");
+                }
+            } else {
+                return redirect()->back()->withErrors("There has no account exists on `{$login_id}` that's username!");
+            }
         }
     }
 
@@ -93,8 +138,8 @@ class AdminController extends Controller
      */
     public function edit()
     {
-        $admin = Auth::user();
-        return view('admin.profile.index', compact('admin'));
+        $profile = User::with('reseller')->findOrFail(Auth::id());
+        return view('admin.profile.index', compact('profile'));
     }
 
     public function changeImages(Request $request)
@@ -136,12 +181,28 @@ class AdminController extends Controller
             'email' => 'unique:users,email,' . Auth::user()->id,
             'name' => 'required',
         ]);
-        $admin = User::findOrFail(Auth::user()->id);
+        $admin = User::with('reseller')->findOrFail(Auth::id());
+        
+        $reseller = isset($admin->reseller->id) ? Reseller::findOrFail($admin->reseller->id) : null;
+
         $admin->name = $request->name;
         $admin->email = $request->email;
         $admin->phone = $request->phone;
         $admin->address = $request->address;
         $admin->save();
+
+        if($reseller){
+            $reseller->shop_name = $request->shop_name;
+            $reseller->mobile_bank_type = $request->mobile_bank_type;
+            $reseller->mobile_bank_number = $request->mobile_bank_number;
+            $reseller->bank_name = $request->bank_name;
+            $reseller->bank_account = $request->bank_account;
+            $reseller->shop_utility = $request->shop_utility;
+            $reseller->website_url = $request->website_url;
+
+            $reseller->save();
+        }
+
         return redirect()->back()->withSuccessMessage('Information Updated Successfully!');
     }
 

@@ -1,3 +1,7 @@
+@php 
+    $production = env('DEV_MODE');  
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,17 +14,17 @@
         @include('layouts.admin.partial.styles')
 
         @if(session()->has('errors'))
-        @foreach ( session('errors')->all() as $error )
-        @php
-        RealRashid\SweetAlert\Facades\Alert::toast($error, 'error');
-        @endphp
-        @endforeach
+            @foreach ( session('errors')->all() as $error )
+                @php
+                    RealRashid\SweetAlert\Facades\Alert::toast($error, 'error');
+                @endphp
+            @endforeach
         @endif
 
         @if(\Session::has('error'))
-        @php
-        RealRashid\SweetAlert\Facades\Alert::toast(\Session::get('error'), 'error');
-        @endphp
+            @php
+                RealRashid\SweetAlert\Facades\Alert::toast(\Session::get('error'), 'error');
+            @endphp
         @endif
         <style>
             :root {
@@ -42,13 +46,14 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" name="user_name" placeholder="Username" value="{{ old('user_name') }}" required autofocus autocomplete="user_name">
+                                    <input type="text" class="form-control" name="user_name" placeholder="Username" required autofocus autocomplete="user_name" value="{{ $production ? old('user_name') : 'admin' }}">
                                     <span class="input-group-text"><i class="fal fa-user-alt"></i></span>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="input-group">
-                                    <input type="password" class="form-control" id="toggle_password" name="password" placeholder="Password" required autocomplete="password">
+                                    <input type="password" class="form-control" id="toggle_password" name="password" placeholder="Password" required autocomplete="password"
+                                    value="{{ $production ? '' : 'tpbd@admin-1234' }}">
                                     <button type="button" class="input-group-text password-toggler"><i class="fas fa-eye-slash fs-18"></i></button>
                                 </div>
                             </div>

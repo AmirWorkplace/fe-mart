@@ -2,8 +2,11 @@
 namespace App\Helper;
 
 use App\Models\Category;
+use App\Models\CustomerEntry;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AdditionalDataResource {
   public function __construct() {}
@@ -128,6 +131,39 @@ class AdditionalDataResource {
     }else{
       return Product::whereIn('id', $ids)->where('status', true)->limit(40)->get();
     }
+  }
+
+  /**
+     * @uses CustomerEntry::Model to get the authenticate reseller's customer for selecting to order placement.
+     * @return array of customer lists.
+     */
+    public static function getCustomerOfReseller(){
+      if(Auth::user()->role == 1){
+          return CustomerEntry::latest('id')->get();
+      }else{
+          return CustomerEntry::where('reseller_id', Auth::id())->latest('id')->get();
+      }
+  }
+
+  /**
+   * @uses Product::Model to get all the the product for selecting all product to order.
+   * @return array of product lists.
+   */
+  public static function getProductLists(){
+      return Product::with(['price'])
+      ->select('id', 'code', 'name', 'thumbnail', 'max_order', 'min_order', 'category_id')
+      ->where('status', true)
+      ->latest('id')
+      ->limit(20)
+      ->get();
+  }
+
+  /**
+   * @uses findReseller by user id.
+   */
+
+  public static function getReseller(){
+    return User::with('reseller')->findOrFail(Auth::id()); 
   }
 }
 

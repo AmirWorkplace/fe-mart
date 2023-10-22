@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('special_offers', function (Blueprint $table) {
+        Schema::create('customer_entries', function (Blueprint $table) {
             $table->id();
-            $table->text('product_ids');
+            $table->unsignedBigInteger('reseller_id');
             $table->string('name');
-            $table->string('image')->nullable();
-            $table->boolean('status')->default(true);
-            $table->integer('serial')->nullable()->default(1);
-            $table->string('slug')->unique();
-            $table->timestamps();
+            $table->string('phone');
+            $table->string('email');
+            $table->text('address');
+            $table->timestamps(); 
+
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('special_offer_products');
+        Schema::dropIfExists('customer_entries');
     }
 };

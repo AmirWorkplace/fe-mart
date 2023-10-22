@@ -19,7 +19,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = ['role', 'name', 'user_name', 'email', 'phone', 'image', 'status', 'password'];
+    protected $fillable = ['role', 'name', 'user_name', 'email', 'phone', 'image', 'cover_image', 'status', 'email_verified_at', 'password', 'address'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -48,5 +48,9 @@ class User extends Authenticatable
     public function address()
     {
         return $this->hasMany(ShippingAddress::class, 'user_id');
+    }
+
+    public function reseller(){
+        return $this->hasOne(Reseller::class);
     }
 }

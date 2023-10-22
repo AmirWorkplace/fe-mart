@@ -15,7 +15,7 @@ class OrderController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $model = Order::with(['products', 'user']);
+            $model = Order::with(['products', 'user'])->where('customer_id', NULL);
             return DataTables::eloquent($model)
                 ->filter(function ($query) {
                     if (!empty(request('start_date')) && !empty(request('end_date'))) {
@@ -30,7 +30,8 @@ class OrderController extends Controller
                     return count($row->products);
                 })
                 ->addColumn('order_date', function ($row) {
-                    return date('d M Y h:i A');
+                    // return date('d M Y h:i A', $row->created_at);
+                    return 0;
                 })
                 ->addColumn('order_status', function ($row) {
                     if ($row->status == 'Canceled') {

@@ -31,7 +31,7 @@ class CartController extends Controller
             session()->put('cart', $cart);
 
             $variant_product = ProductStock::findOrFail($request->variant_id);
-            $category_name = $variant_product->product->category->name;
+            $category_name = 'Product Category Name';
             $product_url = Route('frontend.single-product', $variant_product->product->slug);
 
             $data['category_name'] = $category_name;
@@ -62,7 +62,8 @@ class CartController extends Controller
         $cart[$request->variant_id] = $data;
 
         $variant_product = ProductStock::findOrFail($request->variant_id);
-        $category_name = $variant_product->product->category->name;
+        // $category_name = $variant_product->product->category->name;
+        $category_name = 'Product Category Name';
         $product_url = Route('frontend.single-product', $variant_product->product->slug);
 
         $data['category_name'] = $category_name;
@@ -85,6 +86,7 @@ class CartController extends Controller
 
     protected function sessionData($variant_id, $flash_deal_id, $flash_deal_item_id)
     {
+        $i = 0;
         $variant_product = ProductStock::findOrFail($variant_id);
         $str = '';
         $attributes = [];
@@ -95,6 +97,8 @@ class CartController extends Controller
                 $attribute = Attribute::findOrFail($choice->attribute_id);
                 $attributes[$attribute->name] = request()['attribute_id_' . $choice->attribute_id];
             }
+
+            $i++;
         }
 
         if (is_null($flash_deal_item_id)) {
@@ -119,7 +123,7 @@ class CartController extends Controller
             'price' => $variant_product->price,
             'discounted_price' => $discounted_price,
             'slug' => $variant_product->product->slug,
-            'category_slug' => $variant_product->product->category->slug,
+            'category_slug' => "category-slug-{$i}",
             'image' => $variant_product->product->thumbnail,
             'qty' => request('quantity'),
         ];

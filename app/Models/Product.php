@@ -34,11 +34,7 @@ class Product extends Model
     public function stocks()
     {
         return $this->hasMany(ProductStock::class, 'product_id');
-    }
-
-    public function product_category(){
-        $this->hasMany(ProductCategory::class, 'product_id');
-    }
+    } 
 
     public function reviews()
     {

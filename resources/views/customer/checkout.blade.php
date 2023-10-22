@@ -160,7 +160,7 @@
                                                     </div>
                                                 </div>
                                                 
-                                                @if (!Auth::check())
+                                                {{-- @if (!Auth::check())
                                                     <div class="col-12">
                                                         <div class="row g-2 align-items-center">
                                                             <label class="col-md-2 form-control-label" for="password">
@@ -172,7 +172,7 @@
                                                             </div> 
                                                         </div>
                                                     </div>
-                                                @endif
+                                                @endif --}}
 
                                             </div>
                                         </div>

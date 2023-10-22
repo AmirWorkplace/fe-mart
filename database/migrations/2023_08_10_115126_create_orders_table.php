@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('order_code')->unique();
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->string('price_ids')->nullable();
+            $table->string('product_ids')->nullable();
             $table->string('user_name');
             $table->string('user_phone');
             $table->unsignedBigInteger('shipping_address_id');

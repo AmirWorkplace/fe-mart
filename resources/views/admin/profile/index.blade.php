@@ -16,7 +16,7 @@
 <div class="row g-3">
     <div class="col-12">
         <div class="header-wrapper">
-            <form action="{{ Route('admin.change-images', $admin->id ) }}" method="post" enctype="multipart/form-data">
+            <form action="{{ Route('admin.change-images', $profile->id ) }}" method="post" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="profile-header">
@@ -38,14 +38,14 @@
                         <input class="d-none" type="file" id="cover_image" name="cover_image" accept=".jpg, .jpeg, .png, .webp">
                         <label for="cover_image" class="btn btn-sm btn-primary">Edit Cover Image</label>
                     </div>
-                    <img class="lazyload img-fit absolute-full" data-src="{{ $admin->cover_image ? asset($admin->cover_image ) : asset('backend/images/avatar/default/cover.jpg') }}" alt="Cover Image">
+                    <img class="lazyload img-fit absolute-full" data-src="{{ file_exists($profile->cover_image) ? asset($profile->cover_image ) : asset('backend/images/avatar/default/cover.jpg') }}" alt="Cover Image">
                     <div id="onUploadCover">
                         <img class="lazyload img-fit absolute-full z-2" id="onUploadCoverImage" src="" alt="Cover Image">
                     </div>
                 </div>
 
                 <div class="profile-meta w-fit mx-auto">
-                    <img class="user-img img-fit lazyload" data-src="{{ $admin->image ? asset($admin->image ) : asset('backend/images/avatar/default/user.jpg') }}" alt="vendor image">
+                    <img class="user-img img-fit lazyload" data-src="{{ file_exists($profile->image) ? asset($profile->image ) : asset('backend/images/avatar/default/user.jpg') }}" alt="vendor image">
                     <div class="thumb-edit">
                         <input type="file" id="profileImageInput" class="image-upload" name="profile_image" accept=".jpg, .jpeg, .png, .webp">
                         <label for="profileImageInput"><i class="fal fa-pencil-alt"></i></label>
@@ -63,8 +63,8 @@
                 </div>
 
                 <div class="text-center">
-                    <h5 class="h5 mb-1 pt-sm-3 pt-2 text-primary fw-700">{{ $admin->name }}</h5>
-                    <p class="text mb-0">{{ $admin->email }}</p>
+                    <h5 class="h5 mb-1 pt-sm-3 pt-2 text-primary fw-700">{{ $profile->name }}</h5>
+                    <p class="text mb-0">{{ $profile->email }}</p>
                 </div>
             </form>
         </div>
@@ -87,45 +87,107 @@
                         <ul class="list-group">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 Name
-                                <span class="rounded-pill">{{ $admin->name }}</span>
+                                <span class="rounded-pill">{{ $profile->name }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 Email Address
-                                <span class="rounded-pill">{{ $admin->email }}</span>
+                                <span class="rounded-pill">{{ $profile->email }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 Phone
-                                <span class="rounded-pill">{{ $admin->phone }}</span>
+                                <span class="rounded-pill">{{ $profile->phone }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 Address
-                                <span class="rounded-pill">{{ $admin->address }}</span>
+                                <span class="rounded-pill">{{ $profile->address }}</span>
                             </li>
+
+                            @if($profile->reseller)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Shop Name
+                                    <span class="rounded-pill">{{ $profile->reseller->shop_name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Mobile Bank Type
+                                    <span class="rounded-pill">{{ $profile->reseller->mobile_bank_type }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Mobile Bank Number
+                                    <span class="rounded-pill">{{ $profile->reseller->mobile_bank_number }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Bank Name
+                                    <span class="rounded-pill">{{ $profile->reseller->bank_name }}</span>
+                                </li> 
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Bank Account
+                                    <span class="rounded-pill">{{ $profile->reseller->bank_account }}</span>
+                                </li> 
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Shop Utility
+                                    <span class="rounded-pill">{{ $profile->reseller->shop_utility }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Website Link
+                                    <a href="{{ $profile->reseller->website_url }}" class="rounded-pill">{{ $profile->reseller->website_url }}</a>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="nav-info-edit" role="tabpanel" aria-labelledby="nav-info-edit-tab">
                     <div class="bg-white rounded-3 p-sm-4 p-3">
                         <h5 class="h5 mb-3 fw-600 text-primary">Profile Settings</h5>
-                        <form action="{{ Route('admin.profile.update', $admin->id) }}" method="post">
+                        <form action="{{ Route('admin.profile.update', $profile->id) }}" method="post">
                             @csrf
                             @method('PUT')
                             <div class="row g-3">
                                 <div class="col-md-4 col-xs-6">
                                     <label for="admin-name" class="form-label">Your Name</label>
-                                    <input class="form-control" type="text" id="admin-name" placeholder="Your Name" name="name" value="{{ $admin->name }}">
+                                    <input class="form-control" type="text" id="admin-name" placeholder="Your Name" name="name" value="{{ $profile->name }}">
                                 </div>
                                 <div class="col-md-4 col-xs-6">
                                     <label for="admin-email" class="form-label">Your Email</label>
-                                    <input class="form-control" type="email" id="admin-email" placeholder="Your Email" name="email" value="{{ $admin->email }}">
+                                    <input class="form-control" type="email" id="admin-email" placeholder="Your Email" name="email" value="{{ $profile->email }}">
                                 </div>
                                 <div class="col-md-4 col-xs-6">
                                     <label for="admin-phone" class="form-label">Your Phone</label>
-                                    <input class="form-control" type="number" id="admin-phone" placeholder="Your Phone" name="phone" value="{{ $admin->phone }}">
+                                    <input class="form-control" type="number" id="admin-phone" placeholder="Your Phone" name="phone" value="{{ $profile->phone }}">
                                 </div>
+                                
+                                @if($profile->reseller)
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-name" class="form-label">Your Shop Name</label>
+                                        <input class="form-control" type="text" id="admin-shop_name" placeholder="Your Shop Name" name="shop_name" value="{{ $profile->reseller->shop_name }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-email" class="form-label">Your Mobile Bank Account Type</label>
+                                        <input class="form-control" type="text" id="admin-mobile_bank_type" placeholder="Bkash" name="mobile_bank_type" value="{{ $profile->reseller->mobile_bank_type }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-phone" class="form-label">Your Mobile Banking Account Number</label>
+                                        <input class="form-control" type="number" id="admin-mobile_bank_number" placeholder="01896******" name="mobile_bank_number" value="{{ $profile->reseller->mobile_bank_number }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-name" class="form-label">Your Bank Name</label>
+                                        <input class="form-control" type="text" id="admin-bank_account" placeholder="IFIC LTD" name="bank_name" value="{{ $profile->reseller->bank_name }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-name" class="form-label">Your Bank Number</label>
+                                        <input class="form-control" type="number" id="admin-bank_account" placeholder="89***********" name="bank_account" value="{{ $profile->reseller->bank_account }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-email" class="form-label">Your Shop Utilities</label>
+                                        <input class="form-control" type="text" id="admin-shop_utility" placeholder="Your Shop Utilities" name="shop_utility" value="{{ $profile->reseller->shop_utility }}">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="admin-phone" class="form-label">Your Website Link or URL</label>
+                                        <input class="form-control" type="text" id="admin-website_url" placeholder="https://www." name="website_url" value="{{ $profile->reseller->website_url }}">
+                                    </div>
+                                @endif
                                 <div class="col-12">
                                     <label for="address" class="form-label">Address</label>
-                                    <textarea class="form-control" id="address" name="address" cols="30" rows="5" placeholder="Write your address here...">{{ $admin->address }}</textarea>
+                                    <textarea class="form-control" id="address" name="address" cols="30" rows="5" placeholder="Write your address here...">{{ $profile->address }}</textarea>
                                 </div>
                                 <div class="col-12">
                                     <div class="pt-3 text-center">
@@ -139,7 +201,7 @@
                 <div class="tab-pane fade" id="nav-password-edit" role="tabpanel" aria-labelledby="nav-password-edit-tab">
                     <div class="bg-white rounded-3 p-sm-4 p-3">
                         <h5 class="h5 mb-3 fw-600 text-primary">Change Password</h5>
-                        <form action="{{ Route('admin.change-password', $admin->id) }}" method="post">
+                        <form action="{{ Route('admin.change-password', $profile->id) }}" method="post">
                             @csrf
                             @method('PUT')
                             <div class="row g-3">
