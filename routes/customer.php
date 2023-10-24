@@ -28,6 +28,9 @@ Route::group(['as' => 'customer.', 'prefix' => 'customer'], function () {
     route::get('/cart', [CartController::class, 'cart'])->name('cart');
     route::get('/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
     route::post('/checkout', [CheckoutController::class, 'checkoutStore'])->name('checkout');
+    
+
+    // route::post('/update-cart', [CartController::class, 'updateQty'])->name('update-cart-qty');
 });
 
 require __DIR__ . '/auth.php';

@@ -23,13 +23,13 @@
                     </form>
                 </div>
             </div>
-            {{-- <div class="card-header px-3 py-2">
+            <div class="card-header px-3 py-2">
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="h6 mb-0 text-uppercase">Manage Customer Entry</h6>
                     <a href="{{ Route('admin.order-place.create') }}" class="btn btn-primary btn-sm text-uppercase">Add
                         New</a>
                 </div>
-            </div> --}}
+            </div>
             <div class="card-body">
                 <table class="dataTable table align-middle" style="width:100%">
                     <thead>

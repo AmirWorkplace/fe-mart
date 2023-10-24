@@ -63,15 +63,15 @@
                                     <h5>SHIPPING INFORMATION:</h5>
                                     <div class="">
                                         <label class="form-label"><b>Name : </b></label>
-                                        <span>{{ $reseller->name }}</span>
+                                        <span>{{ isset($data->name) ? $data->name : '---' }}</span>
                                     </div>
                                     <div class="">
                                         <label class="form-label"><b>Phone : </b></label>
-                                        <span>{{ $reseller->phone }}</span>
+                                        <span>{{ isset($data->phone) ? $data->phone : '---' }}</span>
                                     </div>
                                     <div class="">
                                         <label class="form-label"><b>Email : </b></label>
-                                        <span>{{ $reseller->email }}</span>
+                                        <span>{{ isset($data->email) ? $data->email : '---' }}</span>
                                     </div>
                                     {{-- <div class="">
                                         <label class="form-label"><b>Pickup : </b></label>
@@ -79,7 +79,7 @@
                                     </div> --}}
                                     <div class="">
                                         <label class="form-label"><b>Address : </b></label>
-                                        <span>{{ $reseller->address }}</span>
+                                        <span>{{ isset($data->address) ? $data->address : '---' }}</span>
                                     </div>
                                 </div>
                             </div>

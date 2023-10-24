@@ -1,3 +1,8 @@
+
+@php
+    $reseller = Auth::check() ? Auth::user()->role == 2 : false;
+@endphp
+
 @extends('layouts.frontend.app')
 @section('content')
     @include('layouts.frontend.partial.breadcrumb', [

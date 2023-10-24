@@ -54,7 +54,6 @@ class Product extends Model
             if($product_type) $query->where('product_type', $product_type);
 
             $products = $query->latest('updated_at')->get();
-            info(json_encode($products));
 
             return $products;
         }

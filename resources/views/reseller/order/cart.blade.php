@@ -64,22 +64,6 @@
                                                             <span class="title_price d-md-none">Price</span>
                                                             <span class="value">৳ {{ $item['price'] }}</span>
                                                         </div>
-                                                        {{-- <div class="qty ms-auto">
-                                                            <div class="input-group qty-wrapper">
-                                                                <input type="text" name="qty"
-                                                                    value="{{ $item['qty'] }}"
-                                                                    class="input-group form-control quantity_wanted"
-                                                                    min="1">
-                                                                <span class="input-group-btn-vertical">
-                                                                    <button class="btn btn-touchspin qty-plus"
-                                                                        type="button">
-                                                                        <i class="fal fa-plus"></i></button>
-                                                                    <button
-                                                                        class="btn btn-touchspin qty-minus bootstrap-touchspin-down"
-                                                                        type="button"><i class="fal fa-minus"></i></button>
-                                                                </span>
-                                                            </div>
-                                                        </div> --}}
                                                         <div class="qty ms-auto">
                                                             <div class="input-group" id="quantities_{{ $key }}" 
                                                               product-quantities qty-input="#quantity_wanted_{{ $key }}">
@@ -170,7 +154,12 @@
                         </div>
                         <div class="checkout cart-detailed-actions">
                             <div class="text-xs-center">
-                                <a href="{{ Route('customer.checkout') }}" class="btn btn-primary">Checkout</a>
+                                @if ($reseller)
+                                  @php $user = Auth::user(); $cart_slug = Illuminate\Support\Str::slug($user->name) . "-{$user->id}"; @endphp
+                                  <a href="{{ route('admin.reseller.checkout', $cart_slug) }}" class="btn btn-primary btn-checkout">Check out</a>
+                                @else
+                                  <a href="{{ Route('customer.checkout') }}" class="btn btn-primary">Check Out</a>
+                                @endif
                             </div>
                         </div>
                     </div>

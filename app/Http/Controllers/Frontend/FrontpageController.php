@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Helper\AdditionalDataResource;
+use App\Helper\UserManagement;
 use Carbon\Carbon;
 use App\Models\Page;
 use App\Models\Brand;
@@ -19,6 +19,12 @@ use App\Models\SpecialOfferProduct;
 
 class FrontpageController extends Controller
 {
+    public $reseller;
+
+    public function __construct(){
+        // $this->reseller = UserManagement::role('reseller');
+    }
+
     public function home()
     {
         $special_offers = SpecialOfferProduct::where('status', true)->orderBy("serial","asc")->get();
@@ -34,7 +40,8 @@ class FrontpageController extends Controller
 
     public function quickView(Request $request)
     {
-        $product = Product::findOrFail($request->product_id);
+        $reseller = UserManagement::role('reseller');
+        $product = Product::with('price')->findOrFail($request->product_id);
         $first_variant = $product->stocks->first();
         $current_stock = $first_variant->qty - $first_variant->ordered;
         $html = '
@@ -48,81 +55,78 @@ class FrontpageController extends Controller
                     <div class="product-prices">
                         <div class="product-price d-flex align-items-center gap-2">
                             <div class="current-price">
-                                <span>৳ ' . number_format($first_variant->price, 2) . '</span>
-                            </div>' .
-            ($product->price->regular_price != $first_variant->price ?
-                '<div class="old-price text-md text-muted">
-                                    <del>৳ ' . number_format($product->price->regular_price, 2) . '</del>
-                                </div>' : ''
-            )
-            . '</div>
-                    </div>
-                    <div class="product-availability">
-                        <label class="control-label">Availability</label>:
-                        <span id="product-availability" class="product-available">
-                            <span class="in-stock ' . ($current_stock > 0 ? 'd-inline-block' : 'd-none') . '">
-                                <i class="far fa-check-square text-sm"></i> In stock
-                            </span>
-                            <span class="out-of-stock text-danger ' . ($current_stock > 0 ? 'd-none' : 'd-inline-block') . '">
-                                Stock Out</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="short_description">' . $product->short_description . '</div>
-                    <form id="option-choice-form">
-                        <input type="hidden" name="_token" value="' . csrf_token() . '" />
-                        <input type="hidden" name="id" value="' . $product->id . '">
-                        <input type="hidden" id="variant_id" name="variant_id" value="' . $first_variant->id . '">';
-        if (!is_null($product->choice_options)) {
-            $html .= '<div class="product-variants in_border">';
-            foreach (json_decode($product->choice_options) as $key => $choice) {
-                $html .= '<div class="product-variants-item">
-                                        <span
-                                            class="text-uppercase fw-500 text-xxs">' . \App\Models\Attribute::find($choice->attribute_id)->name . ':
-                                        </span>
-                                        <select id="attribute_id_' . $choice->attribute_id . '" class="form-select"
-                                            name="attribute_id_' . $choice->attribute_id . '">';
-                foreach ($choice->values as $key => $value) {
-                    $html .= '<option value="' . $value . '" title="' . $value . '"
-                                                    ' . ($key == 0 ? 'selected' : '') . '>' . $value . '</option>';
-                }
-                $html .= '</select>
-                                    </div>';
-            }
-            $html .= '</div>';
-        }
-        $html .= '<div class="product-add-to-cart in_border">
-                            <span class="control-label">QTY: </span>
-                            <div class="product-quantity">
-                                <div class="qty">
-                                    <div class="input-group">
-                                        <input type="number" name="quantity" id="quantity_wanted"
-                                            class="input-group form-control quantity_wanted input-number"
-                                            placeholder="1" value="' . $product->min_order . '"
-                                            min="' . $product->min_order . '"
-                                            max="' . ($current_stock < 1 ? 1 : $current_stock) . '">
-                                        <span class="input-group-btn-vertical">
-                                            <button class="btn btn-touchspin qty-plus" type="button">
-                                                <i class="fal fa-plus"></i></button>
-                                            <button class="btn btn-touchspin qty-minus bootstrap-touchspin-down"
-                                                type="button"><i class="fal fa-minus"></i></button>
-                                        </span>
-                                    </div>
-                                    <div class="avialable-amount text-muted text-xxs text-nowrap">
-                                        (<span id="available-quantity">' . $current_stock . '</span> available)
-                                    </div>
+                                <span>৳ ' . number_format($reseller ? $product->price->reseller_price : $first_variant->price, 2) . '</span>
+                                </div>' . ($product->price->regular_price != $first_variant->price ? 
+                                    '<div class="old-price text-md text-muted">'. 
+                                        (!$reseller && '<del>৳ ' . number_format($product->price->regular_price, 2)) . '</del>
+                                    </div>' : '') . '
                                 </div>
                             </div>
+                            <div class="product-availability">
+                                <label class="control-label">Availability</label>:
+                                <span id="product-availability" class="product-available">
+                                    <span class="in-stock ' . ($current_stock > 0 ? 'd-inline-block' : 'd-none') . '">
+                                        <i class="far fa-check-square text-sm"></i> In stock
+                                    </span>
+                                    <span class="out-of-stock text-danger ' . ($current_stock > 0 ? 'd-none' : 'd-inline-block') . '">
+                                        Stock Out</span>
+                                </span>
+                            </div>
                         </div>
+                        <div class="short_description">' . $product->short_description . '</div>
+                        <form id="option-choice-form">
+                            <input type="hidden" name="_token" value="' . csrf_token() . '" />
+                            <input type="hidden" name="id" value="' . $product->id . '">
+                            <input type="hidden" id="variant_id" name="variant_id" value="' . $first_variant->id . '">';
+                            if (!is_null($product->choice_options)) {
+                                $html .= '<div class="product-variants in_border">';
+                                foreach (json_decode($product->choice_options) as $key => $choice) {
+                                    $html .= '<div class="product-variants-item">
+                                                <span
+                                                    class="text-uppercase fw-500 text-xxs">' . \App\Models\Attribute::find($choice->attribute_id)->name . ':
+                                                 </span>
+                                                <select id="attribute_id_' . $choice->attribute_id . '" class="form-select"
+                                                    name="attribute_id_' . $choice->attribute_id . '">';
+                                    foreach ($choice->values as $key => $value) {
+                                        $html .= '<option value="' . $value . '" title="' . $value . '"
+                                            ' . ($key == 0 ? 'selected' : '') . '>' . $value . '</option>';
+                                    }
+                                    $html .= '</select></div>';
+                                }
+                                $html .= '</div>';
+                            }
+                            $html .= '<div class="product-add-to-cart in_border">
+                                        <span class="control-label">QTY: </span>
+                                        <div class="product-quantity">
+                                            <div class="qty">
+                                                <div class="input-group">
+                                                    <input type="number" name="quantity" id="quantity_wanted"
+                                                            class="input-group form-control quantity_wanted input-number"
+                                                            placeholder="1" value="' . $product->min_order . '"
+                                                            min="' . $product->min_order . '"
+                                                            max="' . ($current_stock < 1 ? 1 : $current_stock) . '">
+                                                    <span class="input-group-btn-vertical">
+                                                            <button class="btn btn-touchspin qty-plus" type="button">
+                                                                <i class="fal fa-plus"></i></button>
+                                                            <button class="btn btn-touchspin qty-minus bootstrap-touchspin-down"
+                                                                type="button"><i class="fal fa-minus"></i></button>
+                                                    </span>
+                                                </div>
+                                                <div class="avialable-amount text-muted text-xxs text-nowrap">
+                                                     (<span id="available-quantity">' . $current_stock . '</span> available)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                        <div class="product-add-to-cart in_border">
-                            <div class="add">
-                                <button class="btn btn-primary add-to-cart" ' . ($current_stock < 1 ? 'disabled' : '') . '
-                                    type="button">
-                                    <i class="shopping-cart"></i>
-                                    <span>Add to cart</span>
-                                </button>
-                            </div>';
+                                    <div class="product-add-to-cart in_border">
+                                        <div class="add">
+                                                    <button class="btn btn-primary add-to-cart" ' . ($current_stock < 1 ? 'disabled' : '') . '
+                                                        type="button">
+                                                        <i class="shopping-cart"></i>
+                                                        <span>Add to cart</span>
+                                                    </button>
+                                    </div>';
         if (auth()->user()) {
             $html .=
                 '<button class="btn addToWishlist p-0" data-id="' . $product->id . '" type="button">
@@ -228,8 +232,6 @@ class FrontpageController extends Controller
         $product_main_category_id = json_decode($product->category_id, true)['main_category_id'];
         $categories = Category::whereIn('id', $product_main_category_id)->where('status', true)->latest('id')->get();
 
-        // return $product;
-
         $related_products = Product::with(['price'])->whereNotIn('id', [$product->id])->/* where(function ($query) use ($product) {
             $query->where('brand_id', $product->brand_id)
                 ->orWhere('category_id', $product->category_id);
@@ -334,5 +336,21 @@ class FrontpageController extends Controller
 
     public function specialOffer(){
         return view('');
+    }
+
+    // update session cart product
+    public function updateCart(Request $request){
+        $cart = session()->get('cart');
+
+        if(!$cart) return response()->json(['status'=> true, 'message'=> 'There are no items available in your cart!']);
+        
+        if(isset($cart[$request->id])){
+            $cart[$request->id]['qty'] = $request->qty;
+            
+            session()->put('cart', $cart);
+            return response()->json(['status'=> true, 'message'=> 'Cart items updated!']);
+        }
+
+        return response()->json(['status'=> true, 'message'=> 'Cart items not found!']);
     }
 }

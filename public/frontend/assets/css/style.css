@@ -2378,6 +2378,12 @@ pre {
     color: var(--bs-secondary);
 }
 
+.breadcrumb-link.active,
+.breadcrumb-link:hover {
+    color: var(--bs-secondary);
+    font-weight: 600;
+}
+
 /* ========== Page title Section Css End ========== */
 
 /* ========== Single Product Section Css Start ========== */
@@ -4481,4 +4487,43 @@ label.required:after {
 .product-card.stock-out {
   opacity: 0.75;
   pointer-events: none !important;
+}
+
+/* CUSTOM */
+.quantity_wanted{
+    padding: 0 !important;
+}
+
+.qty {
+    margin-top: 12px;
+}
+
+.checkout-delete-btn {
+    display: flex;
+    width: 100%;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+.checkout-delete-btn i {
+    padding: 5px;
+    background: #8d8d8d;
+    color: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 10px;
+    margin-bottom: 8px;
+    transition-duration: 400ms;
+    box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.12);
+}
+
+.checkout-delete-btn i:hover{
+    background: #ce150f;
+}
+
+.qty-input {
+    width: 50px;
+    outline: none;
+    border: none;
+    pointer-events: none;
 }

@@ -10,7 +10,7 @@
                             @if (!is_null($slide->link))
                                 <a href="{{ $slide->link }}"><img src="{{ asset($slide->image) }}" alt="SliderImage" style="max-height: 600px; height: 100%;"></a>
                             @else
-                                <img src="{{ asset($slide->image) }}" alt="SliderImage" style="max-height: 600px; height: 100%;">
+                              <img src="{{ asset($slide->image) }}" alt="SliderImage" style="max-height: 600px; height: 100%;">
                             @endif
                         @endforeach
                     </div>
@@ -149,8 +149,8 @@
                                             
                                             <span>{{ $section->category->name }}</span>
                                         </h2>
+                                        
                                         <ul class="sidebar-category__list">
-                                            
                                             @foreach ($section->category->limitChildren as $key => $child)
                                                 @if ($key > 8)
                                                     @break
@@ -163,6 +163,7 @@
                                                 </li>
                                             @endforeach
                                         </ul>
+                                        
                                     </div>
                                 <!-- </div> -->
                                 @if ($section->second_row_content == 'product')
@@ -387,9 +388,9 @@
         // banner area's images height accusation
         $('[alt="SliderImage"]').height($($('[alt="SliderImage"]')[0]).height() + 'px');
         $('.banner-area img').height($($('[alt="SliderImage"]')[0]).height() / 2 + 'px');
-        $('.small.text-muted.text-nowrap.showing.mb-0').remove()
+        $('.small.text-muted.text-nowrap.showing.mb-0').remove();
+        $('.verticalmenu-list').removeClass('breadcrumb-with')
     });
 </script>
 @endpush
  
-{{-- @include('frontend.my.home') --}}

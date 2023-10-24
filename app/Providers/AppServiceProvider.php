@@ -6,6 +6,7 @@ use App\Models\AdminSetting;
 use App\Models\Category;
 use App\Models\Menu;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -55,6 +56,11 @@ class AppServiceProvider extends ServiceProvider
                 $categories = Category::root()->with(['children'])->where('status', 1)->orderBy('name')->get();
                 $view->with('header_categories', $categories);
             }
+        });
+
+        view()->composer('*', function ($view) {
+            $reseller = Auth::check() ? Auth::user()->role == 2 : false;
+            $view->with('reseller', $reseller);
         });
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Helper\UserManagement;
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
 use App\Models\FlashdealProduct;
@@ -16,6 +17,7 @@ class CartController extends Controller
     {
         $variant_product = ProductStock::findOrFail($request->variant_id);
         $stock = $variant_product->qty - $variant_product->ordered;
+
         if ($stock < 1) {
             return response()->json(['status' => 'error', 'data' => 'Stock Out']);
         }
@@ -23,11 +25,12 @@ class CartController extends Controller
         $cart = session()->get('cart');
         $flash_deal_id = $request->flash_deal_id;
         $flash_deal_item_id = $request->flash_deal_item_id;
+
         if (!$cart) {
             $data = $this->sessionData($request->variant_id, $flash_deal_id, $flash_deal_item_id);
-            $cart = [
-                $request->variant_id => $data
-            ];
+            // $cart = [$request->variant_id => [...$data, 'product_id'=> $request->id]];
+            $cart = [$request->variant_id => $data];
+
             session()->put('cart', $cart);
 
             $variant_product = ProductStock::findOrFail($request->variant_id);
@@ -68,6 +71,7 @@ class CartController extends Controller
 
         $data['category_name'] = $category_name;
         $data['product_url'] = $product_url;
+        // $data['product_id'] = $request->id;
 
         session()->put('cart', $cart);
 
@@ -112,6 +116,32 @@ class CartController extends Controller
                 $discounted_price = $variant_product->price - floor($discount);
             }
         }
+
+        if(UserManagement::role('reseller')){
+            $product = Product::with('price')->findOrFail($variant_product->product_id);
+            return [
+                'product_id'=> $product->id,
+                'flash_deal_id' => $flash_deal_id,
+                'flash_deal_item_id' => $flash_deal_item_id,
+                'product_type' => $variant_product->product->product_type,
+                'variant_id' => $variant_id,
+                'attribute' => $attributes,
+                'product_variant' => $str,
+                'name' => $variant_product->product->name,
+                'price' => $variant_product->price,
+                'discounted_price' => $discounted_price,
+                'slug' => $variant_product->product->slug,
+                'category_slug' => "category-slug-{$i}",
+                'image' => $variant_product->product->thumbnail,
+                'qty' => request('quantity'),
+
+                'reseller_price' => $product->price->reseller_price,
+                'regular_price' => $product->price->regular_price,
+                'vendor_price' => $product->price->vendor_price,
+                'sale_price' => $product->price->sale_price,
+            ];
+        }
+
         return [
             'flash_deal_id' => $flash_deal_id,
             'flash_deal_item_id' => $flash_deal_item_id,
@@ -149,4 +179,37 @@ class CartController extends Controller
         }
         return response()->json(['status' => 'success', 'total_cart_items' => $total_items, 'total_cart_price' => $total_cart_price]);
     }
+
+    // public function updateQty(Request $request)
+    // {
+    //     $variant_product = ProductStock::findOrFail($request->variant_id);
+    //     $stock = $variant_product->qty - $variant_product->ordered;
+    //     if ($stock > $request->qty) {
+    //         $cart = session()->get('cart');
+    //         $cart[$request->variant_id]['qty'] += $request->qty;
+    //         session()->put('cart', $cart);
+    //         return response()->json(['status' => 'success']);
+    //     } else {
+    //         return response()->json(['status' => 'error', 'data' => 'Stock Out']);
+    //     }
+
+    // }
+
+    // public function updateCart(Request $request){
+    //     $cart = session()->get('cart');
+
+    //     if(!$cart) return response()->json(['status'=> true, 'message'=> 'There are no items available in your cart!']);
+
+    //     if(response()->ajax() && $request->method() == 'PATCH'){
+    //         $update_id = $request->id;
+    //         $update_qty = $request->qty;
+    //         $update_price = $request->price;
+
+            
+    //         if(isset($cart[$update_id])){
+    //             $cart_product = $cart[$update_id];
+                
+    //         }
+    //     }
+    // }
 }

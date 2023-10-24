@@ -1,3 +1,28 @@
+ 
+<style>
+    .breadcrumb-link.active,
+    .breadcrumb-link:hover {
+        color: var(--bs-secondary);
+        font-weight: 600;
+    }
+
+    .breadcrumb-with.verticalmenu-list {
+        max-height: 210px !important;
+        overflow: hidden !important;
+        overflow-y: scroll !important;
+    }
+
+    .breadcrumb-with.verticalmenu-list::-webkit-scrollbar{
+        max-width: 7.5px !important;
+        background: #b0d7ff !important;
+    }
+
+    .breadcrumb-with.verticalmenu-list::-webkit-scrollbar-thumb{
+        background: #0e4f93 !important;
+        border-radius: 24px !important;
+        margin: 6px 2.5px !important;
+    }
+</style>
 <header class="header">
   <div class="d-lg-block d-none p-0 fixed-header">
 
@@ -113,7 +138,7 @@
                   <div class="verticalmenu-content {{ Route::is('frontend.home') ? 'show' : '' }}">
                       <div class="verticalmenu-wrapper">
                           <nav class="verticalmenu">
-                              <ul class="verticalmenu-list">
+                              <ul class="verticalmenu-list breadcrumb-with">
                                   @foreach ($menus->where('position', 'sidebar')->first()->rootItems as $rootItem)
                                       @php
                                           $slug = isset($rootItem->category->slug) ? $rootItem->category->slug : '-';
@@ -210,9 +235,10 @@
                           <i class="material-icons shopping-cart">shopping_cart</i>
                           <div class="">
                               <span class="title-cart">My Cart</span>
-                              <span class="cart-products-count"><span
-                                      class="cart_count">{{ !is_null($cart) ? count($cart) : '0' }}</span><span>
-                                      items</span></span>
+                              <span class="cart-products-count">
+                                <span class="cart_count">{{ !is_null($cart) ? count($cart) : '0' }}</span>
+                                <span>items</span>
+                              </span>
                           </div>
                       </div>
                       <div class="cart_block">
@@ -277,12 +303,18 @@
                                   <span class="value">৳ <span
                                           class="total_cart_price">{{ number_format($cart_total_price, 2) }}</span></span>
                               </div>
+                              
                               <div class="cart-buttons">
-                                  <a href="{{ Route('customer.checkout') }}"
-                                      class="btn btn-primary btn-checkout">Check out</a>
-                                  <a href="{{ Route('customer.cart') }}" class="btn btn-primary btn-cart">View
-                                      cart</a>
-                              </div>
+                                @if ($reseller)
+                                  @php $user = Auth::user(); $cart_slug = Illuminate\Support\Str::slug($user->name) . "-{$user->id}"; @endphp
+                                  <a href="{{ route('admin.reseller.checkout', $cart_slug) }}" class="btn btn-primary btn-checkout">Check out</a>
+                                  <a href="{{ route('admin.reseller.cart', $cart_slug) }}" class="btn btn-primary btn-cart"> View cart </a>
+                                @else
+                                  <a href="{{ route('customer.checkout') }}" class="btn btn-primary btn-checkout">Check out</a>
+                                  <a href="{{ route('customer.cart') }}" class="btn btn-primary btn-cart"> View cart </a>
+                                @endif
+                            </div>
+                            
                           </div>
                       </div>
                   </div>

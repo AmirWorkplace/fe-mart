@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>{{ !is_null($setting) ? $setting->title : '' }}</title>
     <link rel="shortcut icon"
         href="{{ !is_null($setting) && file_exists($setting->favicon) ? asset($setting->favicon) : asset('frontend/assets/images/logo/favicon.png') }}"
@@ -20,6 +21,9 @@
     @include('layouts.frontend.partial.styles')
     <!-- End Css Links -->
     @include('layouts.admin.partial.alert')
+
+    <!-- Push CSS -->
+    @stack('style')
 </head>
 
 <body class="{{ Route::is('frontend.home') ? 'home' : '' }}">
@@ -42,7 +46,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            $(document).on('click', '.quick-view', function(e) {
+            $(document).on('click', '[quick-view]', function(e) {
                 e.preventDefault();
                 let product_id = $(this).data('id');
                 console.log(product_id);
@@ -64,8 +68,11 @@
             });
 
             $(document).on('click', '.add-to-cart', function(e) {
+                // console.log($('#option-choice-form').serializeArray());
+                // return 0;
                 e.preventDefault();
                 let url = "{{ Route('customer.add-cart') }}";
+                
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -154,7 +161,7 @@
 
             $(document).on('click', '.cart_item_remove', function(e) {
                 e.preventDefault();
-                let id = $(this).data('id');
+                let id = $(this).data('id') ? $(this).data('id') : $(this).attr('id');
 
                 let url = "{{ Route('customer.remove-cart') }}";
                 $.ajax({
@@ -256,8 +263,9 @@
             }
 
             $(document).on('click', '.qty-plus', () => {
-                var max = $('#quantity_wanted').attr('max');
-                let getInput = $('#quantity_wanted').val();
+                var max = Number($('#quantity_wanted').attr('max'));
+                let getInput = Number($('#quantity_wanted').val());
+                console.log($('#quantity_wanted').val());
                 if (parseInt(getInput) < parseInt(max)) {
                     getInput++;
                     $('#quantity_wanted').val(getInput);

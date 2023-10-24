@@ -6,23 +6,26 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Frontend\FrontpageController;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductPrice;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 Route::group(['as' => 'frontend.'], function () {
-    route::get('/', [FrontpageController::class, 'home'])->name('home');
-    route::get('/quick-view', [FrontpageController::class, 'quickView'])->name('quick-view');
-    route::get('/products/{slug?}', [FrontpageController::class, 'products'])->name('products');
-    route::get('/search', [FrontpageController::class, 'search'])->name('search');
-    route::get('/product-filter', [FrontpageController::class, 'productFilter'])->name('product-filter');
-    route::get('/flash-deal/{slug?}', [FrontpageController::class, 'flashDeal'])->name('flash-deal');
-    route::get('/flash-deal/{deal}/{slug}', [FrontpageController::class, 'singleDealProduct'])->name('single-deal-product');
-    route::get('/brand/{slug}', [FrontpageController::class, 'brandProducts'])->name('brand-products');
-    route::get('/product/{slug}', [FrontpageController::class, 'singleProduct'])->name('single-product');
-    route::post('/product/get-variant-price', [FrontpageController::class, 'getVariantPrice'])->name('product.variant-price');
-    route::get('/page/{slug}', [FrontpageController::class, 'page'])->name('page');
+    Route::get('/', [FrontpageController::class, 'home'])->name('home');
+    Route::get('/quick-view', [FrontpageController::class, 'quickView'])->name('quick-view');
+    Route::get('/products/{slug?}', [FrontpageController::class, 'products'])->name('products');
+    Route::get('/search', [FrontpageController::class, 'search'])->name('search');
+    Route::get('/product-filter', [FrontpageController::class, 'productFilter'])->name('product-filter');
+    Route::get('/flash-deal/{slug?}', [FrontpageController::class, 'flashDeal'])->name('flash-deal');
+    Route::get('/flash-deal/{deal}/{slug}', [FrontpageController::class, 'singleDealProduct'])->name('single-deal-product');
+    Route::get('/brand/{slug}', [FrontpageController::class, 'brandProducts'])->name('brand-products');
+    Route::get('/product/{slug}', [FrontpageController::class, 'singleProduct'])->name('single-product');
+    Route::post('/product/get-variant-price', [FrontpageController::class, 'getVariantPrice'])->name('product.variant-price');
+    Route::get('/page/{slug}', [FrontpageController::class, 'page'])->name('page');
+
+    Route::patch('/cart/update', [FrontpageController::class, 'updateCart'])->name('cart.update');
 });
 
 // ------------ utility start ----------
@@ -74,6 +77,7 @@ Route::get('/toggle-debug', function () {
  */
 // mapping to update category Id
 Route::get('/experiment/product', function () {
+    // return session()->get('cart');
     // return AdditionalDataResource::getCategories();
     // return Category::whereNotIn('id', ["66","18","58"])->get()->pluck('id');
     // $products = Product::get();
@@ -127,4 +131,18 @@ Route::get('/experiment/product', function () {
 
 Route::get('/users/{id}', function ($id) {
     return User::with(['reseller'])->where('id', $id)->first();
+});
+
+Route::get('/reseller-price', function(){
+    $products = ProductPrice::query();
+    $regular_prices = $products->select('id', 'regular_price')->get();
+    $ids = $products->pluck('id')->toArray();
+
+    foreach ($regular_prices as $key => $price) {
+        ProductPrice::where('id', $price->id)->update(['vendor_price' => $price->regular_price + 100]);
+    }
+
+    return ProductPrice::all();
+    
+
 });

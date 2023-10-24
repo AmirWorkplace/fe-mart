@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Reseller;
 
+use App\Helper\UserManagement;
 use App\helperClass;
 use App\Http\Controllers\Controller;
+use App\Models\CustomerEntry;
+use App\Models\Location;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductResalePrice;
+use App\Models\ShippingAddress;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -30,14 +34,11 @@ class OrderPlaceController extends Controller
     {
         $model = Order::query()->where('user_id', Auth::id());
 
-        if(Auth::user()->hasRole('System Admin')){
+        if(UserManagement::role('admin')){
             $model = Order::query();
         }
 
-        // return helperClass::resourceDataView($query, ['user_phone', 'user_phone', 'email'], null, $this->route_path);
-
         if (request()->ajax()) {
-            // $model = Order::with(['products', 'user']);
             return DataTables::eloquent($model)
                 ->filter(function ($query) {
                     if (!empty(request('start_date')) && !empty(request('end_date'))) {
@@ -124,7 +125,6 @@ class OrderPlaceController extends Controller
         
         if(request()->ajax()){
             $request->validate([
-                'customer_id' => 'required',
                 'price_ids' => 'required',
                 'product_ids' => 'required',
                 'sub_total' => 'required',
@@ -135,7 +135,7 @@ class OrderPlaceController extends Controller
             $order = Order::create([
                 'order_id' => mt_rand(111111, 999999),
                 'user_id' => $user->id,
-                'customer_id' => $request->customer_id,
+                'customer_id' => isset($request->customer_id) ? $request->customer_id : null,
                 'price_ids' => $request->price_ids,
                 'product_ids' => $request->product_ids,
                 'user_name' => $user->name,
@@ -171,6 +171,8 @@ class OrderPlaceController extends Controller
                 ]);
             }
 
+            // clear cart
+            session()->forget("cart");
             return response()->json(["status"=> true, "message"=> "Order Placed Successfully!"]);
         }
     }
@@ -180,18 +182,16 @@ class OrderPlaceController extends Controller
     {
         $selected_products = array();
         $order = Order::findOrFail($id);
-        $reseller = User::with('reseller')->where('id', $id)->first();
-        if(!$reseller){
-            $reseller = Auth::user();
+        $data = User::with('reseller')->where('id', $id)->first();
+        if(!$data){
+            $data = Auth::user();
         }
         
         if(is_array(json_decode($order->product_ids))){
             $selected_products = ProductResalePrice::with('product')->where('order_id', $id)->latest('updated_at')->get();
-        }
+        } 
 
-        // return compact('selected_products', 'order', 'reseller');
-
-        return view("{$this->route_path['view']}.print", compact('selected_products', 'order', 'reseller'));
+        return view("{$this->route_path['view']}.print", compact('selected_products', 'order', 'data'));
     }
 
     // Show the form for editing the specified resource.
@@ -236,8 +236,8 @@ class OrderPlaceController extends Controller
             $order->total = $request->total;
             $order->discount = $request->discount;
             $order->due = $request->sub_total;
-            $order->payment_method = $request->order_type;
-            $order->sales_type = $request->sales_type;
+            $order->payment_method = $request->sales_type;
+            $order->sales_type = $request->order_type;
 
             $product_ids = json_decode($request->product_ids, true);
             $previous_resale_ids = ProductResalePrice::where('order_id', $id)->pluck('id')->toArray();
@@ -269,5 +269,152 @@ class OrderPlaceController extends Controller
     public function destroy(Request $request, string $id)
     {
         return helperClass::resourceDataDelete('orders', $request, $id, null, null);
+    }
+
+    // Reseller order place from client view
+    public function resellerCart($user_name){
+        return view('reseller.order.cart');
+    }
+
+    // Reseller order place from client view
+    public function resellerCheckout($user_name){
+        if (request()->ajax()) {
+            $locations = Location::where('parent_id', request('id'))->orderBy('name')->get();
+            return response()->json(['status' => 'success', 'locations' => $locations]);
+        }
+
+        $divisions = Location::whereNull('parent_id')->orderBy('name')->get();
+        // if (Auth::check()) {
+        //     $shipping_address = ShippingAddress::where('user_id', Auth::user()->id)->first();
+
+        //     if(!isset($shipping_address->district_id) || !isset($shipping_address->upozila_id) || !isset($shipping_address)){
+        //         return redirect()->route('customer.address')->withError('Please Add your shipping address');
+        //     }
+
+        //     $selected_district = Location::find($shipping_address->district_id);
+        //     $selected_upozila = Location::find($shipping_address->upozila_id);
+        // } else {
+            $shipping_address = NULL;
+            $selected_district = NULL;
+            $selected_upozila = NULL;
+        // }
+
+        $get_customer = CustomerEntry::where('reseller_id', Auth::id())->latest('updated_at')->get();
+        return view('reseller.order.checkout', compact('divisions', 'shipping_address', 'selected_district', 'selected_upozila', 'get_customer', 'user_name'));
+    }
+
+    // Reseller order place from client view
+    public function resellerOrderPlace(Request $request, $user_name){
+        $cart = session()->get('cart');
+        
+        if(empty($cart)) return redirect()->back()->withErrors('Nothing is available in your cart!');
+        
+        $user = User::with('reseller')->where('id', Auth::id())->first();
+
+        $product_ids = [];
+        $cart_products = [];
+        foreach($cart as $product){
+            $cart_products[] = $product;
+            $product_ids[] = $product['product_id'];
+        }
+
+        switch ($request->input('order_type')) {
+            case 'self':
+                $order = Order::create([
+                    'order_id' => mt_rand(111111, 999999),
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'price_ids' => null,
+                    'product_ids' => json_encode($product_ids),
+                    'user_name' => $user->name,
+                    'user_phone' => $user->phone ? $user->phone : 0,
+                    'order_code' => 'R' . mt_rand(111111, 999999),
+                    'shipping_charge' => 0,
+                    'sub_total' => $request->sub_total,
+                    'total' => 0,
+                    'discount' => 0,
+                    'paid' => 0,
+                    'due' => $request->sub_total,
+                    'coupon_id' => null,
+                    'order_note' => null,
+                    'payment_method' => 'cod',
+                    'sales_type' => $request->order_type,
+                    'pending_at' => Carbon::now(),
+                ]);
+    
+                foreach($cart_products as $product){
+                    $resale_prices = $product['reseller_price'] * $product['qty'];
+
+                    ProductResalePrice::create([
+                        'product_id'=> $product['product_id'],
+                        'customer_id'=> $user->id,
+                        'reseller_id'=> $user->id,
+                        'order_id'=> $order->id,
+    
+                        'main_rate' => $product['regular_price'],
+                        'resale_rate' => $product['reseller_price'],
+                        'resale_prices' => $resale_prices,
+                        'quantities' => $product['qty'],
+                        'resale_discount_amount' => ($product['qty'] * $product['regular_price']) - $resale_prices,
+                    ]);
+                }
+    
+                session()->forget("cart");
+                return redirect()->route('frontend.home')->withSuccessMessage("Order Placed Successfully!");
+            
+            
+            case 'new-business':
+                return $request->all();
+                // break;
+
+            case 'business':
+                // return $request->all();
+                $customer = json_decode($request->select_customer, true);
+                $order = Order::create([
+                    'order_id' => mt_rand(111111, 999999),
+                    'user_id' => $user->id,
+                    'customer_id' => $customer['id'],
+                    'price_ids' => null,
+                    'product_ids' => json_encode($product_ids),
+                    'user_name' => $customer['name'],
+                    'user_phone' => $customer['phone'] ? $customer['phone'] : 0,
+                    'order_code' => 'R' . mt_rand(111111, 999999),
+                    'shipping_charge' => 0,
+                    'sub_total' => $request->sub_total,
+                    'total' => 0,
+                    'discount' => 0,
+                    'paid' => 0,
+                    'due' => $request->sub_total,
+                    'coupon_id' => null,
+                    'order_note' => null,
+                    'payment_method' => 'cod',
+                    'sales_type' => $request->order_type,
+                    'pending_at' => Carbon::now(),
+                ]);
+    
+                foreach($cart_products as $product){
+                    $resale_prices = $product['reseller_price'] * $product['qty'];
+
+                    ProductResalePrice::create([
+                        'product_id'=> $product['product_id'],
+                        'customer_id'=> $customer['id'],
+                        'reseller_id'=> $user->id,
+                        'order_id'=> $order->id,
+    
+                        'main_rate' => $product['regular_price'],
+                        'resale_rate' => $product['reseller_price'],
+                        'resale_prices' => $resale_prices,
+                        'quantities' => $product['qty'],
+                        'resale_discount_amount' => ($product['qty'] * $product['regular_price']) - $resale_prices,
+                    ]);
+                }
+    
+                session()->forget("cart");
+                return redirect()->route('frontend.home')->withSuccessMessage("Order Placed Successfully!");
+                // break;
+            
+            default:
+                return redirect()->back()->withErrors('Please Select an `order type` and try again!');
+        }
     }
 }

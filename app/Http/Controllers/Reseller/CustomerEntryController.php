@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Reseller;
 
+use App\Helper\UserManagement;
 use App\helperClass;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerEntry;
 use App\Rules\ResellerRuleValidation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerEntryController extends Controller
 {
@@ -23,7 +25,13 @@ class CustomerEntryController extends Controller
     // Display a listing of the resource.
     public function index()
     {
-        return helperClass::resourceDataView(CustomerEntry::query(), ['name', 'phone', 'email'], null, $this->route_path);
+        $query = CustomerEntry::query();
+        
+        if(UserManagement::role('reseller')){
+            $query->where('reseller_id', Auth::id());
+        }
+
+        return helperClass::resourceDataView($query, ['name', 'phone', 'email'], null, $this->route_path);
     }
 
     // Show the form for creating a new resource.
@@ -37,7 +45,7 @@ class CustomerEntryController extends Controller
     {
         $request->validate(['name' => 'required', 'phone'=> 'required|unique:customer_entries,phone', 'reseller_id' => ['required', new ResellerRuleValidation]]);
 
-        return helperClass::resourceDataStore('customer_entries', $request, ['name', 'reseller_id', 'phone', 'email', 'address'], null, null, $this->route_path);
+        return helperClass::resourceDataStore('customer_entries', $request, ['name', 'reseller_id', 'phone', 'email', 'address', 'status'], null, null, $this->route_path);
     }
 
     // Display the specified resource.
@@ -70,7 +78,7 @@ class CustomerEntryController extends Controller
 
         $request->validate(['name' => 'required', 'phone'=> 'required']);
 
-        return helperClass::resourceDataUpdate('customer_entries', $id, $request, ['name', 'phone', 'email', 'address'], null, null, $this->route_path);
+        return helperClass::resourceDataUpdate('customer_entries', $id, $request, ['name', 'phone', 'email', 'address', 'status'], null, null, $this->route_path);
     }
 
     // Remove the specified resource from storage.

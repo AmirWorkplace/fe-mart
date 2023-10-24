@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CustomerEntry extends Model
 {
     use HasFactory;
-    protected $fillable = ['reseller_id', 'name', 'phone', 'email', 'address'];
+    protected $fillable = ['reseller_id', 'name', 'phone', 'email', 'address', 'status'];
 
     public function order(){
         $this->belongsTo(Order::class, 'customer_id');

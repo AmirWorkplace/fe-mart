@@ -2,6 +2,8 @@
   $first_variant = $product->stocks->first();
   $current_stock = $first_variant->qty - $first_variant->ordered;
   $is_available = $current_stock <= 0;
+
+  // $reseller = Auth::check() ? Auth::user()->role == 2 : false;
 @endphp
 
 <div>
@@ -16,7 +18,7 @@
               <img src="{{ asset($product->thumbnail) }}"
                   alt="{{ $product->name }}"></a>
           <div class="product-card__action">
-              <a href="#" class="quick-view"
+              <a href="#" class="quick-view" quick-view
                   data-id="{{ $product->id }}">
                   <i class="far fa-search"></i>
               </a>
@@ -44,20 +46,27 @@
           </div>
           <div class="product-card__price">
 
-            @if ($normal)
-                @if ($product->price->sale_price != $product->price->sale_price)
-                  <del class="price">৳
-                    {{ number_format($product->price->sale_price) }}
-                  </del>
-                @endif
+            @if ($reseller)
+              <span class="price">
+                ৳ {{ number_format($product->price->reseller_price) }}
+              </span>
             @else
-                <del class="price" style="color: #ce150f">৳
-                  {{ number_format($product->price->sale_price) }}
-                </del>
-            @endif
+              @if ($normal)
+                  @if ($product->price->vendor_price != $product->price->sale_price)
+                    <del class="price">
+                      ৳ {{ number_format($product->price->vendor_price) }}
+                    </del>
+                  @endif
+              @else
+                  <del class="price" style="color: #ce150f">
+                    ৳ {{ number_format($product->price->sale_price) }}
+                  </del>
+              @endif
                 
-              <span class="price">৳
-                  {{ number_format($product->price->offer_price) }}</span>
+              <span class="price">
+                ৳ {{ number_format($product->price->offer_price) }}
+              </span>
+            @endif
           </div>
           @if ($is_available)
               <a href="#" class="product-card__link">
@@ -65,12 +74,17 @@
                   <span>Stock Out</span>
               </a>
           @else
-              <a class="product-card__link"
-                  href="{{ Route('frontend.single-product', $product->slug) }}">
+              <a class="product-card__link" quick-view
+                  data-id="{{ $product->id }}"
+                  >
+                  {{-- href="{{ Route('frontend.single-product', $product->slug) }}"> --}}
                   <i class="novicon-cart"></i>
-                  <span>Select option</span>
+                  <span>Add to cart</span>
+                  
               </a>
           @endif
       </div>
   </div>
 </div>
+
+ 

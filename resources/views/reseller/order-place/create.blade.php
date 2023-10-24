@@ -82,7 +82,7 @@
                             </div>
 
                             <!-- Product Selection -->
-                            <div class="col-md-4 col-sm-6">
+                            <div class="col-md-8 col-sm-8">
                                 <label for="select_product" class="form-label require">
                                     <b>Product Name </b> <span class="text-sm px-1 text-danger"> </span>
                                 </label>
@@ -105,12 +105,13 @@
                             </div>
 
                             <!-- Shipping Address Charge -->
-                            <div class="col-md-4 col-sm-6">
+                            {{-- <div class="col-md-4 col-sm-6 hidden">
                                 <label for="shipping_charge" class="form-label require">
                                     <b>Shipping Charge</b>
                                 </label>
                                 <input type="number" value="0" class="form-control custom-input" id="shipping_charge" name="shipping_charge">
-                            </div>
+                            </div> --}}
+                            <input type="hidden" value="0" class="form-control custom-input" id="shipping_charge" name="shipping_charge">
 
                             <!-- Product Price DISABLED -->
                             <div class="col-md-3 col-sm-6">

@@ -16,6 +16,9 @@ Route::group(['as'=> 'admin.', 'prefix'=> 'reseller', 'middleware'=> ['admin_per
 
   // reseller or admin or others authenticate user will access
   Route::resource('/order-place', OrderPlaceController::class);
+  Route::get('/{user_name}/cart', [OrderPlaceController::class, 'resellerCart'])->name('reseller.cart');
+  Route::get('/{user_name}/checkout', [OrderPlaceController::class, 'resellerCheckout'])->name('reseller.checkout');
+  Route::post('/{user_name}/order-place', [OrderPlaceController::class, 'resellerOrderPlace'])->name('reseller.order-place');
 });
 
 

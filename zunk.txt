@@ -913,3 +913,109 @@ Route::get('/experiment/product', function () {
         // return helperClass::resourceDataStore('customer_entries', $request, ['name', 'reseller_id', 'phone', 'email', 'address'], null, null, $this->route_path);
         // $request->validate(['name' => 'required', 'phone'=> 'required']);
         // return helperClass::resourceDataUpdate('customer_entries', $id, $request, ['name', 'phone', 'email', 'address'], null, null, $this->route_path);
+        
+            // checkout form submit handler
+            // $('#checkout-form').submit(function(event){
+            //     // event.preventDefault();
+            //     //                 Swal.fire({
+            //     //   title: 'You have an account?',
+            //     //   showDenyButton: true,
+            //     //   showCancelButton: true,
+            //     //   confirmButtonText: '<a href="{{ route('customer.login') }}">Login</a>',
+            //     //   denyButtonText: `<a href="{{ route('customer.login') }}">Login</a>`,
+            //     // }).then((result) => {
+            //     //   /* Read more about isConfirmed, isDenied below */
+            //     //   if (result.isConfirmed) {
+            //     //     Swal.fire('Saved!', '', 'success')
+            //     //   } else if (result.isDenied) {
+            //     //     Swal.fire('Changes are not saved', '', 'info')
+            //     //   }
+            //     // });
+            //     // Swal.fire({
+            //     //     icon: 'success',
+            //     //     title: 'Place Order!',
+            //     //     text: 'You have an account?',
+            //     //     footer: '<a href="{{ route('customer.login') }}">Login</a>'
+            //     // });
+            //     // Swal.fire({
+            //     //         title: 'You have an account?',
+            //     //         showDenyButton: true,
+            //     //         showCancelButton: true,
+            //     //         confirmButtonText: $('#checkout-form').submit(),
+            //     //         denyButtonText: `<a href="{{ route('customer.login') }}">Login</a>`,
+            //     //     }).then((result) => {
+            //     //     /* Read more about isConfirmed, isDenied below */
+            //     //     if (result.isConfirmed) {
+            //     //         Swal.fire('Saved!', '', 'success')
+            //     //     } else if (result.isDenied) {
+            //     //         Swal.fire('Changes are not saved', '', 'info')
+            //     //     }
+            //     // })
+            // });
+
+
+        // $update_id = $request->id;
+        // $update_qty = $request->qty;
+        // $update_price = $request->price;
+
+            // $cart_product = $cart[$update_id];
+            // $cart_product['qty'] = $update_qty; , 'qty'=> [$update_qty, $cart_product['qty']], 'item'=> session()->get('cart')[$update_id]
+
+            // $("[product-quantities]").on('click', ".qty-plus", function(){
+            //     const inputEl = $($(this).attr("qty-input"));
+            //     const totalPriceId = $($(this).attr("total-price-id"));
+            //     const price = Number($(this).attr("price"));
+
+            //     inputEl.val(Number(inputEl.val()) + 1);
+
+            //     totalPriceId.html(Number(inputEl.val()) * price)
+
+            //     calculate();
+            // });
+
+            // $("[product-quantities]").on('click', ".qty-minus", function(){
+            //     const inputEl = $($(this).attr("qty-input"));
+            //     const totalPriceId = $($(this).attr("total-price-id"));
+            //     const price = Number($(this).attr("price"));
+
+            //     inputEl.val() > 1 && inputEl.val(Number(inputEl.val()) - 1);
+            //     totalPriceId.html(Number(inputEl.val()) * price);
+
+            //     calculate();
+            // });
+
+            // $(".checkout-delete-btn").click(function(){
+            //     const removeEl = $(this).attr("remove-cart-item");
+            //     $(removeEl).remove();
+
+            //     calculate();
+            // });
+
+            // function calculate(){
+            //     let subTotalPrices = 0, totalQty = 0;
+            //     $(".total_prices").each(function(index){
+            //         subTotalPrices += Number($($(".total_prices")[index]).html());
+            //     })
+
+            //     $(".quantity_wanted").each(function(index){
+            //         totalQty += Number($($(".quantity_wanted")[index]).val());
+            //     })
+
+            //     $("#total_qty").html(totalQty);
+            //     $("#all_total_price").html(subTotalPrices);
+            //     $("#total_cart_price").html(subTotalPrices);
+            // }
+                                                
+                                                {{-- @if (!Auth::check())
+                                                    <div class="col-12">
+                                                        <div class="row g-2 align-items-center">
+                                                            <label class="col-md-2 form-control-label" for="password">
+                                                                New Account Password
+                                                            </label>
+                                                            <div class="col-md-8">
+                                                                <input type="password" id="password" name="password"
+                                                                    placeholder="*******" class="form-control" required>
+                                                            </div> 
+                                                        </div>
+                                                    </div>
+                                                @endif --}}

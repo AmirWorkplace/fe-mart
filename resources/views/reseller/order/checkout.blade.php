@@ -1,3 +1,9 @@
+
+@php
+    $cart_total_price = 0;
+    $cart_total_qty = 0;
+@endphp
+
 @extends('layouts.frontend.app')
 @section('content')
     @include('layouts.frontend.partial.breadcrumb', [
@@ -49,7 +55,7 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-md-8">
-                    <form action="{{ Route('customer.checkout') }}" method="POST" id="checkout-form">
+                    <form action="{{ route('admin.reseller.order-place', $user_name) }}" method="POST" id="checkout-form">
                         @csrf
                         <div class="accordion checkout-accordion" id="accordionExample">
                             <div class="accordion-item">
@@ -58,163 +64,61 @@
                                         data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
                                         <h3 class="step-title h3">
                                             <span class="step-number">1</span>
-                                            <span class="title">Addresses</span>
+                                            <span class="title">Credentials</span>
                                         </h3>
                                         <span class="step-edit"><i class="material-icons edit">mode_edit</i> edit</span>
                                     </button>
                                 </h2>
                                 <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo"
                                     data-bs-parent="#accordionExample">
-                                    <div class="accordion-body">
+                                    <!-- Shipping Address Form -->
+                                    <div class="accordion-body" id="order_address_selection">
                                         <div class="content">
-                                            <div class="d-flex gap-4 mb-3">
-                                                <input type="hidden" name="shipping_address_id"
-                                                    value="{{ $shipping_address ? $shipping_address->id : '' }}">
-                                                <div class="flex-shrink-0 form-check deliver_location">
-                                                    <input class="form-check-input" type="radio" id="home"
-                                                        name="address_type"
-                                                        {{ ($shipping_address && $shipping_address->address_type == 'home') || is_null($shipping_address) ? 'checked' : '' }} value="home" required>
-                                                    <label class="form-check-label" for="home">
-                                                        Home
-                                                    </label>
-                                                </div>
-                                                <div class="flex-shrink-0 form-check deliver_location">
-                                                    <input class="form-check-input" type="radio" id="office"
-                                                        {{ $shipping_address && $shipping_address->address_type == 'office' ? 'checked' : '' }} name="address_type" value="office">
-                                                    <label class="form-check-label" for="office">
-                                                        Office
-                                                    </label>
+
+                                            <!-- Order Type Selection for Reseller -->
+                                            <div class="col-12">
+                                                <div class="row g-2 align-items-center">
+                                                    <label class="col-md-2 form-control-label required" 
+                                                        for="order_type">Select Order Type</label>
+                                                    <div class="col-md-8">
+                                                        <select name="order_type" id="order_type"
+                                                            class="form-select select2 text-dangerequiredr">
+                                                                <option value="0" selected>-- Select Order Type --</option>
+                                                                <option value="self">For Myself</option>
+                                                                <option value="new-business">Order with new Customer</option>
+                                                                <option value="business">Order with existing Customer</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2 label">
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="row g-3 mb-4 address">
-                                                <div class="col-12">
-                                                    <div class="row g-2 align-items-center">
-                                                        <label class="col-md-2 form-control-label required"
-                                                            for="name">Full
-                                                            Name</label>
-                                                        <div class="col-md-8">
-                                                            <input type="text" id="name" name="name"
-                                                                placeholder="Full Name" class="form-control"
-                                                                value="{{ $shipping_address ? $shipping_address->name : old('name') }}"
-                                                                required>
-                                                        </div>
-                                                        <div class="col-md-2 label">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="row g-2 align-items-center">
-                                                        <label class="col-md-2 form-control-label required"
-                                                            for="phone">Phone
-                                                            Number</label>
-                                                        <div class="col-md-8">
-                                                            <input type="number" id="phone" name="phone"
-                                                                placeholder="Phone Number" class="form-control"
-                                                                value="{{ $shipping_address ? $shipping_address->phone : old('phone') }}"
-                                                                required>
-                                                        </div>
-                                                        <div class="col-md-2 label">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="row g-2 align-items-center">
-                                                        <label class="col-md-2 form-control-label" for="email">Email
-                                                            Address</label>
-                                                        <div class="col-md-8">
-                                                            <input type="email" id="email" name="email"
-                                                                placeholder="Email Address" class="form-control"
-                                                                value="{{ $shipping_address ? $shipping_address->email : old('email') }}">
-                                                        </div>
-                                                        <div class="col-md-2 label">
-                                                            Optional
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="row g-2 align-items-center">
-                                                        <label class="col-md-2 form-control-label required" required
-                                                            for="division">Division</label>
-                                                        <div class="col-md-8">
-                                                            <select name="division" id="division"
-                                                                class="form-select select2">
-                                                                <option value="">-- Select Division --</option>
-                                                                @foreach ($divisions as $division)
-                                                                    <option value="{{ $division->id }}"
-                                                                        {{ $shipping_address && $shipping_address->division_id == $division->id ? 'selected' : '' }}>
-                                                                        {{ $division->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-2 label">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="row g-2 align-items-center">
-                                                        <label class="col-md-2 form-control-label required" required
-                                                            for="district">District </label>
-                                                        <div class="col-md-8">
-                                                            <select name="district" id="district"
-                                                                class="form-select select2">
-                                                                @if ($selected_district)
-                                                                    <option value="{{ $selected_district->id }}" selected>
-                                                                        {{ $selected_district->name }}</option>
-                                                                @else
-                                                                    <option value="">-- Select District --</option>
-                                                                @endif
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-2 label">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="row g-2 align-items-center">
-                                                        <label class="col-md-2 form-control-label required"
-                                                            for="upozila">Upozila </label>
-                                                        <div class="col-md-8">
-                                                            <select name="upozila" id="upozila" required
-                                                                class="form-select select2">
-                                                                @if ($selected_upozila)
-                                                                    <option value="{{ $selected_upozila->id }}" selected>
-                                                                        {{ $selected_upozila->name }}</option>
-                                                                @else
-                                                                    <option value="">-- Select Upozila --</option>
-                                                                @endif
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-2 label">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="row g-2 align-items-center">
-                                                        <label class="col-md-2 form-control-label required"
-                                                            for="street">Street </label>
-                                                        <div class="col-md-8">
-                                                            <textarea name="street" id="street" class="form-control" cols="30" rows="3" required
-                                                                placeholder="Street Address">{{ $shipping_address ? $shipping_address->street : '' }}</textarea>
-                                                        </div>
-                                                        <div class="col-md-2 label">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                {{-- @if (!Auth::check())
-                                                    <div class="col-12">
-                                                        <div class="row g-2 align-items-center">
-                                                            <label class="col-md-2 form-control-label" for="password">
-                                                                New Account Password
-                                                            </label>
-                                                            <div class="col-md-8">
-                                                                <input type="password" id="password" name="password"
-                                                                    placeholder="*******" class="form-control" required>
-                                                            </div> 
-                                                        </div>
-                                                    </div>
-                                                @endif --}}
 
+                                            <!-- Create New Customer -->
+                                            <div class="d-none" id="shipping_address_box">
+                                                @include('components.reseller.shipping_address_form')
+                                            </div>
+
+                                            <!-- Customer Name -->
+                                            <div class="d-none" id="customer_selection_box">
+                                                <div class="col-12 mt-2">
+                                                    <div class="row g-2 align-items-center">
+                                                        <label class="col-md-2 form-control-label required"
+                                                            for="select_customer">Select Your Customer</label>
+                                                        <div class="col-md-8">
+                                                            <select name="select_customer" id="select_customer"
+                                                                class="form-select select2">
+                                                                    <option hidden>Customer Name</option>
+                                                                    @foreach ($get_customer as $customer)
+                                                                        <option value="{{ $customer }}">{{ $customer->name }}</option>
+                                                                    @endforeach
+                                                                    <option {{ count($get_customer) > 0 ? 'hidden' : 'selected' }}>No Customer Available Here!</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-2 label">
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -310,6 +214,12 @@
                                                 <ul class="cart-items">
                                                     @if (!is_null($cart) && count($cart) > 0)
                                                         @foreach ($cart as $key => $item)
+                                                            @php 
+                                                                $price = $reseller ? (isset($item['reseller_price']) ? $item['reseller_price'] : $item['price']) :  $item['price'];
+                                                                                    
+                                                                $cart_total_price += $price * $item['qty'];
+                                                                $cart_total_qty += $item['qty'];
+                                                            @endphp
                                                             <li class="cart-item remove_cart_id__{{ $key }}" 
                                                                 id="page_cart_item_{{ $key }}">
                                                                 <div class="product-line-grid row g-2 align-items-center">
@@ -347,13 +257,12 @@
                                                                                     <span
                                                                                         class="title_price d-md-none">Price</span>
                                                                                     <span class="value">৳ 
-                                                                                        {{ $item['price'] }}
+                                                                                        {{ $price }}
                                                                                     </span>
                                                                                 </div>
                                                                                 <div class="qty mx-auto">
                                                                                     <div class="text-muted"> x
-                                                                                        <input type="number" disabled value="{{ $item['qty'] }}" class="product_qty__{{ $key }} custom-input qty-input">
-                                                                                        {{-- <span class="product_qty__{{ $key }}">{{ $item['qty'] }}</span> --}}
+                                                                                        <input type="number" disabled value="{{ $item['qty'] }}" class="product_qty__{{ $key }} custom-input qty-input"> 
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -364,7 +273,7 @@
                                                                             <div
                                                                                 class="product-price total text-muted text-end">
                                                                                 ৳ <span class="product_price__{{ $key }}">
-                                                                                    {{ $item['price'] * $item['qty'] }}
+                                                                                    {{ $price * $item['qty'] }}
                                                                                 </span>
                                                                             </div>
                                                                         </div>
@@ -402,15 +311,12 @@
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" name="sub_total" class="total_cart_price" value="{{ $cart_total_price }}">
                     </form>
                 </div>
                 <div class="col-md-4">
                     <div class="cart-summary">
                         <div class="cart-detailed-totals">
-                            @php
-                                $cart_total_price = 0;
-                                $cart_total_qty = 0;
-                            @endphp
                             @if (is_null($cart) || count($cart) == 0)
                                 <h4 class="mb-4 mt-3 text-uppercase px-4">No products in the cart</h4>
                             @else
@@ -420,8 +326,9 @@
                                     </div>
                                     @foreach ($cart as $key => $item)
                                         @php
-                                            $cart_total_price += $item['price'] * $item['qty'];
-                                            $cart_total_qty += $item['qty'];
+                                            $price = $reseller ? (isset($item['reseller_price']) ? $item['reseller_price'] : $item['price']) :  $item['price'];
+                                            // $cart_total_price += $price * $item['qty'];
+                                            // $cart_total_qty += $item['qty'];
                                         @endphp
                                         <div class="pt-3 remove_cart_id__{{ $key }}" id="cart-summary-product-list">
                                             <ul class="media-list">
@@ -436,10 +343,10 @@
 
                                                                     <span class="input-group-btn-vertical">
                                                                         <button class="btn btn-touchspin qty-plus" data-id="{{ $item['variant_id'] }}" 
-                                                                          qty-input=".product_qty__{{ $key }}" price="{{ $item['price'] }}" total-price-id=".product_price__{{ $key }}" type="button">
+                                                                          qty-input=".product_qty__{{ $key }}" price="{{ $price }}" total-price-id=".product_price__{{ $key }}" type="button">
                                                                             <i class="fal fa-plus"></i></button>
 
-                                                                        <button class="btn btn-touchspin qty-minus bootstrap-touchspin-down" price="{{ $item['price'] }}" data-id="{{ $item['variant_id'] }}" 
+                                                                        <button class="btn btn-touchspin qty-minus bootstrap-touchspin-down" price="{{ $price }}" data-id="{{ $item['variant_id'] }}" 
                                                                           type="button" qty-input=".product_qty__{{ $key }}" total-price-id=".product_price__{{ $key }}">
                                                                             <i class="fal fa-minus"></i>
                                                                         </button>
@@ -470,7 +377,7 @@
                                                                     <span>{{ $attribute }}</span>
                                                                 @endforeach
                                                             </div>
-                                                            <span>Price: ৳ <span>{{ $item['price'] }}</span></span>
+                                                            <span>Price: ৳ <span>{{ $price }}</span></span>
                                                         </div>
                                                         <div>
                                                             <div class="checkout-delete-btn cart_item_remove" remove-cart-item=".remove_cart_id__{{ $key }}" id="{{ $item['variant_id'] }}">
@@ -478,7 +385,7 @@
                                                             </div>
                                                             <div class="product-quantity">Total:</div>
                                                             <div class="product-price pull-xs-right d-flex gap-1">
-                                                                <span>৳</span> <span class="total_prices product_price__{{ $key }}">{{ $item['price'] * $item['qty'] }}</span>
+                                                                <span>৳</span> <span class="total_prices product_price__{{ $key }}">{{ $price * $item['qty'] }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -541,6 +448,34 @@
     
     <script type="text/javascript">
         $(document).ready(function() {
+
+            // Customer Selection Started
+            $("#order_address_selection #order_type").change(function(){
+                switch ($(this).val()) {
+                    case 'self':
+                        $('#shipping_address_box').addClass('d-none');
+                        $('#customer_selection_box').addClass('d-none');
+                        break;
+                        
+                    case 'new-business':
+                        $('#shipping_address_box').removeClass('d-none');
+                        $('#customer_selection_box').addClass('d-none');
+                        break;
+                        
+                    case 'business':
+                        $('#shipping_address_box').addClass('d-none');
+                        $('#customer_selection_box').removeClass('d-none');
+                        break; 
+
+                    default:
+                        $('#shipping_address_box').addClass('d-none');
+                        $('#customer_selection_box').addClass('d-none');
+                        break;
+                }
+            });
+
+            // Customer Selection Ended
+            
 
             $(document).on('change', '#division', function(e) {
                 let id = $(this).val();
