@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helper\UserManagement;
 use App\helperClass;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -64,15 +65,15 @@ class ResellerController extends Controller
             }) 
             ->addColumn('actions', function($row){
                 $actionBtn = '<div class="btn-group">';
-                    if(!in_array('System Admin',json_decode($row->getRoleNames())) && Auth::user()->hasRole('System Admin') || Auth::user()->can('admin.reseller.edit') && !in_array('System Admin',json_decode($row->getRoleNames()))){
+                    if(!in_array('System Admin',json_decode($row->getRoleNames())) && UserManagement::role('System Admin') || Auth::user()->can('admin.reseller.edit') && !in_array('System Admin',json_decode($row->getRoleNames()))){
                         $actionBtn .= '<a href="'.Route('admin.reseller.edit', $row->id).'" class="btn btn-sm btn-warning border-0 px-10px fs-15 link-edit"><i class="far fa-pencil-alt"></i></a>';
                     }
 
-                    if(!in_array('System Admin',json_decode($row->getRoleNames())) && Auth::user()->hasRole('System Admin') || Auth::user()->can('admin.reseller.password') && !in_array('System Admin',json_decode($row->getRoleNames()))){
+                    if(!in_array('System Admin',json_decode($row->getRoleNames())) && UserManagement::role('System Admin') || Auth::user()->can('admin.reseller.password') && !in_array('System Admin',json_decode($row->getRoleNames()))){
                         $actionBtn .= '<a href="'.Route('admin.reseller.password', $row->id).'" class="btn btn-sm btn-warning border-0 px-10px fs-15 bg-success"><i class="fal fa-key"></i></a>';
                     }
 
-                    if(!in_array('System Admin',json_decode($row->getRoleNames())) && Auth::user()->hasRole('System Admin') || Auth::user()->can('admin.user.destroy') && !in_array('System Admin',json_decode($row->getRoleNames()))){
+                    if(!in_array('System Admin',json_decode($row->getRoleNames())) && UserManagement::role('System Admin') || Auth::user()->can('admin.user.destroy') && !in_array('System Admin',json_decode($row->getRoleNames()))){
                         $actionBtn .= '<button type="button" class="btn btn-sm btn-danger border-0 px-10px fs-15 link-delete" data-url="'.Route('admin.user.destroy', $row->id).'"><i class="far fa-trash-alt"></i></button>';
                     }
                     $actionBtn .= '</div>';
@@ -208,27 +209,18 @@ class ResellerController extends Controller
                 'email' => 'required|unique:users,email',
             ]);    
         }
-        // return response()->json([$request, $reseller]);
-
-
         $request->validate([
             'name' => 'required',
             'city' => 'required',
             'phone' => 'required',
             'shop_name' => 'required',
-            // 'password' => 'required|min:8',
-            // 'confirm_password' => 'required|min:8',
         ]);
 
         // if($request->password != $request->confirm_password) return redirect()->back()->withErrors('Your `password` and `confirm password` did not match!');
+            // 'password' => 'required|min:8',
+            // 'confirm_password' => 'required|min:8',
 
-        // $password =  Hash::make($request->password);
-
-        $old_image = $reseller->image;
-        $old_cover_image = $reseller->cover_image;
-
-        $image = helperClass::saveImage($request->file('image'), 'media/reseller/', $old_image);
-        $cover_image = helperClass::saveImage($request->file('cover_image'), 'media/reseller/', $old_cover_image);
+        // return response()->json([$request, $reseller]);
 
         // $reseller->update([
         //     'name' => $request->name,
@@ -243,6 +235,15 @@ class ResellerController extends Controller
         //     'image' => $image,
         //     'cover_image' => $cover_image,
         // ]);
+
+
+        // $password =  Hash::make($request->password);
+
+        $old_image = $reseller->image;
+        $old_cover_image = $reseller->cover_image;
+
+        $image = helperClass::saveImage($request->file('image'), 'media/reseller/', $old_image);
+        $cover_image = helperClass::saveImage($request->file('cover_image'), 'media/reseller/', $old_cover_image);
 
         $reseller->name = $request->name;
         $reseller->email = $request->email;

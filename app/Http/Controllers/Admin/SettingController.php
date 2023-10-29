@@ -172,6 +172,9 @@ class SettingController extends Controller
         $setting->placeholder = $placeholder_image;
         $setting->banner_one = $banner_one_image;
         $setting->banner_two = $banner_two_image;
+        $setting->delivery_charge = $request->delivery_charge;
+        $setting->inside_dhaka_charge = $request->inside_dhaka_charge;
+        $setting->outside_dhaka_charge = $request->outside_dhaka_charge;
         $setting->save();
 
         return redirect()->back()->withSuccessMessage('Updated Successfully!');

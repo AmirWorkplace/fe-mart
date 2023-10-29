@@ -13,26 +13,28 @@ class UserManagement {
   public static function role(array|string $role) {
     $match_role = ['admin', 'customer', 'user', 'reseller', 'System Admin', 'Reseller Admin'];
 
-    if(is_string($role)){
-      if(!in_array($role, $match_role)) return false;
+    if(Auth::check()) {
+      if(is_string($role)){
+        if(!in_array($role, $match_role)) return false;
 
-      switch ($role) {
-        case 'admin':
-        case 'System Admin':
-          return Auth::user()->hasRole('System Admin');
+        switch ($role) {
+          case 'admin':
+          case 'System Admin':
+            return Auth::user()->hasRole('System Admin');
 
-        case 'reseller':
-        case 'Reseller Admin':
-          return Auth::user()->hasRole('Reseller Admin');
+          case 'reseller':
+          case 'Reseller Admin':
+            return Auth::user()->hasRole('Reseller Admin');
 
-        case 'user':
-          return Auth::check();
+          case 'user':
+            return Auth::check();
 
-        case 'customer':
-          return Auth::user()->role == 0;
+          case 'customer':
+            return Auth::user()->role == 0;
 
-        default:
-          return false;
+          default:
+            return false;
+        }
       }
     }
 

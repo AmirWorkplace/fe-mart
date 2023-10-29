@@ -340,12 +340,17 @@ class FrontpageController extends Controller
 
     // update session cart product
     public function updateCart(Request $request){
+        // return $request->all();
         $cart = session()->get('cart');
 
         if(!$cart) return response()->json(['status'=> true, 'message'=> 'There are no items available in your cart!']);
         
         if(isset($cart[$request->id])){
             $cart[$request->id]['qty'] = $request->qty;
+            
+            if($request->price){
+                $cart[$request->id]['price'] = $request->price;
+            }
             
             session()->put('cart', $cart);
             return response()->json(['status'=> true, 'message'=> 'Cart items updated!']);

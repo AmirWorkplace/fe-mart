@@ -205,7 +205,12 @@
                         </div>
                     </div>
                     <div id="categories-product" class="pt-4">
-                        <div class="products product_list row g-lg-4 g-3 grid">
+                        {{-- <div class="products product_list row g-lg-4 g-3 grid"> --}}
+                        <div class="carousel product-card__carousel" data-timeout="4000"
+                            data-rows="2"
+                            data-arrows="false" data-dots="false" data-autoplay="true"
+                            data-infinite="true" data-items="4" data-xl-items="4" data-lg-items="3"
+                            data-md-items="3" data-sm-items="2" data-xs-items="2">
                             @foreach ($products as $product)
                                 @include('components.product_card', ["product"=> $product, "normal"=> true])
                             @endforeach

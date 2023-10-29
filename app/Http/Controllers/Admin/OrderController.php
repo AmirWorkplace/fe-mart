@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -29,15 +30,21 @@ class OrderController extends Controller
                 ->addColumn('order_products', function ($row) {
                     return count($row->products);
                 })
-                ->addColumn('order_date', function ($row) {
-                    // return date('d M Y h:i A', $row->created_at);
-                    return 0;
+                ->addColumn('product_names', function ($row) {
+                    if($row->product_ids){
+                        $products = Product::select('id', 'name')->whereIn('id', json_decode($row->product_ids, true))->where('status', true)->get();
+                        $products_name = $products->pluck('name')->toArray();
+
+                        return implode(", ", $products_name);
+                    }
+
+                    return 'Product Name missing';
                 })
                 ->addColumn('order_status', function ($row) {
                     if ($row->status == 'Canceled') {
                         $status = '<span class="btn btn-xs text-white bg-danger">Canceled</span>';
-                    } elseif ($row->status == 'Successed') {
-                        $status = '<span class="btn btn-xs text-white bg-success">Successed</span>';
+                    } elseif ($row->status == 'Delivered') {
+                        $status = '<span class="btn btn-xs text-white bg-success">Delivered</span>';
                     } else {
                         $status = '<select name="status" class="form-select select2 order_status fs-14" data-id="' . $row->id . '">';
 
@@ -64,7 +71,7 @@ class OrderController extends Controller
                             $status .= ' selected disabled';
                         }
                         $status .= ' value="Delivered">Delivered</option>';
-                        $status .= '<option value="Successed">Successed</option>';
+                        // $status .= '<option value="Successed">Successed</option>';
                         $status .= '<option value="Canceled">Canceled</option>';
 
                         $status .= '</select>

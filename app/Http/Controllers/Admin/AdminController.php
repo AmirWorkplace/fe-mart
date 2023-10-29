@@ -193,11 +193,14 @@ class AdminController extends Controller
 
         if($reseller){
             $reseller->shop_name = $request->shop_name;
-            $reseller->mobile_bank_type = $request->mobile_bank_type;
-            $reseller->mobile_bank_number = $request->mobile_bank_number;
             $reseller->bank_name = $request->bank_name;
             $reseller->bank_account = $request->bank_account;
+            $reseller->bank_branch_name = $request->bank_branch_name;
             $reseller->shop_utility = $request->shop_utility;
+            $reseller->bkash = $request->bkash;
+            $reseller->nagad = $request->nagad;
+            $reseller->rocket = $request->rocket;
+            $reseller->upay = $request->upay;
             $reseller->website_url = $request->website_url;
 
             $reseller->save();

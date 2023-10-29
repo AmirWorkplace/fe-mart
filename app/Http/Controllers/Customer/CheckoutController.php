@@ -59,8 +59,10 @@ class CheckoutController extends Controller
         ]);
 
         $cart = session()->get('cart');
+        // return $cart;
         if (!is_null($cart) && count($cart) > 0) {
 
+            $product_ids = array();
             $total_cart_price = 0;
             foreach ($cart as $key => $item) {
                 $variant = ProductStock::findOrFail($item['variant_id']);
@@ -75,6 +77,8 @@ class CheckoutController extends Controller
                     return redirect()->back()->withErrors($variant->product->name . ' is Out of Stock!');
                 }
                 $total_cart_price += $item['price'] * $item['qty'];
+
+                if(!in_array($item['product_id'], $product_ids)) $product_ids[] = $item['product_id'];
             }
 
             if (!Auth::user()) {
@@ -161,6 +165,7 @@ class CheckoutController extends Controller
 
             $order = Order::create([
                 'order_id' => mt_rand(111111, 999999),
+                'product_ids'=> json_encode($product_ids),
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'user_phone' => $user->phone,

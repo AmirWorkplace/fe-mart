@@ -1,3 +1,5 @@
+@php $discount = 0; @endphp
+
 <!doctype html>
 <html class="no-js" lang="en">
 
@@ -26,7 +28,7 @@
                                         <tbody>
                                             <tr>
                                                 <td class="p-0">
-                                                    <img src="{{ !is_null($setting) ? asset($setting->logo) : asset('frontend/assets/images/logo/logo.png') }}"
+                                                    <img src="{{ file_exists($data->image) ? asset($data->image) : (!is_null($setting) ? asset($setting->logo) : asset('frontend/assets/images/logo/logo.png')) }}"
                                                         width="260" alt="Logo">
                                                 </td>
                                             </tr>
@@ -63,23 +65,19 @@
                                     <h5>SHIPPING INFORMATION:</h5>
                                     <div class="">
                                         <label class="form-label"><b>Name : </b></label>
-                                        <span>{{ isset($data->name) ? $data->name : '---' }}</span>
+                                        <span>{{ isset($customer['name']) ? $customer['name'] : (isset($data->name) ? $data->name : '---') }}</span>
                                     </div>
                                     <div class="">
                                         <label class="form-label"><b>Phone : </b></label>
-                                        <span>{{ isset($data->phone) ? $data->phone : '---' }}</span>
+                                        <span>{{ isset($customer['phone']) ? $customer['phone'] : (isset($data->phone) ? $data->phone : '---') }}</span>
                                     </div>
                                     <div class="">
                                         <label class="form-label"><b>Email : </b></label>
-                                        <span>{{ isset($data->email) ? $data->email : '---' }}</span>
+                                        <span>{{ isset($customer['email']) ? $customer['email'] : (isset($data->email) ? $data->email : '---') }}</span>
                                     </div>
-                                    {{-- <div class="">
-                                        <label class="form-label"><b>Pickup : </b></label>
-                                        <span>{{ $order->reseller->O }}</span>
-                                    </div> --}}
                                     <div class="">
                                         <label class="form-label"><b>Address : </b></label>
-                                        <span>{{ isset($data->address) ? $data->address : '---' }}</span>
+                                        <span>{{ isset($customer['address']) ? $customer['address'] : (isset($data->address) ? $data->address : '---') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -148,26 +146,10 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($selected_products as $key => $selected_product)
+                                        @php $discount += $selected_product->resale_discount_amount; @endphp
                                         <tr>
                                             <td class="text-center">{{ $key + 1 }}</td>
                                             <td>{{ $selected_product->product->name }}
-                                                {{-- @if ($selected_product->product->variant_product)
-                                                    @php
-                                                        $attribute_names = [];
-                                                        $values = explode('-', $selected_product->product->variant_product);
-                                                    @endphp
-                                                    @foreach (json_decode($product->product->choice_options) as $key => $choice)
-                                                        @php
-                                                            $attribute_names[] = \App\Models\Attribute::find($choice->attribute_id)->name;
-                                                        @endphp
-                                                    @endforeach
-                                                    <div class="text-xxs pt-1">
-                                                        @foreach ($attribute_names as $key => $name)
-                                                            {{ $key > 0 ? ', ' : '' }} {{ $name }} :
-                                                            {{ $values[$key] }}
-                                                        @endforeach
-                                                    </div>
-                                                @endif  * $selected_product->quantities--}}
                                             </td>
                                             <td>{{ $selected_product->main_rate }}</td>
                                             <td>{{ $selected_product->resale_rate }}</td>
@@ -185,8 +167,9 @@
                                 <tfoot class="text-end">
                                     <tr>
                                         <td class="text-nowrap" colspan="7">Sub total :</td>
-                                        <td class="text-nowrap" colspan="1">{{ number_format($order->sub_total + $order->discount) }}
-                                            TK.</td>
+                                        <td class="text-nowrap" colspan="1">
+                                            {{ number_format($order->sub_total + ($order->discount ? $order->discount : $discount)) }} TK.
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="text-nowrap" colspan="7">Shipping Charge :</td>
@@ -195,7 +178,7 @@
                                     </tr>
                                     <tr>
                                         <td class="text-nowrap" colspan="7">Discount :</td>
-                                        <td class="text-nowrap" colspan="1">{{ number_format($order->discount) }}
+                                        <td class="text-nowrap" colspan="1">{{ number_format($order->discount ? $order->discount : $discount) }}
                                             TK.</td>
                                     </tr>
                                     <tr>

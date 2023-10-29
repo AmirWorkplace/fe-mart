@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reseller;
 
+use App\Helper\AdditionalDataResource;
 use App\Helper\UserManagement;
 use App\helperClass;
 use App\Http\Controllers\Controller;
@@ -12,6 +13,7 @@ use App\Models\Product;
 use App\Models\ProductResalePrice;
 use App\Models\ShippingAddress;
 use App\Models\User;
+use App\Models\Withdraw;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +41,7 @@ class OrderPlaceController extends Controller
         }
 
         if (request()->ajax()) {
-            return DataTables::eloquent($model)
+            return DataTables::eloquent($model->latest('id'))
                 ->filter(function ($query) {
                     if (!empty(request('start_date')) && !empty(request('end_date'))) {
                         $query->where('created_at', '>=', request('start_date'))->where('created_at', '<=', request('end_date'));
@@ -56,8 +58,8 @@ class OrderPlaceController extends Controller
                 ->addColumn('order_status', function ($row) {
                     if ($row->status == 'Canceled') {
                         $status = '<span class="btn btn-xs text-white bg-danger">Canceled</span>';
-                    } elseif ($row->status == 'Successed') {
-                        $status = '<span class="btn btn-xs text-white bg-success">Succeed</span>';
+                    } elseif ($row->status == 'Delivered') {
+                        $status = '<span class="btn btn-xs text-white bg-success">Delivered</span>';
                     } else {
                         $status = '<select name="status" class="form-select select2 order_status fs-14" data-id="' . $row->id . '">';
 
@@ -84,7 +86,6 @@ class OrderPlaceController extends Controller
                             $status .= ' selected disabled';
                         }
                         $status .= ' value="Delivered">Delivered</option>';
-                        $status .= '<option value="Successed">Succeed</option>';
                         $status .= '<option value="Canceled">Canceled</option>';
 
                         $status .= '</select>
@@ -92,20 +93,26 @@ class OrderPlaceController extends Controller
                     }
                     return $status;
                 })
-                ->addColumn('order_date', function ($row) {
-                    return Carbon::parse($row->created_at)->format('d M Y | h:i A');
+                ->addColumn('sub_total', function ($row) {
+                    return number_format($row->sub_total, 2) . ' Tk.';
+                })
+                ->addColumn('product_names', function ($row) {
+                    $products = Product::select('id', 'name')->whereIn('id', json_decode($row->product_ids, true))->where('status', true)->get();
+                    $products_name = $products->pluck('name')->toArray();
+
+                    return implode(", ", $products_name);
                 })
                 ->addColumn('actions', function ($row) {
                     $edit_route = Route("{$this->route_path['route']}.edit", $row->id);
                     $show_route = Route("{$this->route_path['route']}.show", $row->id);
 
                     $actionBtn = '<div class="btn-group">
-                        <a href="' . $edit_route . '" class="btn btn-sm btn-success border-0 px-10px fs-15"><i class="fas fa-eye"></i></a>
-                        <a href="' . $show_route . '" target="_blank" class="btn btn-sm btn-info text-white border-0 px-10px fs-15"><i class="fas fa-print"></i></a>
-                    </div>';
+                                    <a href="' . $edit_route . '" class="btn btn-sm btn-success border-0 px-10px fs-15"><i class="fas fa-eye"></i></a>
+                                    <a href="' . $show_route . '" target="_blank" class="btn btn-sm btn-info text-white border-0 px-10px fs-15"><i class="fas fa-print"></i></a>
+                                </div>';
                     return $actionBtn;
                 })
-                ->rawColumns(['checkbox', 'order_date',  'order_status','actions'])
+                ->rawColumns(['checkbox', 'sub_total', 'product_names', 'order_status','actions'])
                 ->make(true);
         }
         return view("{$this->route_path['view']}.index");
@@ -130,28 +137,47 @@ class OrderPlaceController extends Controller
                 'sub_total' => 'required',
                 'total' => 'required',
                 'discount' => 'required',
+                'sales_type' => 'required',
             ]);
+
+            $amount = $request->sub_total;
+            $status = 'Pending';
+            $status_time = ['pending_at' => Carbon::now()];
+            $free_delivery = ($request->free_delivery === 'true' || $request->free_delivery === true) ? $request->delivery_charge : 0;
+            $delivery_charge = ($request->free_delivery === 'false' || $request->free_delivery === false) ? $request->delivery_charge : 0;
+
+            $customer_id = $user->id;
+            $customer_name = $user->name;
+            $customer_phone = $user->phone ?? 0;
+
+            if($request->order_type != 'self'){
+                $customer = CustomerEntry::select('id', 'name', 'phone')->where('id', $request->customer_id)->first();
+                $customer_id = $customer->id; 
+                $customer_name = $customer->name; 
+                $customer_phone = $customer->phone ?? 0; 
+            } 
 
             $order = Order::create([
                 'order_id' => mt_rand(111111, 999999),
                 'user_id' => $user->id,
-                'customer_id' => isset($request->customer_id) ? $request->customer_id : null,
+                'customer_id' => $customer_id,
                 'price_ids' => $request->price_ids,
                 'product_ids' => $request->product_ids,
-                'user_name' => $user->name,
-                'user_phone' => $user->phone ? $user->phone : 0,
+                'user_name' => $customer_name,
+                'user_phone' => $customer_phone,
                 'order_code' => 'R' . mt_rand(111111, 999999),
-                'shipping_charge' => $request->shipping_charge,
-                'sub_total' => $request->sub_total,
-                'total' => $request->total,
+                'shipping_charge' => $delivery_charge,
+                'sub_total' => $amount,
+                'total' => $free_delivery,
                 'discount' => $request->discount,
                 'paid' => 0,
-                'due' => $request->sub_total,
+                'due' => $amount,
                 'coupon_id' => NULL,
                 'order_note' => NULL,
                 'payment_method' => $request->order_type,
                 'sales_type' => $request->sales_type,
-                'pending_at' => Carbon::now(),
+                'status' => $status,
+                ...$status_time,
             ]);
 
             $product_ids = json_decode($request->product_ids, true);
@@ -159,16 +185,38 @@ class OrderPlaceController extends Controller
             foreach($product_ids as $product_id){
                 ProductResalePrice::create([
                     'product_id'=> $product_id,
-                    'customer_id'=> $request->customer_id,
+                    'customer_id'=> $customer_id,
                     'reseller_id'=> $user->id,
                     'order_id'=> $order->id,
 
-                    'main_rate' => $request["product_{$product_id}_rate"],
+                    'main_rate' => $request["product_main{$product_id}_rate"],
                     'resale_rate' => $request["product_resale_{$product_id}_rate"],
                     'resale_prices' => $request["product_{$product_id}_amount"],
                     'quantities' => $request["product_{$product_id}_quantities"],
                     'resale_discount_amount' => $request["product_{$product_id}_discount"],
                 ]);
+            }
+
+            if($request->sales_type == 'adjustment'){
+                $balance = AdditionalDataResource::getResellerEarning()['reserve_amount'];
+
+                if($order){
+                    if($balance <= intval($amount)){
+                        return redirect()->route('admin.order-place.create')->withErrors('You do not have enough balance for adjustment this order!');
+                    }
+    
+                    Withdraw::create([
+                        'user_id' => $user->id,
+                        'total_earning' => $balance,
+                        'withdrawal_method' => 'Adjustment Order',
+                        'withdraw_amount' => ($order->shipping_charge + $order->sub_total + $order->total) - $order->discount,
+                        'account_number' => '...',
+                        'status' => 'Succeed'
+                    ]);
+    
+                    $status = 'Delivered';
+                    $status_time = ['delivered_at' => Carbon::now()];
+                }
             }
 
             // clear cart
@@ -182,16 +230,18 @@ class OrderPlaceController extends Controller
     {
         $selected_products = array();
         $order = Order::findOrFail($id);
-        $data = User::with('reseller')->where('id', $id)->first();
-        if(!$data){
-            $data = Auth::user();
+        $data = Auth::user();
+        $customer = array();
+
+        if($order->customer_id != $order->user_id){
+            $customer = CustomerEntry::findOrFail($order->customer_id);
         }
         
         if(is_array(json_decode($order->product_ids))){
             $selected_products = ProductResalePrice::with('product')->where('order_id', $id)->latest('updated_at')->get();
         } 
 
-        return view("{$this->route_path['view']}.print", compact('selected_products', 'order', 'data'));
+        return view("{$this->route_path['view']}.print", compact('selected_products', 'order', 'data', 'customer'));
     }
 
     // Show the form for editing the specified resource.
@@ -210,7 +260,8 @@ class OrderPlaceController extends Controller
             $selected_products = ProductResalePrice::with('product')->where('order_id', $id)->latest('updated_at')->get();
         }
 
-        return view("{$this->route_path['view']}.edit", compact('data', 'selected_products'));
+        // return view("{$this->route_path['view']}.edit", compact('data', 'selected_products'));
+        return redirect()->route($this->route_path['route'] . ".index");
     }
 
     // Update the specified resource in storage.
@@ -228,7 +279,11 @@ class OrderPlaceController extends Controller
                 'discount' => 'required',
             ]);
 
-            $order->customer_id = $request->customer_id;
+            $customer = CustomerEntry::select('id', 'name', 'phone')->where('id', $request->customer_id)->first();
+
+            $order->customer_id = $customer->id;
+            $order->user_name = $customer->name;
+            $order->phone = $customer->phone;
             $order->price_ids = $request->price_ids;
             $order->product_ids = $request->product_ids;
             $order->shipping_charge = $request->shipping_charge;
@@ -247,10 +302,10 @@ class OrderPlaceController extends Controller
                     ProductResalePrice::create([
                         'product_id'=> $product_id,
                         'reseller_id'=> Auth::id(),
-                        'customer_id'=> $request->customer_id,
+                        'customer_id'=> $customer->id,
                         'order_id'=> $order->id,
 
-                        'main_rate' => $request["product_{$product_id}_rate"],
+                        'main_rate' => $request["product_main{$product_id}_rate"],
                         'resale_rate' => $request["product_resale_{$product_id}_rate"],
                         'resale_prices' => $request["product_{$product_id}_amount"],
                         'quantities' => $request["product_{$product_id}_quantities"],
@@ -268,7 +323,7 @@ class OrderPlaceController extends Controller
     // Remove the specified resource from storage.
     public function destroy(Request $request, string $id)
     {
-        return helperClass::resourceDataDelete('orders', $request, $id, null, null);
+        // return helperClass::resourceDataDelete('orders', $request, $id, null, null);
     }
 
     // Reseller order place from client view
@@ -284,29 +339,15 @@ class OrderPlaceController extends Controller
         }
 
         $divisions = Location::whereNull('parent_id')->orderBy('name')->get();
-        // if (Auth::check()) {
-        //     $shipping_address = ShippingAddress::where('user_id', Auth::user()->id)->first();
-
-        //     if(!isset($shipping_address->district_id) || !isset($shipping_address->upozila_id) || !isset($shipping_address)){
-        //         return redirect()->route('customer.address')->withError('Please Add your shipping address');
-        //     }
-
-        //     $selected_district = Location::find($shipping_address->district_id);
-        //     $selected_upozila = Location::find($shipping_address->upozila_id);
-        // } else {
-            $shipping_address = NULL;
-            $selected_district = NULL;
-            $selected_upozila = NULL;
-        // }
-
         $get_customer = CustomerEntry::where('reseller_id', Auth::id())->latest('updated_at')->get();
-        return view('reseller.order.checkout', compact('divisions', 'shipping_address', 'selected_district', 'selected_upozila', 'get_customer', 'user_name'));
+        return view('reseller.order.checkout', compact('get_customer', 'user_name'));
     }
 
     // Reseller order place from client view
     public function resellerOrderPlace(Request $request, $user_name){
         $cart = session()->get('cart');
         
+        $request->validate(['select_customer'=> 'required']);
         if(empty($cart)) return redirect()->back()->withErrors('Nothing is available in your cart!');
         
         $user = User::with('reseller')->where('id', Auth::id())->first();
@@ -317,6 +358,7 @@ class OrderPlaceController extends Controller
             $cart_products[] = $product;
             $product_ids[] = $product['product_id'];
         }
+        // return [$cart_products, $request->all()];
 
         switch ($request->input('order_type')) {
             case 'self':
@@ -329,9 +371,9 @@ class OrderPlaceController extends Controller
                     'user_name' => $user->name,
                     'user_phone' => $user->phone ? $user->phone : 0,
                     'order_code' => 'R' . mt_rand(111111, 999999),
-                    'shipping_charge' => 0,
+                    'shipping_charge' => $request->delivery_charge,
                     'sub_total' => $request->sub_total,
-                    'total' => 0,
+                    'total' => $request->delivery_charge == 0 ? $request->hidden_delivery_charge : 0,
                     'discount' => 0,
                     'paid' => 0,
                     'due' => $request->sub_total,
@@ -351,25 +393,33 @@ class OrderPlaceController extends Controller
                         'reseller_id'=> $user->id,
                         'order_id'=> $order->id,
     
-                        'main_rate' => $product['regular_price'],
+                        'main_rate' => $product['reseller_price'],
                         'resale_rate' => $product['reseller_price'],
                         'resale_prices' => $resale_prices,
                         'quantities' => $product['qty'],
-                        'resale_discount_amount' => ($product['qty'] * $product['regular_price']) - $resale_prices,
+                        'resale_discount_amount' => ($product['qty'] * $product['reseller_price']) - $resale_prices,
                     ]);
                 }
     
                 session()->forget("cart");
                 return redirect()->route('frontend.home')->withSuccessMessage("Order Placed Successfully!");
             
-            
             case 'new-business':
-                return $request->all();
-                // break;
+                $request->validate([
+                    'name'=> 'required',
+                    'phone'=> 'required',
+                    'street'=> 'required',
+                ]);
 
-            case 'business':
-                // return $request->all();
-                $customer = json_decode($request->select_customer, true);
+                $customer = CustomerEntry::create([
+                    'reseller_id' => $user->id, 
+                    'name' => $request->name, 
+                    'phone' => $request->phone, 
+                    'email' => $request->email, 
+                    'address' => $request->street, 
+                    'status' => true
+                ]);
+
                 $order = Order::create([
                     'order_id' => mt_rand(111111, 999999),
                     'user_id' => $user->id,
@@ -379,9 +429,9 @@ class OrderPlaceController extends Controller
                     'user_name' => $customer['name'],
                     'user_phone' => $customer['phone'] ? $customer['phone'] : 0,
                     'order_code' => 'R' . mt_rand(111111, 999999),
-                    'shipping_charge' => 0,
+                    'shipping_charge' => $request->delivery_charge,
                     'sub_total' => $request->sub_total,
-                    'total' => 0,
+                    'total' => $request->delivery_charge == 0 ? $request->hidden_delivery_charge : 0,
                     'discount' => 0,
                     'paid' => 0,
                     'due' => $request->sub_total,
@@ -393,7 +443,7 @@ class OrderPlaceController extends Controller
                 ]);
     
                 foreach($cart_products as $product){
-                    $resale_prices = $product['reseller_price'] * $product['qty'];
+                    $resale_prices = $product['price'] * $product['qty'];
 
                     ProductResalePrice::create([
                         'product_id'=> $product['product_id'],
@@ -401,17 +451,61 @@ class OrderPlaceController extends Controller
                         'reseller_id'=> $user->id,
                         'order_id'=> $order->id,
     
-                        'main_rate' => $product['regular_price'],
-                        'resale_rate' => $product['reseller_price'],
+                        'main_rate' => $product['reseller_price'],
+                        'resale_rate' => $product['price'],
                         'resale_prices' => $resale_prices,
                         'quantities' => $product['qty'],
-                        'resale_discount_amount' => ($product['qty'] * $product['regular_price']) - $resale_prices,
+                        'resale_discount_amount' => ($product['qty'] * $product['reseller_price']) - $resale_prices,
                     ]);
                 }
     
                 session()->forget("cart");
                 return redirect()->route('frontend.home')->withSuccessMessage("Order Placed Successfully!");
-                // break;
+
+            case 'business':
+                $customer = json_decode($request->select_customer, true);
+
+                $order = Order::create([
+                    'order_id' => mt_rand(111111, 999999),
+                    'user_id' => $user->id,
+                    'customer_id' => $customer['id'],
+                    'price_ids' => null,
+                    'product_ids' => json_encode($product_ids),
+                    'user_name' => $customer['name'],
+                    'user_phone' => $customer['phone'] ? $customer['phone'] : 0,
+                    'order_code' => 'R' . mt_rand(111111, 999999),
+                    'shipping_charge' => $request->delivery_charge,
+                    'sub_total' => $request->sub_total,
+                    'total' => $request->delivery_charge == 0 ? $request->hidden_delivery_charge : 0,
+                    'discount' => 0,
+                    'paid' => 0,
+                    'due' => $request->sub_total,
+                    'coupon_id' => null,
+                    'order_note' => null,
+                    'payment_method' => 'cod',
+                    'sales_type' => $request->order_type,
+                    'pending_at' => Carbon::now(),
+                ]);
+    
+                foreach($cart_products as $product){
+                    $resale_prices = $product['price'] * $product['qty'];
+
+                    ProductResalePrice::create([
+                        'product_id'=> $product['product_id'],
+                        'customer_id'=> $customer['id'],
+                        'reseller_id'=> $user->id,
+                        'order_id'=> $order->id,
+    
+                        'main_rate' => $product['reseller_price'],
+                        'resale_rate' => $product['price'],
+                        'resale_prices' => $resale_prices,
+                        'quantities' => $product['qty'],
+                        'resale_discount_amount' => ($product['qty'] * $product['reseller_price']) - $resale_prices,
+                    ]);
+                }
+    
+                session()->forget("cart");
+                return redirect()->route('frontend.home')->withSuccessMessage("Order Placed Successfully!");
             
             default:
                 return redirect()->back()->withErrors('Please Select an `order type` and try again!');

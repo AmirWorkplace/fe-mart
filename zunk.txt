@@ -1019,3 +1019,1138 @@ Route::get('/experiment/product', function () {
                                                         </div>
                                                     </div>
                                                 @endif --}}
+{{-- <div class="accordion-body"> --}}
+  {{-- <div class="content"> --}}
+      <div class="d-flex gap-4 my-3">
+          <input type="hidden" name="shipping_address_id"
+              value="{{ $shipping_address ? $shipping_address->id : '' }}">
+          <div class="flex-shrink-0 form-check deliver_location">
+              <input class="form-check-input" type="radio" id="home"
+                  name="address_type"
+                  {{ ($shipping_address && $shipping_address->address_type == 'home') || is_null($shipping_address) ? 'checked' : '' }} value="home">
+              <label class="form-check-label" for="home">
+                  Home
+              </label>
+          </div>
+          <div class="flex-shrink-0 form-check deliver_location">
+              <input class="form-check-input" type="radio" id="office"
+                  {{ $shipping_address && $shipping_address->address_type == 'office' ? 'checked' : '' }} name="address_type" value="office">
+              <label class="form-check-label" for="office">
+                  Office
+              </label>
+          </div>
+      </div>
+      <div class="row g-3 mb-4 address">
+          <div class="col-12">
+              <div class="row g-2 align-items-center">
+                  <label class="col-md-2 form-control-label required"
+                      for="name">Full
+                      Name</label>
+                  <div class="col-md-8">
+                      <input type="text" id="name" name="name"
+                          placeholder="Full Name" class="form-control"
+                          value="{{ $shipping_address ? $shipping_address->name : old('name') }}">
+                  </div>
+                  <div class="col-md-2 label">
+                  </div>
+              </div>
+          </div>
+          <div class="col-12">
+              <div class="row g-2 align-items-center">
+                  <label class="col-md-2 form-control-label required"
+                      for="phone">Phone
+                      Number</label>
+                  <div class="col-md-8">
+                      <input type="number" id="phone" name="phone"
+                          placeholder="Phone Number" class="form-control"
+                          value="{{ $shipping_address ? $shipping_address->phone : old('phone') }}">
+                  </div>
+                  <div class="col-md-2 label">
+                  </div>
+              </div>
+          </div>
+          <div class="col-12">
+              <div class="row g-2 align-items-center">
+                  <label class="col-md-2 form-control-label" for="email">Email
+                      Address</label>
+                  <div class="col-md-8">
+                      <input type="email" id="email" name="email"
+                          placeholder="Email Address" class="form-control"
+                          value="{{ $shipping_address ? $shipping_address->email : old('email') }}">
+                  </div>
+                  <div class="col-md-2 label">
+                      Optional
+                  </div>
+              </div>
+          </div>
+          {{-- <div class="col-12">
+              <div class="row g-2 align-items-center">
+                  <label class="col-md-2 form-control-label required" 
+                      for="division">Division</label>
+                  <div class="col-md-8">
+                      <select name="division" id="division"
+                          class="form-select select2">
+                          <option value="">-- Select Division --</option>
+                          @foreach ($divisions as $division)
+                              <option value="{{ $division->id }}"
+                                  {{ $shipping_address && $shipping_address->division_id == $division->id ? 'selected' : '' }}>
+                                  {{ $division->name }}</option>
+                          @endforeach
+                      </select>
+                  </div>
+                  <div class="col-md-2 label">
+                  </div>
+              </div>
+          </div>
+          <div class="col-12">
+              <div class="row g-2 align-items-center">
+                  <label class="col-md-2 form-control-label required" 
+                      for="district">District </label>
+                  <div class="col-md-8">
+                      <select name="district" id="district"
+                          class="form-select select2">
+                          @if ($selected_district)
+                              <option value="{{ $selected_district->id }}" selected>
+                                  {{ $selected_district->name }}</option>
+                          @else
+                              <option value="">-- Select District --</option>
+                          @endif
+                      </select>
+                  </div>
+                  <div class="col-md-2 label">
+                  </div>
+              </div>
+          </div>
+          <div class="col-12">
+              <div class="row g-2 align-items-center">
+                  <label class="col-md-2 form-control-label required"
+                      for="upozila">Upozila </label>
+                  <div class="col-md-8">
+                      <select name="upozila" id="upozila" 
+                          class="form-select select2">
+                          @if ($selected_upozila)
+                              <option value="{{ $selected_upozila->id }}" selected>
+                                  {{ $selected_upozila->name }}</option>
+                          @else
+                              <option value="">-- Select Upozila --</option>
+                          @endif
+                      </select>
+                  </div>
+                  <div class="col-md-2 label">
+                  </div>
+              </div>
+          </div> --}}
+          <div class="col-12">
+              <div class="row g-2 align-items-center">
+                  <label class="col-md-2 form-control-label required"
+                      for="street">Street </label>
+                  <div class="col-md-8">
+                      <textarea name="street" id="street" class="form-control" cols="30" rows="3"
+                          placeholder="Street Address">{{ $shipping_address ? $shipping_address->street : '' }}</textarea>
+                  </div>
+                  <div class="col-md-2 label">
+                  </div>
+              </div>
+          </div>
+      </div>
+  {{-- </div> --}}
+{{-- </div> --}}
+
+            // Customer Selection Ended
+            
+
+            // $(document).on('change', '#division', function(e) {
+            //     let id = $(this).val();
+            //     let url = "{{ Route('customer.checkout') }}";
+            //     $.ajax({
+            //         url: url,
+            //         data: {
+            //             _method: 'GET',
+            //             id: id,
+            //         },
+            //         success: (response) => {
+            //             if (response.status == 'success') {
+            //                 var selected_district =
+            //                     "{ { $shipping_address ? $shipping_address->district_id : '' }}";
+            //                 $('#district').html('');
+            //                 $('#upozila').html('');
+            //                 $('#upozila').append(
+            //                     '<option value="" selected>-- Select Upozila --</option>');
+            //                 $('#district').append(
+            //                     '<option value="" selected>-- Select District --</option>');
+            //                 $.each(response.locations, function(key, value) {
+            //                     var option = '<option value="' + value.id + '"';
+            //                     if (selected_district != '' && selected_district ==
+            //                         value.id) {
+            //                         option += ' selected';
+            //                     }
+            //                     option += '>' + value.name + '</option>';
+            //                     $('#district').append(option);
+            //                 });
+            //             }
+            //         }
+            //     });
+            // });
+
+            // $(document).on('change', '#district', function(e) {
+            //     let id = $(this).val();
+            //     let url = "{{ Route('customer.checkout') }}";
+            //     $.ajax({
+            //         url: url,
+            //         data: {
+            //             _method: 'GET',
+            //             id: id,
+            //         },
+            //         success: (response) => {
+            //             if (response.status == 'success') {
+            //                 var selected_upozila =
+            //                     "{ { $shipping_address ? $shipping_address->upozila_id : '' }}";
+            //                 $('#upozila').html('');
+            //                 $('#upozila').append(
+            //                     '<option value="" selected>-- Select Upozila --</option>');
+            //                 $.each(response.locations, function(key, value) {
+            //                     var option = '<option value="' + value.id + '"';
+            //                     if (selected_upozila != '' && selected_upozila ==
+            //                         value.id) {
+            //                         option += ' selected';
+            //                     }
+            //                     option += '>' + value.name + '</option>';
+            //                     $('#upozila').append(option);
+            //                 });
+            //             }
+            //         }
+            //     });
+            // });
+            
+                                                {{-- @if ($selected_product->product->variant_product)
+                                                    @php
+                                                        $attribute_names = [];
+                                                        $values = explode('-', $selected_product->product->variant_product);
+                                                    @endphp
+                                                    @foreach (json_decode($product->product->choice_options) as $key => $choice)
+                                                        @php
+                                                            $attribute_names[] = \App\Models\Attribute::find($choice->attribute_id)->name;
+                                                        @endphp
+                                                    @endforeach
+                                                    <div class="text-xxs pt-1">
+                                                        @foreach ($attribute_names as $key => $name)
+                                                            {{ $key > 0 ? ', ' : '' }} {{ $name }} :
+                                                            {{ $values[$key] }}
+                                                        @endforeach
+                                                    </div>
+                                                @endif  * $selected_product->quantities--}}
+                // ->addColumn('checkbox', function($row){
+                //     $checkbox = '<div class="custom-control custom-checkbox">
+                //     <input type="checkbox" class="custom-control-input multi_checkbox" id="'.$row->id.'" name="multi_checkbox[]" value="'.$row->id.'"><label for="'.$row->id.'" class="custom-control-label"></label></div>';
+                //         return $checkbox;
+                // })
+                // ->addColumn('order_status', function ($row) {
+                //     if ($row->status == 'Canceled') {
+                //         $status = '<span class="btn btn-xs text-white bg-danger">Canceled</span>';
+                //     } elseif ($row->status == 'Successed') {
+                //         $status = '<span class="btn btn-xs text-white bg-success">Succeed</span>';
+                //     } else {
+                //         $status = '<select name="status" class="form-select select2 order_status fs-14" data-id="' . $row->id . '">';
+
+                //         $status .= '<option';
+                //         if ($row->status == 'Pending' || $row->status == 'Confirmed' || $row->status == 'Processing' || $row->status == 'Delivered') {
+                //             $status .= ' selected disabled';
+                //         }
+                //         $status .= ' value="Pending">Pending</option>';
+
+                //         $status .= '<option';
+                //         if ($row->status == 'Confirmed' || $row->status == 'Processing' || $row->status == 'Delivered') {
+                //             $status .= ' selected disabled';
+                //         }
+                //         $status .= ' value="Confirmed">Confirmed</option>';
+
+                //         $status .= '<option';
+                //         if ($row->status == 'Processing' || $row->status == 'Delivered') {
+                //             $status .= ' selected disabled';
+                //         }
+                //         $status .= ' value="Processing">Processing</option>';
+
+                //         $status .= '<option';
+                //         if ($row->status == 'Delivered') {
+                //             $status .= ' selected disabled';
+                //         }
+                //         $status .= ' value="Delivered">Delivered</option>';
+                //         $status .= '<option value="Successed">Succeed</option>';
+                //         $status .= '<option value="Canceled">Canceled</option>';
+
+                //         $status .= '</select>
+                //         </form>';
+                //     }
+                //     return $status;
+                // })
+                    // $products = ProductPrice::whereIn('product_id', json_decode($row->product_ids))->get();
+                    // $products = ProductResalePrice::select('id', 'main_rate', 'resale_rate')->where('order_id', $row->id)->get();
+                    // $products_prices = $products->pluck('main_rate')->toArray();
+
+                    // $prices = array();
+                    // foreach ($products as $key => $product) {
+                    //     $prices[] = $product->main_rate * $product->quantities;
+                    // }
+
+                    // return implode(", ", $products_name);
+
+                // ->addColumn('actions', function ($row) {
+                //     $edit_route = Route("{$this->route_path['route']}.edit", $row->id);
+                //     $show_route = Route("{$this->route_path['route']}.show", $row->id);
+
+                //     $actionBtn = '<div class="btn-group">
+                //         <a href="' . $edit_route . '" class="btn btn-sm btn-success border-0 px-10px fs-15"><i class="fas fa-eye"></i></a>
+                //         <a href="' . $show_route . '" target="_blank" class="btn btn-sm btn-info text-white border-0 px-10px fs-15"><i class="fas fa-print"></i></a>
+                //     </div>';
+                //     return $actionBtn;
+                // })
+        // $model = ProductResalePrice::whereIn('order_id', $orders->pluck('id'))->where('reseller_id', $auth_id)->latest('id');
+
+        // $model = Order::query()->where('user_id', Auth::id());
+
+        // if(UserManagement::role('admin')){
+        //     $model = Order::query();
+        // }
+    // public $user;
+
+    // public function __construct(){
+    //     $this->middleware(["auth", 'admin', 'admin_permission']);
+    //     $this->user = Auth::user();
+    //     if(UserManagement::role('reseller')){
+    //         $this->user = User::with('reseller')->findOrFail(Auth::id());
+    //     }
+    // }
+    // Display a listing of the resource.
+    // public function index()
+    // {
+    //     $auth_id = Auth::id();
+    //     $orders = Order::where('user_id', $auth_id)->where('status', 'Delivered')->latest('id')->get();
+    //     $resale_products = ProductResalePrice::whereIn('order_id', $orders->pluck('id'))->where('reseller_id', $auth_id)->latest('id')->get();
+
+    //     // return ['order_count'=> count($orders), 'order_count'=> count($orders), ]; 
+    //     return view('reseller.reseller-commission.index');
+    // }                // const _this = $($('.checkout-cart-product .cart-price-box input')[index]);
+                // console.log($($(this).attr("set-total-price")));
+                        // console.log((+_this.val()) * qty, $(_this.attr("set-total-price")));
+
+
+                        // console.log($('.cart-price-box input'));
+                        // $('.cart-price-box input').each(function(index){
+                        //     let _this = $($('.cart-price-box input')[index]);
+                        //     console.log(_this);
+
+                        //     const price = _this.attr("reseller-price");
+                        //     const qty = $(_this.attr("set-total-quantities")).val();
+
+                        //     $(_this.attr("set-total-price")).html(parseInt(price) * parseInt(qty))
+                        //     console.log($(_this.attr("set-total-price")));
+                        //     // console.log(parseInt(price) * parseInt(qty));
+                        //     // console.log($(_this.attr("set-total-quantities")));
+                        //     // console.log($(_this.attr("set-total-price")));
+
+                        //     // console.log($($('.cart-price-box input')[index]), $($('.cart-price-box input')[index]).attr("total-price"));
+                        //     // $($('.cart-price-box input')[index]).val(price);
+                        //     // $($($('.cart-price-box input')[index]).attr("total-price")).html(parseInt(price) * parseInt(qty))
+                        // });
+
+
+                        // $('.cart-price-box input').each(function(index){
+                        //     const price = $($('.cart-price-box input')[index]).attr("regular-price");
+                        //     $($('.cart-price-box input')[index]).val(price);
+                        // });
+
+
+                        // $('.cart-price-box input').each(function(index){
+                        //     const price = $($('.cart-price-box input')[index]).attr("regular-price");
+                        //     $($('.cart-price-box input')[index]).val(price);
+                        // });
+                    // console.log();
+
+            // $('.checkout-cart-product .cart-price-box input').on("change click", function(){
+                //  const _this = $('.checkout-cart-product .cart-price-box input');
+            //     $($(this).attr("set-total-price")).html((+$(this).val()) * (+$($(this).attr('set-total-quantities')).val()));
+            // });
+
+                    /* $prices = array();
+                    // $total = array();
+                    $products = ProductResalePrice::select('id', 'main_rate', 'resale_prices', 'quantities')->where('order_id', $row->id)->get();
+                    $resale_prices = $products->pluck('resale_prices')->toArray();
+
+                    foreach ($products as $key => $product) {
+                        $prices[] = intval($product->main_rate) * intval($product->quantities);
+                    }
+
+
+                    $sum_prices = array_sum($prices) + $row->total;
+                    $sum_resale_prices = array_sum($resale_prices) + $row->shipping_charge;
+                    $earning = $sum_resale_prices - $sum_prices;
+
+                    return "{$sum_resale_prices} - {$sum_prices}"; */
+
+                    // return number_format($earning) . ' Tk.';
+                    
+                    // if ($row->status == 'Canceled') {
+                    //     $status = '<span class="btn btn-xs text-white bg-danger">Canceled</span>';
+                    // } elseif ($row->status == 'Succeed') {
+                    //     $status = '<span class="btn btn-xs text-white bg-success">Delivered</span>';
+                    // } else {
+                    //     $status = '<select name="status" class="form-select select2 order_status fs-14" data-id="' . $row->id . '">';
+
+                    //     $status .= '<option';
+                    //     if ($row->status == 'Pending' || $row->status == 'Confirmed' || $row->status == 'Processing' || $row->status == 'Delivered') {
+                    //         $status .= ' selected disabled';
+                    //     }
+                    //     $status .= ' value="Pending">Pending</option>';
+
+                    //     $status .= '<option';
+                    //     if ($row->status == 'Confirmed' || $row->status == 'Processing' || $row->status == 'Delivered') {
+                    //         $status .= ' selected disabled';
+                    //     }
+                    //     $status .= ' value="Confirmed">Confirmed</option>';
+
+                    //     $status .= '<option';
+                    //     if ($row->status == 'Processing' || $row->status == 'Delivered') {
+                    //         $status .= ' selected disabled';
+                    //     }
+                    //     $status .= ' value="Processing">Processing</option>';
+
+                    //     $status .= '<option';
+                    //     if ($row->status == 'Delivered') {
+                    //         $status .= ' selected disabled';
+                    //     }
+                    //     $status .= ' value="Delivered">Delivered</option>';
+                    //     // $status .= '<option value="Successed">Successed</option>';
+                    //     $status .= '<option value="Canceled">Canceled</option>';
+
+                    //     $status .= '</select>
+                    //     </form>';
+                    // }
+                    // return $status;
+                // ->addColumn('order_products', function ($row) {
+                //     return count($row->products);
+                // })
+                // ->addColumn('product_names', function ($row) {
+                //     if($row->product_ids){
+                //         $products = Product::select('id', 'name')->whereIn('id', json_decode($row->product_ids, true))->where('status', true)->get();
+                //         $products_name = $products->pluck('name')->toArray();
+
+                //         return implode(", ", $products_name);
+                //     }
+
+                //     return 'Product Name missing';
+                // })
+                        // $status = function($type){
+                        //     switch ($type) {
+                        //         case 'Canceled':
+                        //             return 'selected';
+                        //         case 'Succeed':
+                        //             return 'selected';
+                        //         case 'Pending':
+                        //             return 'selected';
+                        //         default: 
+                        //             return '';
+                        //     }
+                        // };
+
+                        // switch ($row->status) {
+                        //     case 'Canceled':
+                        //         return "<span class='btn btn-xs text-white bg-danger'>Canceled</span>";
+    
+                        //     case 'Succeed':
+                        //        
+    
+                        //     case 'Pending':
+                        //         return '<span class="btn btn-xs text-white bg-warning">Pending</span>'; 
+    
+                        //     default:
+                        //         return '<span class="btn btn-xs text-white bg-warning">Pending</span>';
+                        // }
+                        
+                        <div class="show-account col-md-6" id="show_payment_method">
+                            @if ($data->withdrawal_method == 'bank')
+                                {!! $account !!}
+                            @else
+                                {{ $account }}
+                            @endif
+                        </div>
+                                    {{-- <tr>
+                                        <th>Adjustment</th>
+                                        <th></th>
+                                        <th></th>
+                                        <th colspan="2">Reserve Balance: ৳1200</th>
+                                        <th colspan="2">Available Balance: ৳২০০</th>
+                                        {{-- <th></th> -- }}
+                                        </tr>                // $('#cart-subtotal-shipping .value').html('{{ $setting->inside_dhaka_charge }}')
+                                        // $('.in-dhaka').addClass('d-none');
+                                        // $('#cart-subtotal-shipping .value').html('{{ $setting->inside_dhaka_charge }}');
+                                        // $('#cart-subtotal-shipping .value').html('{{ $setting->outside_dhaka_charge }}');
+                                        // $('.in-dhaka').addClass('d-none');
+                                        // $('#delivery_charge').val(0);
+                                        // $('#cart-subtotal-shipping .value').html(0);
+
+                                        // console.log(data);
+                                            // console.log(balance >= amount, {balance, amount});
+                                            // check adjustment balance
+
+
+                                        // $delivery_charge = ($request->free_delivery || $request->free_delivery == 'true') ? $request->delivery_charge : 0;
+                                        // $free_delivery = (!$request->free_delivery || $request->free_delivery == 'false') ? $request->delivery_charge : 0;
+                                        // return [
+                                        //     // 'customer_id' => $customer->id,
+                                        // 'free_delivery' => $request->free_delivery,
+                                        // 'price_ids' => $request->price_ids,
+                                        // 'product_ids' => $request->product_ids,
+                                        // // 'user_name' => $customer->name,
+                                        // // 'user_phone' => $customer->phone ? $user->phone : 0,
+                                        // 'order_code' => 'R' . mt_rand(111111, 999999),
+                                        // 'shipping_charge' => $delivery_charge,
+                                        // 'sub_total' => $amount,
+                                        // 'total' => $free_delivery,
+                                        // 'discount' => $request->discount,
+                                        // 'paid' => 0,
+                                        // 'due' => $amount,
+                                        // 'coupon_id' => NULL,
+                                        // 'order_note' => NULL,
+                                        // 'payment_method' => $request->order_type,
+                                        // 'sales_type' => $request->sales_type,
+                                        // 'status' => $status,
+                                        // ...$status_time,]; --}}{{-- @php
+    $dashboard = App\Helper\AdditionalDataResource::getDashboardData();
+@endphp
+
+
+@extends('layouts.admin.app')
+@push('css')
+<style>
+    .card-counter{
+        position: relative;
+        box-shadow: 2px 2px 10px #DADADA;
+        margin: 5px;
+        padding: 20px 10px;
+        background-color: #fff;
+        height: 100px;
+        border-radius: 5px;
+        transition: .3s linear all;
+    }
+
+    .card-counter:hover{
+        box-shadow: 4px 4px 20px #DADADA;
+        transition: .3s linear all;
+    }
+
+    .card-counter.primary{
+        background-color: #007bff;
+        color: #FFF;
+    }
+
+    .card-counter.danger{
+        background-color: #ef5350;
+        color: #FFF;
+    }  
+
+    .card-counter.success{
+        background-color: #66bb6a;
+        color: #FFF;
+    }  
+
+    .card-counter.info{
+        background-color: #26c6da;
+        color: #FFF;
+    }  
+
+    .card-counter i{
+        font-size: 5em;
+        opacity: 0.2;
+    }
+
+    .card-counter .count-numbers{
+        position: absolute;
+        right: 35px;
+        top: 20px;
+        font-size: 32px;
+        display: block;
+    }
+
+    .card-counter .count-name{
+        position: absolute;
+        right: 35px;
+        top: 65px;
+        font-style: italic;
+        text-transform: capitalize;
+        opacity: 0.5;
+        display: block;
+        font-size: 18px;
+    }
+
+</style>
+@endpush
+ 
+
+@section('content')
+    <div class="dashboard">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card-counter primary">
+                        <i class="fab fa-first-order"></i>
+                        <span class="count-numbers">{{ $dashboard['total_order'] }}</span>
+                        <span class="count-name">Total Order</span>
+                    </div>
+                </div>
+            
+                <div class="col-md-3">
+                    <div class="card-counter danger">
+                        <i class="fas fa-folder-plus"></i>
+                        <span class="count-numbers">{{ $dashboard['new_order'] }}</span>
+                        <span class="count-name">New Order</span>
+                    </div>
+                </div>
+            
+                <div class="col-md-3">
+                    <div class="card-counter info">
+                        <i class="fas fa-spinner"></i>
+                        <span class="count-numbers">{{ $dashboard['on_progress'] }}</span>
+                        <span class="count-name">On Progress</span>
+                    </div>
+                </div>
+            
+                <div class="col-md-3">
+                    <div class="card-counter success">
+                        <i class="fas fa-truck-container"></i>
+                        <span class="count-numbers">{{ $dashboard['delivered'] }}</span>
+                        <span class="count-name">Delivered</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection --}}
+
+            {{-- <div class="card-header px-3 py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="h6 mb-0 text-uppercase">Manage Customer Entry</h6>
+                    <a href="{{ Route('admin.reseller-commission.create') }}" class="btn btn-primary btn-sm text-uppercase">Add
+                        New</a>
+                </div>
+            </div> --}}
+                            {{-- <th width="3"></th> --}}
+                            {{-- <th>Status</th> --}}
+                            {{-- <th width="110" class="text-end">Actions</th> --}}
+
+                            {{-- <th class="text-center" colspan="1">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="selectAll">
+                                    <label class="custom-control-label" for="selectAll"></label>
+                                </div>
+                            </th>
+                            <th colspan="4">
+                                <button type="button" name="bulk_delete"
+                                    data-url="{{ Route('admin.reseller-commission.destroy', '0') }}" id="bulk_delete"
+                                    class="btn btn btn-xs btn-danger">Delete</button>
+                            </th>
+                            // {
+                              //       data: "checkbox",
+                              //       name: "checkbox",
+                              //       orderable: false,
+                              //       searchable: false,
+                              //       width: '3'
+                              //   }, 
+            
+                                // {
+                                //     data: 'order_status',
+                                //     name: 'order_status',
+                                //     orderable: false,
+                                //     searchable: false,
+                                // },
+                                // {
+                                //     data: 'actions',
+                                //     name: 'actions',
+                                //     orderable: false,
+                                //     searchable: false,
+                                //     className: "text-end",
+                                // },
+ --}}
+
+            // if($request->sales_type == 'adjustment'){
+            //     $balance = AdditionalDataResource::getResellerEarning()['reserve_amount'];
+
+            //     if($balance <= intval($amount)){
+            //         return redirect()->route('admin.order-place.create')->withErrors('You do not have enough balance for adjustment this order!');
+            //     }
+
+            //     Withdraw::create([
+            //         'user_id' => $user->id,
+            //         'total_earning' => $balance,
+            //         'withdrawal_method' => 'Adjustment Order',
+            //         'withdraw_amount' => $amount + $free_delivery + $delivery_charge,
+            //         'account_number' => '...',
+            //         'status' => 'Succeed'
+            //     ]);
+
+            //     $status = 'Delivered';
+            //     $status_time = ['delivered_at' => Carbon::now()];
+            // }
+
+        // $reseller_inquiry_data = function() use($model){
+        //     $total_data = array(
+        //         'invoice_value' => array(),
+        //         'reseller_value' => array(),
+        //         'reseller_earning' => array(),
+        //     );
+
+        //     $reseller_added_shipping_charge = array();
+        //     $shipping_charge = array();
+
+        //     foreach ($model->select('id', 'shipping_charge', 'total')->get() as $key => $order) {  
+        //         $shipping_charge[] = intval($order->shipping_charge);         
+        //         $reseller_added_shipping_charge[] = intval($order->total);         
+        //         $prices = array();
+        //         $products = ProductResalePrice::select('id', 'main_rate', 'resale_prices', 'quantities')->where('order_id', $order->id)->get();
+        //         $resale_prices = $products->pluck('resale_prices')->toArray();
+
+        //         foreach ($products as $key => $product) {
+        //             $prices[] = intval($product->main_rate) * intval($product->quantities);
+        //         }
+
+        //         $sum_prices = array_sum($prices);
+        //         $sum_resale_prices = array_sum($resale_prices);
+        //         $earning = $sum_resale_prices - $sum_prices;
+
+        //         $total_data['invoice_value'][] = $sum_prices;
+        //         $total_data['reseller_value'][] = $sum_resale_prices;
+        //         $total_data['reseller_earning'][] = $earning;
+        //     }
+
+        //     $invoice_value = array_sum($total_data['invoice_value']) + array_sum($shipping_charge);
+        //     $reseller_value = array_sum($total_data['reseller_value']) + array_sum($reseller_added_shipping_charge);
+
+        //     return array(
+        //         'invoice_value' => $invoice_value,
+        //         'reseller_value' => $reseller_value,
+        //         'reseller_earning' => $reseller_value - $invoice_value,
+        //     );
+        // }; 
+
+        // $inquiry_data = $reseller_inquiry_data();
+
+            // $('#inside_dhaka_charge').change(function(){
+            //     $('#inside_dhaka_charge').prop('checked', true);
+            //     $('#outside_dhaka_charge').prop('checked', false);
+            //     $('#deliver_charge_free').prop('checked', false);
+
+            //     $('#delivery_charge').val('{{ $setting->inside_dhaka_charge }}')
+            //     $('#cart-subtotal-shipping .value').html('{{ $setting->inside_dhaka_charge }}')
+            // }); 
+
+            // function initiateDeliveryCharge(){
+            //     $('#inside_dhaka_charge').prop('checked', true);
+            //     $('#outside_dhaka_charge').prop('checked', false);
+            //     $('#deliver_charge_free').prop('checked', false);
+
+            //     $('#delivery_charge').val('{{ $setting->inside_dhaka_charge }}');
+            //     $('#cart-subtotal-shipping .value').html('{{ $setting->inside_dhaka_charge }}');
+            // }
+
+            // initiateDeliveryCharge();
+
+            // $('#outside_dhaka_charge').change(function(){
+            //     $('#outside_dhaka_charge').prop('checked', true);
+            //     $('#inside_dhaka_charge').prop('checked', false);
+            //     $('#deliver_charge_free').prop('checked', false);
+
+            //     $('#delivery_charge').val('{{ $setting->outside_dhaka_charge }}')
+            //     $('#cart-subtotal-shipping .value').html('{{ $setting->outside_dhaka_charge }}')
+            // });
+            // $('#deliver_charge_free').change(function(){
+            //     $('#outside_dhaka_charge').prop('checked', false);
+            //     $('#inside_dhaka_charge').prop('checked', false);
+            //     $('#deliver_charge_free').prop('checked', true);
+
+            //     $('#delivery_charge').val(0)
+            //     $('#cart-subtotal-shipping .value').html(0)
+            // });
+
+                // if($('#outside_dhaka_charge').prop('checked')){
+                // }
+                // if($('#outside_dhaka_charge').prop('checked')){
+                // } 
+
+            // Customer Selection Started
+            // $("#order_address_selection #order_type").change(function(){
+            //     switch ($(this).val()) {
+            //         case 'self':
+            //             $('#shipping_address_box').addClass('d-none');
+            //             $('#customer_selection_box').addClass('d-none');
+
+            //             calculatePrice('self');
+            //             break;
+                        
+            //         case 'new-business':
+            //             $('#shipping_address_box').removeClass('d-none');
+            //             $('#customer_selection_box').addClass('d-none');
+
+            //             calculatePrice('new-business');
+            //             break;
+                        
+            //         case 'business':
+            //             $('#shipping_address_box').addClass('d-none');
+            //             $('#customer_selection_box').removeClass('d-none');
+
+            //             calculatePrice('business');
+            //             break; 
+
+            //         default:
+            //             $('#shipping_address_box').addClass('d-none');
+            //             $('#customer_selection_box').addClass('d-none');
+
+            //             calculatePrice('self');
+            //             break;
+            //     }
+            // });
+
+            // function calculatePrice(type){
+            //     $('.checkout-cart-product .cart-price-box input').each(function(index){
+            //         const _this = $($('.checkout-cart-product .cart-price-box input')[index]);
+
+            //         const qty = +$(_this.attr('set-total-quantities')).val()
+            //         const reseller_price = +_this.attr('reseller-price');
+            //         const regular_price = +_this.attr('regular-price');
+
+            //         if(type === 'self'){
+            //             _this.val(reseller_price)
+            //             _this.attr("disabled", true);
+            //             $(_this.attr("set-total-price")).html(reseller_price * qty)
+            //         }else if(type === 'new-business'){
+            //             _this.val(regular_price)
+            //             _this.removeAttr("disabled");
+            //             $(_this.attr("set-total-price")).html(regular_price * qty)
+            //         }else if(type === 'business'){
+            //             _this.val(regular_price)
+            //             _this.removeAttr("disabled");
+            //             $(_this.attr("set-total-price")).html(regular_price * qty)
+            //         }else{ 
+            //             $(_this.attr("set-total-price")).html(+_this.val() * qty)
+            //             _this.attr("disabled", true);
+            //             console.log((+_this.val()) * qty, $(_this.attr("set-total-price")));
+            //         } 
+            //     });
+            // }
+            // $('#outside_dhaka_charge').prop('checked', false);
+            // $('#inside_dhaka_charge').prop('checked', false);
+            // $('#deliver_charge_free').prop('checked', false);
+
+            // if($('#deliver_charge_free').prop('checked')){
+            // }else{
+                // $('#deliver_charge_free').prop('checked', true);
+            // }
+            // $('.in-dhaka').removeClass('d-none');
+            
+
+        // ['user_id', 'total_earning', 'withdraw_amount', 'account_number', 'withdrawal_method', 'transaction_id', 'status']
+        // echo $resale_value() - $target_value();->format('d M Y | h:i A')
+        // $withdraw = Withdraw::where('user_id', Auth::id())->latest('id')->get()->toArray();
+        // return array_merge($order, $withdraw);
+
+        // $statement = Reseller::with('delivered_orders', 'success_withdraws', 'resale_price', 'user')->where('user_id', Auth::id())->first();
+        // return $statement;
+
+        // return array_merge($statement->delivered_orders->toArray(), $statement->success_withdraws->toArray());
+        // return view('reseller.statement.index');
+
+        // if(UserManagement::role('Reseller Admin')){
+        //     if (request()->ajax()) {
+        //         $model = Withdraw::where('user_id', Auth::id());
+        //         return DataTables::eloquent($model)
+        //             ->filter(function ($query) {
+        //                 if (!empty(request('start_date')) && !empty(request('end_date'))) {
+        //                     $query->where('created_at', '>=', request('start_date'))->where('created_at', '<=', request('end_date'));
+        //                 }
+        //                 if (!empty(request('status'))) {
+        //                     $query->where('status', request('status'));
+        //                 }
+        //             }, true)
+        //             ->addColumn('date', function($row){
+        //                 return $row->created_at->format('Y-m-d | H:i:s');
+        //             })
+        //             ->addColumn('description', function($row){
+        //                 return "<p class='text-center'>" . number_format($row->withdraw_amount, 2) . " Tk</p>";
+        //             })
+        //             ->addColumn('withdraw', function($row){
+        //                 return "<p class='text-center'>" . ucwords($row->account_number) . "</p>";
+        //             })
+        //             ->addColumn('deposit', function ($row) {
+        //                 return 0;
+        //             })
+        //             ->addColumn('balance', function($row){
+        //                 return "<p class='text-center'>". ucwords($row->withdrawal_method) ."</p>";
+        //             })
+        //             ->rawColumns(['date', 'description', 'withdraw', 'deposit', 'balance'])
+        //             ->make(true);
+        //     }
+/* $orders = Order::select('id', 'customer_id', 'total', 'shipping_charge', 'payment_method', 'order_code', 'sales_type', 'created_at')->where('user_id', Auth::id())->where('status', 'Delivered')->latest('created_at')->get();
+        $order_data = array();
+
+        $withdraws = Withdraw::where('user_id', Auth::id())->where('status', 'Succeed')->latest('created_at')->get();
+        $withdraw_data = array();
+
+        foreach ($orders as $order) {
+            $target_value = function() use($order) {
+                $prices = array();
+                $products = ProductResalePrice::select('id', 'main_rate', 'quantities')->where('order_id', $order->id)->get();
+                
+                foreach ($products as $product) {
+                    $prices[] = intval($product->main_rate) * intval($product->quantities);
+                }
+
+                    return array_sum($prices) + $order->total + $order->shipping_charge;
+            };
+
+            $resale_value = function() use($order) {
+                $products = ProductResalePrice::select('id', 'resale_prices', 'quantities')->where('order_id', $order->id)->get();
+                $resale_prices = array_sum($products->pluck('resale_prices')->toArray());
+            
+                return $resale_prices + $order->shipping_charge;   
+            };
+
+            $buyer = Auth::user()->name;
+            if($order->customer_id) {
+                $customer = CustomerEntry::select('name', 'phone', 'address')->where('id', $order->customer_id)->first();
+                if($customer) $buyer = "{$customer->name} at {$customer->address}. Mobile {$customer->phone}";
+            }
+
+            $description = "Sell into {$buyer}. Invoice ID is {$order->order_code}, paid by " . strtoupper($order->payment_method) . " on " . ucwords($order->sales_type) . ".";
+
+            $order_data[] = array(
+                'id'=> $order->id,
+                'target_value'=>$target_value(),
+                'resale_value'=>$resale_value(),
+                'deposit'=> $resale_value() - $target_value(),
+                'withdraw'=> '0.00',
+                'date'=> $order->created_at,
+                'description'=> $description,
+                'previous_earning'=> '0.00',
+            );
+        }
+
+        foreach($withdraws as $withdraw){
+            $ts_id = $withdraw->transaction_id ? ' of transaction ID are ' . $withdraw->transaction_id : '';
+            $description = "Withdraw from " . ucwords($withdraw->withdrawal_method) . " at {$withdraw->account_number}{$ts_id}.";
+
+            $withdraw_data[] = array(
+                'id'=> $withdraw->id,
+                'deposit'=> '0.00',
+                'withdraw'=> $withdraw->withdraw_amount,
+                'previous_earning'=> $withdraw->total_earning,
+                'date'=> $order->created_at,
+                'description'=> $description
+            );
+        }
+        $data = array_merge($order_data, $withdraw_data);
+
+        usort($data, function($a, $b) {return strtotime($a['date']) - strtotime($b['date']);}); */
+        
+        // $orders = Order::select('id', 'customer_id', 'total', 'shipping_charge', 'payment_method', 'order_code', 'sales_type', 'created_at')
+        //     ->where('user_id', Auth::id())
+        //     ->where('status', 'Delivered')
+        //     ->latest('created_at')
+        //     ->get();
+
+        // $withdraws = Withdraw::where('user_id', Auth::id())
+        //     ->where('status', 'Succeed')
+        //     ->latest('created_at')
+        //     ->get();
+
+        // if (request()->ajax()) {
+        //     $combinedData = $orders->concat($withdraws);
+
+        //     return DataTables::eloquent($combinedData)
+        //         ->filter(function ($query) {
+        //             // if (!empty(request('start_date')) && !empty(request('end_date'))) {
+        //             //     $query->where('created_at', '>=', request('start_date'))->where('created_at', '<=', request('end_date'));
+        //             // }
+        //             // if (!empty(request('status'))) {
+        //             //     $query->where('status', request('status'));
+        //             // }
+        //         }, true)
+        //         ->addColumn('date', function ($row) {
+        //             return 0;
+        //         })
+        //         ->addColumn('description', function ($row) {
+        //             return 0;
+        //         })
+        //         ->addColumn('withdraw', function ($row) {
+        //             return 0;
+        //         })
+        //         ->addColumn('deposit', function ($row) {
+        //             return 0;
+        //         })
+        //         ->addColumn('balance', function ($row) {
+        //             return 0;
+        //         })
+                // ->addColumn('order_date', function ($row) {
+                //     return Carbon::parse($row->created_at)->format('d M Y | h:i A');
+                // })
+                // ->addColumn('product_details', function($row){
+                //     $products = Product::select('id', 'name')->whereIn('id', json_decode($row->product_ids, true))->where('status', true)->get();
+                //     $products_name = $products->pluck('name')->toArray();
+
+                //     return implode(", ", $products_name);
+                // })
+                // ->addColumn('invoice_value', function($row){
+                //     $prices = array();
+                //     $products = ProductResalePrice::select('id', 'main_rate', 'quantities')->where('order_id', $row->id)->get();
+                    
+                //     foreach ($products as $key => $product) {
+                //         $prices[] = intval($product->main_rate) * intval($product->quantities);
+                //     }
+
+                //     return number_format((array_sum($prices) + $row->shipping_charge + $row->total), 2) . ' Tk.';
+                // })
+                // ->addColumn('reseller_value', function($row){
+                //     $products = ProductResalePrice::select('id', 'resale_prices', 'quantities')->where('order_id', $row->id)->get();
+                //     $resale_prices = array_sum($products->pluck('resale_prices')->toArray());
+                    
+                //     return number_format(($resale_prices + $row->shipping_charge), 2) . ' Tk.';
+                // })
+                // ->addColumn('reseller_earning', function($row){
+                //     $target_value = function() use($row) {
+                //         $prices = array();
+                //         $products = ProductResalePrice::select('id', 'main_rate', 'quantities')->where('order_id', $row->id)->get();
+                        
+                //         foreach ($products as $key => $product) {
+                //             $prices[] = intval($product->main_rate) * intval($product->quantities);
+                //         }
+
+                //         return array_sum($prices) + $row->total + $row->shipping_charge;
+                //     };
+
+                //     $resale_value = function() use($row) {
+                //         $products = ProductResalePrice::select('id', 'resale_prices', 'quantities')->where('order_id', $row->id)->get();
+                //         $resale_prices = array_sum($products->pluck('resale_prices')->toArray());
+                    
+                //         return $resale_prices + $row->shipping_charge;   
+                //     };
+
+                //     $earning = number_format($resale_value() - $target_value());
+                //     return "<p class='text-center'>{$earning} Tk.</p>";
+                // })
+        //         ->rawColumns(['date', 'description', 'withdraw', 'deposit', 'balance'])
+        //         ->make(true);
+        // }
+
+        // return [$order_data, $withdraw_data];, compact('data')
+
+        $orders = Order::select('id', 'customer_id', 'total', 'shipping_charge', 'payment_method', 'order_code', 'sales_type', 'created_at')
+            ->where('user_id', Auth::id())
+            ->where('status', 'Delivered')
+            ->latest('created_at')
+            ->get();
+
+        $withdraws = Withdraw::where('user_id', Auth::id())
+                    ->where('status', 'Succeed')
+                    ->latest('created_at');
+                    // ->get();
+
+        if (request()->ajax()) {
+            $combinedData = $orders->concat($withdraws);
+
+            return DataTables::eloquent($withdraws)
+                ->filter(function ($query) {
+                }, true)
+                ->addColumn('date', function ($row) {
+                    return 0;
+                })
+                ->addColumn('description', function ($row) {
+                    return 0;
+                })
+                ->addColumn('withdraw', function ($row) {
+                    return 0;
+                })
+                ->addColumn('deposit', function ($row) {
+                    return 0;
+                })
+                ->addColumn('balance', function ($row) {
+                    return 0;
+                })
+                ->rawColumns(['date', 'description', 'withdraw', 'deposit', 'balance'])
+                ->make(true);
+        }
+
+
+        return view('reseller.statement.index');
+
+
+            // const discount = Number($('#discount').val());
+        // $('#child-category').html(selectBox(response.child_categories));
+        // function selectBox(data){
+        //     return `<select name="select_child_category" id="select_child_category" class="select form-control" data-placeholder="Select Child Category">
+        //                 <option value=""></option>
+        //                 ` + data.map(item => `<option value="${item.id}">${item.name}</option>`) + ` 
+        //             </select>`;
+        // }
+                        // $('#select_child_category').html('<option value=""></option>');
+                        // $('#select_product').html('<option value=""></option>');
+                        // response.child_categories.map(item =>
+                        //     $('#select_child_category').append(`<option value="${item.id}">${item.name}</option>`)
+                        // );
+
+                        // response.products.map(product =>
+                        //     $('#select_product').append(`<option value="${product.id}">${product.name}</option>`)
+                        // );
+        // $categories = Category::root()->with(['children'])->orderBy('name')->get();
+        // ['date', 'product_name', 'reseller_price', 'discount', 'discount_price', 'status', 'actions'];
+        // return Product::select('id', 'name', 'category_id')->take(2)->get();
+        // return "{$row->start_date} - {$row->end_date}";
+        // $model = Category::with(['parent', 'products'])->latest('id');
+        // return AdditionalDataResource::getParentCategoryProducts('18');
+        // $categories = Category::root()->with(['children'])->orderBy('name')->get();
+        // $categories = Category::with('parent')->where('status', true)->get();
+
+
+|---------------------------------------------------------|
+|    Date	    Day 	Holiday                           |
+|---------------------------------------------------------|
+    21  Feb	    Tue 	Shaheed Day
+|---------------------------------------------------------|
+    8   Mar	    Wed 	Shab e-Barat
+|---------------------------------------------------------|
+    17  Mar	    Fri 	Sheikh Mujibur Rahman’s Birthday
+|---------------------------------------------------------|
+    26  Mar	    Sun 	Independence Day
+|---------------------------------------------------------|
+    14  Apr	    Fri 	Bengali New Year
+|---------------------------------------------------------|
+    19  Apr	    Wed 	Laylat al-Qadr
+|---------------------------------------------------------|
+    21  Apr	    Fri 	Jumatul Bidah
+|---------------------------------------------------------|
+    21  Apr	    Fri 	Eid ul-Fitr Holiday
+|---------------------------------------------------------|
+    22  Apr	    Sat 	Eid ul-Fitr
+|---------------------------------------------------------|
+    23  Apr	    Sun 	Eid ul-Fitr Holiday
+|---------------------------------------------------------|
+    1   May	    Mon 	May Day
+|---------------------------------------------------------|
+    4   May	    Thu 	Buddha Purnima
+|---------------------------------------------------------|
+    28  Jun	    Wed 	Eid ul-Adha Holiday
+|---------------------------------------------------------|
+    29  Jun	    Thu 	Eid ul-Adha
+|---------------------------------------------------------|
+    30  Jun	    Fri 	Eid ul-Adha Holiday
+|---------------------------------------------------------|
+    29  Jul	    Sat 	Ashura
+|---------------------------------------------------------|
+    15  Aug	    Tue 	National Mourning Day
+|---------------------------------------------------------|
+    6   Sep	    Wed 	Shuba Janmashtami
+|---------------------------------------------------------|
+    28  Sep	    Thu 	Eid-e-Milad un-Nabi
+|---------------------------------------------------------|
+    24  Oct	    Tue 	Vijaya Dashami
+|---------------------------------------------------------|
+    16  Dec	    Sat 	Victory Day
+|---------------------------------------------------------|
+    25  Dec	    Mon 	Christmas Day
+|---------------------------------------------------------|

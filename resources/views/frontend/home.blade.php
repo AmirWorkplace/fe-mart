@@ -389,7 +389,8 @@
         $('[alt="SliderImage"]').height($($('[alt="SliderImage"]')[0]).height() + 'px');
         $('.banner-area img').height($($('[alt="SliderImage"]')[0]).height() / 2 + 'px');
         $('.small.text-muted.text-nowrap.showing.mb-0').remove();
-        $('.verticalmenu-list').removeClass('breadcrumb-with')
+        $('.verticalmenu-list').removeClass('breadcrumb-with');
+        $('[class="small text-muted"]').remove();
     });
 </script>
 @endpush

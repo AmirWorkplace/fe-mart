@@ -172,6 +172,25 @@
                                     </div>
                                 @endif
                             </div>
+                            <div class="row col-12 mt-3">
+                                <div class="col-md-4 col-xs-6">
+                                    <label for="delivery_charge" class="form-label"><b>Delivery Charge Type</b></label>
+                                    <select name="delivery_charge" id="delivery_charge" class="select2 disable-search form-select">
+                                        <option value="location_wise" {{ $setting && $setting->delivery_charge == 'location_wise' ? 'selected' : ''}} >Location wise</option>
+                                        <option value="delivery_charge" {{ $setting && $setting->delivery_charge == 'inside_outside' ? 'selected' : '' }} >Inside dhaka/outside dhaka</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 col-xs-6">
+                                    <label for="inside_dhaka_charge" class="form-label"><b>Delivery Charge Inside Dhaka</b></label>
+                                    <input type="text" class="form-control custom-input" id="inside_dhaka_charge"
+                                    name="inside_dhaka_charge" value="{{ $setting ? $setting->inside_dhaka_charge : '' }}" placeholder="60">
+                                </div>
+                                <div class="col-md-4 col-xs-6">
+                                    <label for="outside_dhaka_charge" class="form-label"><b>Delivery Charge Outside Dhaka</b></label>
+                                    <input type="text" class="form-control custom-input" id="outside_dhaka_charge"
+                                    name="outside_dhaka_charge" value="{{ $setting ? $setting->outside_dhaka_charge : '' }}" placeholder="120">
+                                </div>
+                            </div>
                             <div class="col-12">
                                 <label for="socialLinks" class="form-label"><b>Socail Links</b></label>
                                 <div class="row gx-3 gy-2">

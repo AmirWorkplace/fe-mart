@@ -49,6 +49,26 @@
             border: none;
             pointer-events: none;
         }
+
+        .cart-price-box {
+            display: flex;
+            gap: 4px;
+        }
+
+        .cart-price-box span {
+            font-weight: 800;
+            padding-top: 8px;
+        }
+
+        .cart-price-box input{
+            max-width: 70px;
+            font-weight: 500;
+            padding: 2px 4px 0px 4px;
+            text-align: center;
+            border-radius: 5px;
+            border: 0.5px solid #9d9191;
+            color: #0057b3;
+        }
     </style>
     
     <section class="py-md-5 py-4 bg-white">
@@ -76,6 +96,41 @@
                                         <div class="content">
 
                                             <!-- Order Type Selection for Reseller -->
+                                            <div class="col-12 row">
+                                                <div class="col-md-2"></div>
+                                                <div class="d-flex gap-4 mb-3 col-md-8">
+                                                    <input type="hidden" name="delivery_charge" id="delivery_charge" value="0">
+                                                    <div class="flex-shrink-0 form-check deliver_location">
+                                                        <input class="form-check-input" type="radio" id="inside_dhaka_charge"
+                                                            name="address_type" value="inside_dhaka_charge">
+                                                        <label class="form-check-label" for="inside_dhaka_charge">
+                                                            Deliver Inside Dhaka
+                                                        </label>
+                                                    </div>
+                                                    <div class="flex-shrink-0 form-check deliver_location">
+                                                        <input class="form-check-input" type="radio" id="outside_dhaka_charge" name="outside_dhaka_charge" value="outside_dhaka_charge">
+                                                        <label class="form-check-label" for="outside_dhaka_charge">
+                                                            Deliver Outside Dhaka
+                                                        </label>
+                                                    </div>
+                                                    <div class="flex-shrink-0 form-check deliver_location">
+                                                        <input class="form-check-input" type="radio" id="deliver_charge_free" name="deliver_charge_free" value="deliver_charge_free">
+                                                        <label class="form-check-label" for="deliver_charge_free">
+                                                            Free Delivery Charge
+                                                        </label>
+                                                    </div>
+                                                    <input type="hidden" name="hidden_delivery_charge" value="{{ $setting->inside_dhaka_charge }}" id="hidden_delivery_charge">
+
+                                                    {{-- <div class="flex-shrink-0 form-check deliver_location d-none in-dhaka">
+                                                        <input class="form-check-input" type="radio" id="deliver_charge_free" name="deliver_charge_free" value="deliver_charge_free">
+                                                        <input type="hidden" name="hidden_delivery_charge" value="{{ $setting->outside_dhaka_charge }}">
+                                                        <input type="hidden" name="hidden_delivery_charge" value="{{  }}">
+                                                        <label class="form-check-label" for="deliver_charge_free">
+                                                            In Dhaka
+                                                        </label>
+                                                    </div> --}}
+                                                </div>
+                                            </div>
                                             <div class="col-12">
                                                 <div class="row g-2 align-items-center">
                                                     <label class="col-md-2 form-control-label required" 
@@ -96,7 +151,99 @@
 
                                             <!-- Create New Customer -->
                                             <div class="d-none" id="shipping_address_box">
-                                                @include('components.reseller.shipping_address_form')
+                                                <div class="d-flex gap-4 my-3">
+                                                    <input type="hidden" name="shipping_address_id"
+                                                        value="0">
+                                                    <div class="flex-shrink-0 form-check deliver_location">
+                                                        <input class="form-check-input" type="radio" id="home"
+                                                            name="address_type" value="home">
+                                                        <label class="form-check-label" for="home">
+                                                            Home
+                                                        </label>
+                                                    </div>
+                                                    <div class="flex-shrink-0 form-check deliver_location">
+                                                        <input class="form-check-input" type="radio" id="office" name="address_type" value="office">
+                                                        <label class="form-check-label" for="office">
+                                                            Office
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mb-4 address">
+                                                    <div class="col-12">
+                                                        <div class="row g-2 align-items-center">
+                                                            <label class="col-md-2 form-control-label required"
+                                                                for="name">Full
+                                                                Name</label>
+                                                            <div class="col-md-8">
+                                                                <input type="text" id="name" name="name"
+                                                                    placeholder="Full Name" class="form-control">
+                                                            </div>
+                                                            <div class="col-md-2 label">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="row g-2 align-items-center">
+                                                            <label class="col-md-2 form-control-label required"
+                                                                for="phone">Phone
+                                                                Number</label>
+                                                            <div class="col-md-8">
+                                                                <input type="number" id="phone" name="phone"
+                                                                    placeholder="Phone Number" class="form-control" />
+                                                            </div>
+                                                            <div class="col-md-2 label">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="row g-2 align-items-center">
+                                                            <label class="col-md-2 form-control-label" for="email">Email
+                                                                Address</label>
+                                                            <div class="col-md-8">
+                                                                <input type="email" id="email" name="email"
+                                                                    placeholder="Email Address" class="form-control">
+                                                            </div>
+                                                            <div class="col-md-2 label">
+                                                                Optional
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {{-- <div class="d-flex gap-4 mt-3">
+                                                        <input type="hidden" name="delivery_charge" id="delivery_charge" value="0">
+                                                        <div class="flex-shrink-0 form-check deliver_location">
+                                                            <input class="form-check-input" type="radio" id="inside_dhaka_charge"
+                                                                name="address_type" value="inside_dhaka_charge">
+                                                            <label class="form-check-label" for="inside_dhaka_charge">
+                                                                Inside Dhaka
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex-shrink-0 form-check deliver_location">
+                                                            <input class="form-check-input" type="radio" id="outside_dhaka_charge" name="outside_dhaka_charge" value="outside_dhaka_charge">
+                                                            <label class="form-check-label" for="outside_dhaka_charge">
+                                                                Outside Dhaka
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex-shrink-0 form-check deliver_location">
+                                                            <input class="form-check-input" type="radio" id="deliver_charge_free" name="deliver_charge_free" value="deliver_charge_free">
+                                                            <label class="form-check-label" for="deliver_charge_free">
+                                                                Free Delivery Charge
+                                                            </label>
+                                                        </div>
+                                                    </div> --}}
+                                          
+                                                    <div class="col-12">
+                                                        <div class="row g-2 align-items-center">
+                                                            <label class="col-md-2 form-control-label required"
+                                                                for="street">Delivery Address </label>
+                                                            <div class="col-md-8">
+                                                                <textarea name="street" id="street" class="form-control" cols="30" rows="3"
+                                                                    placeholder="Street Address"></textarea>
+                                                            </div>
+                                                            <div class="col-md-2 label">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <!-- Customer Name -->
@@ -311,7 +458,7 @@
                                 </div>
                             </div>
                         </div>
-                        <input type="hidden" name="sub_total" class="total_cart_price" value="{{ $cart_total_price }}">
+                        <input type="hidden" name="sub_total" class="total_cart_price" value="{{ $cart_total_price + $setting->inside_dhaka_charge }}">
                     </form>
                 </div>
                 <div class="col-md-4">
@@ -326,15 +473,12 @@
                                     </div>
                                     @foreach ($cart as $key => $item)
                                         @php
-                                            $price = $reseller ? (isset($item['reseller_price']) ? $item['reseller_price'] : $item['price']) :  $item['price'];
-                                            // $cart_total_price += $price * $item['qty'];
-                                            // $cart_total_qty += $item['qty'];
+                                            $price = /* $reseller ? (isset($item['reseller_price']) ? $item['reseller_price'] : $item['price']) : */  $item['price']; 
                                         @endphp
                                         <div class="pt-3 remove_cart_id__{{ $key }}" id="cart-summary-product-list">
-                                            <ul class="media-list">
+                                            <ul class="media-list checkout-cart-product">
                                                 <li class="media">
                                                     <div class="product-add-to-cart">
-                                                        <!--<span class="control-label">QTY: </span>-->
                                                         <div class="product-quantity">
                                                             <div class="qty">
                                                                 <div class="input-group" id="quantities_{{ $key }}" 
@@ -377,7 +521,15 @@
                                                                     <span>{{ $attribute }}</span>
                                                                 @endforeach
                                                             </div>
-                                                            <span>Price: ৳ <span>{{ $price }}</span></span>
+                                                            <div class="cart-price-box">
+                                                                <label>৳</label>
+                                                                <input type="number" name="set_default_price" id="set_default_price" 
+                                                                    value="{{ $item['reseller_price'] }}"  data-id="{{ $item['variant_id'] }}"
+                                                                    set-total-quantities=".product_qty__{{ $key }}"
+                                                                    set-total-price=".product_price__{{ $key }}" disabled
+                                                                    reseller-price="{{ $item['reseller_price'] }}" regular-price="{{ $item['price'] }}"
+                                                                >
+                                                            </div>
                                                         </div>
                                                         <div>
                                                             <div class="checkout-delete-btn cart_item_remove" remove-cart-item=".remove_cart_id__{{ $key }}" id="{{ $item['variant_id'] }}">
@@ -385,7 +537,7 @@
                                                             </div>
                                                             <div class="product-quantity">Total:</div>
                                                             <div class="product-price pull-xs-right d-flex gap-1">
-                                                                <span>৳</span> <span class="total_prices product_price__{{ $key }}">{{ $price * $item['qty'] }}</span>
+                                                                <span>৳</span> <span class="total_prices product_price__{{ $key }}">{{ $item['reseller_price'] * $item['qty'] }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -418,7 +570,7 @@
                                     <span class="label">
                                         Total Shipping:
                                     </span>
-                                    <span class="value">৳ 0.00</span>
+                                    ৳ <span class="value">0.00</span>
                                 </div>
                                 <div class="cart-summary-line">
                                     <span class="label">Taxes:</span>
@@ -431,7 +583,7 @@
                                         <span class="label">Total</span>
                                         <span class="font-small">(tax excl.)</span>
                                     </span>
-                                    <span class="value ms-auto label">৳ <spam id="all_total_price">{{ number_format($cart_total_price, 2) }}</spam></span>
+                                    <span class="value ms-auto label">৳ <spam id="all_total_price">{{ number_format(($cart_total_price + $setting->inside_dhaka_charge), 2) }}</spam></span>
                                 </div>
                             </div>
                         </div>
@@ -448,98 +600,6 @@
     
     <script type="text/javascript">
         $(document).ready(function() {
-
-            // Customer Selection Started
-            $("#order_address_selection #order_type").change(function(){
-                switch ($(this).val()) {
-                    case 'self':
-                        $('#shipping_address_box').addClass('d-none');
-                        $('#customer_selection_box').addClass('d-none');
-                        break;
-                        
-                    case 'new-business':
-                        $('#shipping_address_box').removeClass('d-none');
-                        $('#customer_selection_box').addClass('d-none');
-                        break;
-                        
-                    case 'business':
-                        $('#shipping_address_box').addClass('d-none');
-                        $('#customer_selection_box').removeClass('d-none');
-                        break; 
-
-                    default:
-                        $('#shipping_address_box').addClass('d-none');
-                        $('#customer_selection_box').addClass('d-none');
-                        break;
-                }
-            });
-
-            // Customer Selection Ended
-            
-
-            $(document).on('change', '#division', function(e) {
-                let id = $(this).val();
-                let url = "{{ Route('customer.checkout') }}";
-                $.ajax({
-                    url: url,
-                    data: {
-                        _method: 'GET',
-                        id: id,
-                    },
-                    success: (response) => {
-                        if (response.status == 'success') {
-                            var selected_district =
-                                "{{ $shipping_address ? $shipping_address->district_id : '' }}";
-                            $('#district').html('');
-                            $('#upozila').html('');
-                            $('#upozila').append(
-                                '<option value="" selected>-- Select Upozila --</option>');
-                            $('#district').append(
-                                '<option value="" selected>-- Select District --</option>');
-                            $.each(response.locations, function(key, value) {
-                                var option = '<option value="' + value.id + '"';
-                                if (selected_district != '' && selected_district ==
-                                    value.id) {
-                                    option += ' selected';
-                                }
-                                option += '>' + value.name + '</option>';
-                                $('#district').append(option);
-                            });
-                        }
-                    }
-                });
-            });
-
-            $(document).on('change', '#district', function(e) {
-                let id = $(this).val();
-                let url = "{{ Route('customer.checkout') }}";
-                $.ajax({
-                    url: url,
-                    data: {
-                        _method: 'GET',
-                        id: id,
-                    },
-                    success: (response) => {
-                        if (response.status == 'success') {
-                            var selected_upozila =
-                                "{{ $shipping_address ? $shipping_address->upozila_id : '' }}";
-                            $('#upozila').html('');
-                            $('#upozila').append(
-                                '<option value="" selected>-- Select Upozila --</option>');
-                            $.each(response.locations, function(key, value) {
-                                var option = '<option value="' + value.id + '"';
-                                if (selected_upozila != '' && selected_upozila ==
-                                    value.id) {
-                                    option += ' selected';
-                                }
-                                option += '>' + value.name + '</option>';
-                                $('#upozila').append(option);
-                            });
-                        }
-                    }
-                });
-            });
-
             $('.deliver_location').change(function(){
                 $('.deliver_location input').removeAttr("required");
             });

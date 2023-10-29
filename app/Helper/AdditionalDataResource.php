@@ -5,7 +5,9 @@ use App\Models\Category;
 use App\Models\CustomerEntry;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductResalePrice;
 use App\Models\User;
+use App\Models\Withdraw;
 use Illuminate\Support\Facades\Auth;
 
 class AdditionalDataResource {
@@ -100,16 +102,16 @@ class AdditionalDataResource {
     return $all_categories;
   }
 
-  public static function getParentCategoryProducts(array|string $parent_category_id, string|NULL $product_type = null){
+  public static function getParentCategoryProducts(array|string $parent_category_id, string|NULL $product_type = null, array|NULL $select = null){
     $products = new Product();
 
-    return $products->getProductsByParentCategoryId($parent_category_id, $product_type);
+    return $products->getProductsByParentCategoryId($parent_category_id, $product_type, $select);
   }
 
-  public static function getChildCategoryProducts($child_category_id, string|NULL $product_type = null){
+  public static function getChildCategoryProducts($child_category_id, string|NULL $product_type = null, array|NULL $select = null){
     $products = new Product();
 
-    return $products->getProductsByChildCategoryId($child_category_id, $product_type);
+    return $products->getProductsByChildCategoryId($child_category_id, $product_type, $select);
   }
 
   public static function getChildrenCategoryProducts($children_category_id, string|NULL $product_type = null){
@@ -164,6 +166,57 @@ class AdditionalDataResource {
 
   public static function getReseller(){
     return User::with('reseller')->findOrFail(Auth::id()); 
+  }
+
+  /**
+   * @uses AdditionalDataResources::getResellerEarning to find out the total sale, resale, buy, earning inquiry for the logged in reseller. 
+   */
+  public static function getResellerEarning(){
+    $total_data = array(
+        'invoice_value' => array(),
+        'reseller_value' => array(),
+        'reseller_earning' => array(),
+    );
+
+    $withdraws = Withdraw::select('id', 'withdraw_amount')->where('user_id', Auth::id())->where('status', 'Succeed')->get();
+    $previous_withdrawal = array_sum($withdraws->pluck('withdraw_amount')->toArray());
+
+    $reseller_added_shipping_charge = array();
+    $shipping_charge = array();
+
+    $orders = Order::select('id', 'shipping_charge', 'total')->where('user_id', Auth::id())->where('status', 'Delivered')->latest('id')->get();
+
+    foreach ($orders as $order) {  
+        $shipping_charge[] = intval($order->shipping_charge);         
+        $reseller_added_shipping_charge[] = intval($order->total);         
+        $prices = array();
+        $products = ProductResalePrice::select('id', 'main_rate', 'resale_prices', 'quantities')->where('order_id', $order->id)->get();
+        $resale_prices = $products->pluck('resale_prices')->toArray();
+
+        foreach ($products as $product) {
+            $prices[] = intval($product->main_rate) * intval($product->quantities);
+        }
+
+        $sum_prices = array_sum($prices);
+        $sum_resale_prices = array_sum($resale_prices);
+        $earning = $sum_resale_prices - $sum_prices;
+
+        $total_data['invoice_value'][] = $sum_prices;
+        $total_data['reseller_value'][] = $sum_resale_prices;
+        $total_data['reseller_earning'][] = $earning;
+    }
+
+    $reseller_value = array_sum($total_data['reseller_value']) + array_sum($shipping_charge);
+    $invoice_value = array_sum($total_data['invoice_value']) + array_sum($shipping_charge) + array_sum($reseller_added_shipping_charge);
+    $earning_amount = $reseller_value - $invoice_value;
+
+    return array(
+        'target_value' => $invoice_value,
+        'resale_value' => $reseller_value,
+        'reseller_earning' => $earning_amount,
+        'previous_withdrawal' => $previous_withdrawal,
+        'reserve_amount' => $earning_amount - $previous_withdrawal,
+    );
   }
 }
 

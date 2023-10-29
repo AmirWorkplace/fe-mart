@@ -32,7 +32,7 @@ class Order extends Model
     }
 
     public function reseller_products_price(){
-        return $this->hasMany(Product::class,'price_ids');
+        return $this->hasMany(Product::class, 'price_ids');
     }
 }
  

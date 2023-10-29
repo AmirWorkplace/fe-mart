@@ -41,7 +41,7 @@ class Product extends Model
         return $this->hasMany(Review::class, 'product_id')->with('customer');
     }
 
-    public function getProductsByParentCategoryId(array|string $parent_category_id, string|NULL $product_type = null)
+    public function getProductsByParentCategoryId(array|string $parent_category_id, string|NULL $product_type = null, array|NULL $select = null)
     {
         if(is_array($parent_category_id)){
 
@@ -61,14 +61,22 @@ class Product extends Model
         if($product_type){
             return $this->whereJsonContains('category_id->main_category_id', [$parent_category_id])->with(['price', 'stocks'])->where('status', true)->where('product_type', $product_type)->latest('updated_at')->get();
         }
+
+        if(is_array($select)){
+            return $this->whereJsonContains('category_id->main_category_id', [$parent_category_id])->select($select)->where('status', true)->latest('updated_at')->get();
+        }
         
         return $this->whereJsonContains('category_id->main_category_id', [$parent_category_id])->with(['price', 'stocks'])->where('status', true)->latest('updated_at')->get();
     }
 
-    public function getProductsByChildCategoryId($child_category_id, string|NULL $product_type = null)
+    public function getProductsByChildCategoryId($child_category_id, string|NULL $product_type = null, array|NULL $select = null)
     {
         if($product_type){
             return $this->whereJsonContains('category_id->child_category_id', [$child_category_id])->with(['price', 'stocks'])->where('status', true)->where('product_type', $product_type)->latest('updated_at')->get();
+        }
+
+        if(is_array($select)){
+            return $this->whereJsonContains('category_id->child_category_id', [$child_category_id])->select($select)->where('status', true)->latest('updated_at')->get();
         }
         
         return $this->whereJsonContains('category_id->child_category_id', [$child_category_id])->with(['price', 'stocks'])->where('status', true)->latest('updated_at')->get();

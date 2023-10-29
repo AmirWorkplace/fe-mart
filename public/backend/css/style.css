@@ -27,6 +27,11 @@ ul {
     padding: 0;
 }
 
+.disabled {
+    background: #e9ecef !important;
+    pointer-events: none !important;
+}
+
 .scrollTop {
     position: fixed;
     right: 35px;

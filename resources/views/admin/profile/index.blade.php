@@ -5,7 +5,7 @@
     <h4 class="mb-0 h6 fw-600 text-dark text-uppercase text-truncate-1">Admin Profile</h4>
     <div class="flex-shrink-0">
         <ol class="breadcrumb m-0">
-            <li class="breadcrumb-item"><a href="{{Route('admin.dashboard')}}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
             <li class="breadcrumb-item active">Admin Profile</li>
         </ol>
     </div>
@@ -16,7 +16,7 @@
 <div class="row g-3">
     <div class="col-12">
         <div class="header-wrapper">
-            <form action="{{ Route('admin.change-images', $profile->id ) }}" method="post" enctype="multipart/form-data">
+            <form action="{{ route('admin.change-images', $profile->id ) }}" method="post" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="profile-header">
@@ -102,19 +102,11 @@
                                 <span class="rounded-pill">{{ $profile->address }}</span>
                             </li>
 
-                            @if($profile->reseller)
+                            @if(App\Helper\UserManagement::role('reseller'))
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Shop Name
                                     <span class="rounded-pill">{{ $profile->reseller->shop_name }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Mobile Bank Type
-                                    <span class="rounded-pill">{{ $profile->reseller->mobile_bank_type }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Mobile Bank Number
-                                    <span class="rounded-pill">{{ $profile->reseller->mobile_bank_number }}</span>
-                                </li>
+                                </li> 
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Bank Name
                                     <span class="rounded-pill">{{ $profile->reseller->bank_name }}</span>
@@ -123,6 +115,26 @@
                                     Bank Account
                                     <span class="rounded-pill">{{ $profile->reseller->bank_account }}</span>
                                 </li> 
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Bank Branch Name
+                                    <span class="rounded-pill">{{ $profile->reseller->bank_branch_name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Bkash Number
+                                    <span class="rounded-pill">{{ $profile->reseller->bkash }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Nagad Number
+                                    <span class="rounded-pill">{{ $profile->reseller->nagad }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Rocket Number
+                                    <span class="rounded-pill">{{ $profile->reseller->rocket }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Upay Number
+                                    <span class="rounded-pill">{{ $profile->reseller->upay }}</span>
+                                </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Shop Utility
                                     <span class="rounded-pill">{{ $profile->reseller->shop_utility }}</span>
@@ -155,32 +167,52 @@
                                     <input class="form-control" type="number" id="admin-phone" placeholder="Your Phone" name="phone" value="{{ $profile->phone }}">
                                 </div>
                                 
-                                @if($profile->reseller)
+                                @if(App\Helper\UserManagement::role('reseller'))
                                     <div class="col-md-4 col-xs-6">
                                         <label for="admin-name" class="form-label">Your Shop Name</label>
                                         <input class="form-control" type="text" id="admin-shop_name" placeholder="Your Shop Name" name="shop_name" value="{{ $profile->reseller->shop_name }}">
                                     </div>
-                                    <div class="col-md-4 col-xs-6">
+                                    {{-- <div class="col-md-4 col-xs-6">
                                         <label for="admin-email" class="form-label">Your Mobile Bank Account Type</label>
                                         <input class="form-control" type="text" id="admin-mobile_bank_type" placeholder="Bkash" name="mobile_bank_type" value="{{ $profile->reseller->mobile_bank_type }}">
                                     </div>
                                     <div class="col-md-4 col-xs-6">
                                         <label for="admin-phone" class="form-label">Your Mobile Banking Account Number</label>
                                         <input class="form-control" type="number" id="admin-mobile_bank_number" placeholder="01896******" name="mobile_bank_number" value="{{ $profile->reseller->mobile_bank_number }}">
-                                    </div>
+                                    </div> --}}
                                     <div class="col-md-4 col-xs-6">
                                         <label for="admin-name" class="form-label">Your Bank Name</label>
                                         <input class="form-control" type="text" id="admin-bank_account" placeholder="IFIC LTD" name="bank_name" value="{{ $profile->reseller->bank_name }}">
                                     </div>
                                     <div class="col-md-4 col-xs-6">
-                                        <label for="admin-name" class="form-label">Your Bank Number</label>
+                                        <label for="admin-name" class="form-label">Your <span class="text-danger">Bank</span> Number</label>
                                         <input class="form-control" type="number" id="admin-bank_account" placeholder="89***********" name="bank_account" value="{{ $profile->reseller->bank_account }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-phone" class="form-label">Your Bank Branch Name</label>
+                                        <input class="form-control" type="text" id="admin-bank_branch_name" placeholder="01896******" name="bank_branch_name" value="{{ $profile->reseller->bank_branch_name }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-phone" class="form-label">Your <span class="text-danger">Bkash</span> Number</label>
+                                        <input class="form-control" type="text" id="admin-bkash" placeholder="01896******" name="bkash" value="{{ $profile->reseller->bkash }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-phone" class="form-label">Your <span class="text-danger">Nagad</span> Number</label>
+                                        <input class="form-control" type="text" id="admin-nagad" placeholder="01896******" name="nagad" value="{{ $profile->reseller->nagad }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-phone" class="form-label">Your <span class="text-danger">Rocket</span> Number</label>
+                                        <input class="form-control" type="text" id="admin-rocket" placeholder="01896******" name="rocket" value="{{ $profile->reseller->rocket }}">
+                                    </div>
+                                    <div class="col-md-4 col-xs-6">
+                                        <label for="admin-phone" class="form-label">Your <span class="text-danger">Upay</span> Number</label>
+                                        <input class="form-control" type="text" id="admin-upay" placeholder="01896******" name="upay" value="{{ $profile->reseller->upay }}">
                                     </div>
                                     <div class="col-md-4 col-xs-6">
                                         <label for="admin-email" class="form-label">Your Shop Utilities</label>
                                         <input class="form-control" type="text" id="admin-shop_utility" placeholder="Your Shop Utilities" name="shop_utility" value="{{ $profile->reseller->shop_utility }}">
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-md-4 col-xs-6">
                                         <label for="admin-phone" class="form-label">Your Website Link or URL</label>
                                         <input class="form-control" type="text" id="admin-website_url" placeholder="https://www." name="website_url" value="{{ $profile->reseller->website_url }}">
                                     </div>

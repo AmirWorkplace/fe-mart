@@ -38,6 +38,9 @@ class Setting extends Model
         'banner_one_link',
         'banner_two',
         'banner_two_link',
+        'delivery_charge',
+        'inside_dhaka_charge',
+        'outside_dhaka_charge',
     ];
 
     use HasFactory;

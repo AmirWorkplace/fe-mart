@@ -258,7 +258,7 @@
                 $('[type="submit"]').attr("disabled", debouncingState);
             });
 
-            function productList({id, resale_rate, product_id, image, name, code, quantities, prices }) {
+            function productList({id, resale_rate, product_id, image, name, code, quantities, prices, main_rate }) {
                 const tagId = `product-list-item--${product_id}`;
 
                 if(ids.includes(tagId)){
@@ -285,6 +285,7 @@
                                 </button>
                             </div>
 
+                            <input type="hidden" name="product_main${product_id}_rate" value="${main_rate}"/>
                             <input type="hidden" name="product_resale_${product_id}_rate" value="${resale_rate}"/>
                             <input type="hidden" name="product_${product_id}_rate" value="${productRate}"/>
                             <input type="hidden" name="product_${product_id}_amount" value="${prices}"/>
@@ -367,6 +368,7 @@
                     image: productData.thumbnail, 
                     name: productData.name, 
                     code: productData.code, 
+                    main_rate: productData.reseller_price, 
                     resale_rate: $("#invoice_rate").val(), 
                     quantities: $("#total_quantities").val(), 
                     prices: $("#main_total_price").val(),
@@ -425,6 +427,7 @@
                         image: publicPath + product.product.thumbnail, 
                         name: product.product.name, 
                         code: product.product.code, 
+                        main_rate: productData.main_rate, 
                         resale_rate: product.resale_rate, //hash
                         quantities: product.quantities, 
                         prices: product.resale_prices,

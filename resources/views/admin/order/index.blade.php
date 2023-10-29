@@ -30,7 +30,7 @@
                             <tr class="text-nowrap">
                                 <th width="3"></th>
                                 <th>Order ID</th>
-                                <th>Order Date</th>
+                                <th>Product Names</th>
                                 <th>Customer Name</th>
                                 <th>Customer Phone</th>
                                 <th>Order Amount</th>
@@ -76,8 +76,8 @@
                         name: 'order_code'
                     },
                     {
-                        data: 'order_date',
-                        name: 'order_date',
+                        data: 'product_names',
+                        name: 'product_names',
                         orderable: false,
                         searchable: false,
                     },

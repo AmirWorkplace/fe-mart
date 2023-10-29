@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('user_id');
             $table->string('shop_name')->nullable();
-            $table->string('mobile_bank_type')->nullable();
-            $table->string('mobile_bank_number')->nullable();
+            $table->string('bank_branch_name')->nullable();
+            $table->string('bkash')->nullable();
+            $table->string('nagad')->nullable();
+            $table->string('rocket')->nullable();
+            $table->string('upay')->nullable();
             $table->string('bank_name')->nullable();
             $table->string('bank_account')->nullable();
             $table->string('city')->nullable();

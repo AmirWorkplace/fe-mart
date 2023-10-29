@@ -35,16 +35,18 @@
                     <thead>
                         <tr class="text-nowrap">
                             <th width="3"></th>
+                            <th>Order Code</th>
                             <th>Customer Name</th>
+                            <th>Product Name</th>
                             <th>Phone Number</th>
-                            <th>Order Date</th>
+                            <th>Order Amount</th>
                             <th>Status</th>
                             <th width="110" class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                     </tbody>
-                    <tfoot>
+                    {{-- <tfoot>
                         <tr>
                             <th class="text-center" colspan="1">
                                 <div class="custom-control custom-checkbox">
@@ -58,7 +60,7 @@
                                     class="btn btn btn-xs btn-danger">Delete</button>
                             </th>
                         </tr>
-                    </tfoot>
+                    </tfoot> --}}
                 </table>
             </div>
         </div>
@@ -83,18 +85,30 @@
                         orderable: false,
                         searchable: false,
                         width: '3'
-                    }, 
+                    },  
+                    {
+                        data: 'order_code',
+                        name: 'order_code'
+                    },  
                     {
                         data: 'user_name',
                         name: 'user_name'
-                    }, 
+                    },  
+                    {
+                        data: 'product_names',
+                        name: 'product_names'
+                    },
                     {
                         data: 'user_phone',
                         name: 'user_phone'
                     }, 
+                    // {
+                    //     data: 'order_date',
+                    //     name: 'order_date'
+                    // },
                     {
-                        data: 'order_date',
-                        name: 'order_date'
+                        data: 'sub_total',
+                        name: 'sub_total'
                     },
                     {
                         data: 'order_status',

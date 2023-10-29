@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ResellerController;
+use App\Http\Controllers\Admin\ResellerProductDiscountController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\SpecialOfferProductsController;
@@ -133,4 +134,12 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin', 'middleware' => ['admin_per
     Route::resource('/reseller', ResellerController::class);
     Route::get('/reseller/{id}/password', [ResellerController::class, 'changePassword'])->name('reseller.password');
     Route::put('/reseller/password/{id}', [ResellerController::class, 'passwordUpdate'])->name('reseller.password-update');
+
+    // Reseller Product Discount Management
+    Route::resource('/reseller-product-discount', ResellerProductDiscountController::class);
+    Route::get('/load-child-categories-with-parent-category-products/{main_category_id}', [ResellerProductDiscountController::class, 'childCategoriesAndProducts'])
+        ->name('child_categories_with_products');
+    Route::get('/load-children-categories-with-parent-category-products/{main_category_id}', [ResellerProductDiscountController::class, 'childrenCategoriesAndProducts'])
+        ->name('children_categories_with_products');
+    Route::get('/only-single-product/{id}', [ResellerProductDiscountController::class, 'onlySingleProduct'])->name('only_single_product');
 });

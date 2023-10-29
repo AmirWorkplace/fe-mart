@@ -128,7 +128,7 @@ class CartController extends Controller
                 'attribute' => $attributes,
                 'product_variant' => $str,
                 'name' => $variant_product->product->name,
-                'price' => $variant_product->price,
+                'price' => $product->price->regular_price,
                 'discounted_price' => $discounted_price,
                 'slug' => $variant_product->product->slug,
                 'category_slug' => "category-slug-{$i}",
@@ -143,6 +143,7 @@ class CartController extends Controller
         }
 
         return [
+            'product_id'=> $variant_product->product_id,
             'flash_deal_id' => $flash_deal_id,
             'flash_deal_item_id' => $flash_deal_item_id,
             'product_type' => $variant_product->product->product_type,

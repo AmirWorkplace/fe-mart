@@ -4,8 +4,9 @@
     $customers = App\Helper\AdditionalDataResource::getCustomerOfReseller();
 
     $shop_name = isset($user->reseller->shop_name) ? $user->reseller->shop_name : $user->name;
-@endphp
 
+    $available_balance = App\Helper\AdditionalDataResource::getResellerEarning()['reserve_amount'];
+@endphp
 
 @extends('layouts.admin.app')
 
@@ -55,25 +56,30 @@
 
                              <!-- Sales Type -->
                              <div class="col-md-4 col-sm-6">
-                                <label for="sales_type" class="form-label require">
-                                    <b>Sales Type </b>  
-                                </label>
+                                <div class="d-flex" style="justify-content: space-between;">
+                                    <label for="sales_type" class="form-label require">
+                                        <b>Sales Type </b>  
+                                    </label>
+                                    <P class="m-0 d-none show-balance">Balance: 
+                                        <b class="text-success ml-2">৳ {{ number_format($available_balance) }}</b>
+                                    </P>
+                                </div>
                                 <select name="sales_type" id="sales_type"
                                     class="form-control select" data-placeholder="{{ __('Sales Type') }}" required> 
                                     <option value=""></option>
                                     <option value="cod">Cash On Delivery</option>
                                     <option value="prepaid">Prepaid</option>
-
+                                    <option value="adjustment">Adjustment</option>
                                 </select>
                             </div>
 
                             <!-- Customer Selection -->
-                            <div class="col-md-4 col-sm-6">
+                            <div class="col-md-4 col-sm-6" id="customer_selector">
                                 <label for="select_customer" class="form-label require">
                                     <b>Customer Name </b> <span class="text-sm px-1 text-danger"> </span>
                                 </label>
                                 <select name="select_customer" id="select_customer"
-                                    class="form-control select" data-placeholder="Customer Name" required>
+                                    class="form-control select" data-placeholder="Customer Name">
                                     <option value=""></option>
                                     @foreach ($customers as $customer)
                                         <option value="{{ $customer }}">{{ $customer->name }}</option>
@@ -82,7 +88,7 @@
                             </div>
 
                             <!-- Product Selection -->
-                            <div class="col-md-8 col-sm-8">
+                            <div class="col-md-4 col-sm-4">
                                 <label for="select_product" class="form-label require">
                                     <b>Product Name </b> <span class="text-sm px-1 text-danger"> </span>
                                 </label>
@@ -105,10 +111,34 @@
                             </div>
 
                             <!-- Shipping Address Charge -->
+                            <div class="d-flex gap-4 mb-3 col-md-4 mt-3">
+                                <div class="col-12 row" style="margin: 20px 0 0px 10px;">
+                                    <input type="hidden" name="delivery_charge" id="delivery_charge" value="{{ $setting->inside_dhaka_charge }}">
+                                    <div class="flex-shrink-0 form-check deliver_location col-6">
+                                        <input class="form-check-input" type="radio" id="inside_dhaka_charge"
+                                            name="inside_dhaka_charge" />
+                                        <label class="form-check-label" for="inside_dhaka_charge">
+                                            <b>Deliver Inside Dhaka</b>
+                                        </label>
+                                    </div>
+                                    <div class="flex-shrink-0 form-check deliver_location col-6">
+                                        <input class="form-check-input" type="radio" id="outside_dhaka_charge" name="outside_dhaka_charge" />
+                                        <label class="form-check-label" for="outside_dhaka_charge">
+                                            <b>Deliver Outside Dhaka</b>
+                                        </label>
+                                    </div>
+                                    <div class="flex-shrink-0 form-check deliver_location col-12">
+                                        <input class="form-check-input" type="radio" id="deliver_charge_free" name="deliver_charge_free" />
+                                        <label class="form-check-label" for="deliver_charge_free">
+                                            <b>Free Delivery Charge</b>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             {{-- <div class="col-md-4 col-sm-6 hidden">
                                 <label for="shipping_charge" class="form-label require">
                                     <b>Shipping Charge</b>
-                                </label>
+                                </label> value="inside_dhaka_charge" value="outside_dhaka_charge" value="deliver_charge_free"
                                 <input type="number" value="0" class="form-control custom-input" id="shipping_charge" name="shipping_charge">
                             </div> --}}
                             <input type="hidden" value="0" class="form-control custom-input" id="shipping_charge" name="shipping_charge">
@@ -172,14 +202,17 @@
                                 </thead>
                                 <tbody id="product-listing-tbody"></tbody>
                                 <tfoot>
-                                    <tr>
+                                    <tr class="bg-warning">
                                         <th>Product Items</th>
                                         <th>Subtotal</th>
                                         <th></th>
-                                        <th class="hidden" id="subtotal-default-amount">0</th>
+                                        <th class="opacity-0" id="subtotal-default-amount">0</th>
                                         <th id="subtotal-quantities">0</th>
                                         <th id="subtotal-amount">0</th>
                                         <th></th>
+                                    </tr>
+                                    <tr class="text-end d-none bg-light" id="error-message">
+                                        <th class="text-end text-danger" colspan="7">You do not have enough balance for adjustment this order!</th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -198,6 +231,8 @@
 @push('js')
     <script>
         $(document).ready(function(){
+            const balance = Number('{{ $available_balance }}');
+
             let ids = [];
             let debouncingState = true;
             // Initiate total quantity and subtotal amount
@@ -209,8 +244,15 @@
             $("#order-place").submit(function(event){
                 event.preventDefault();
 
-                const customer = JSON.parse($("#select_customer").val());
-                const reseller_id = customer.reseller_id;
+                let customer_id;
+                const reseller_id = "{{ Auth::id() }}";
+
+                if($('#order_type').val() != 'self'){
+                    const customer = JSON.parse($("#select_customer").val());
+                    customer_id = customer.id;
+                }else{
+                    customer_id = reseller_id;
+                }
 
                 let products = [];
 
@@ -225,7 +267,15 @@
                     return accumulator;
                 }, { product_ids: [], price_ids: [] });
 
-                const accountingData = { customer_id: customer.id, reseller_id, sub_total: amount, qty, product_ids: JSON.stringify(pdtData.product_ids), price_ids: JSON.stringify(pdtData.price_ids), total:rate /* , order_type: $('#order_type').val(), sales_type: $('#sales_type').val(), shipping_charge: $('#shipping_charge').val() */ };
+                if($('#sales_type').val() == 'adjustment'){
+                    if(balance <= amount){
+                        $('#error-message').removeClass('d-none');
+                        $('[type="submit"]').removeAttr("disabled");
+                        return;
+                    }
+                }
+
+                const accountingData = { customer_id, reseller_id, sub_total: amount, qty, product_ids: JSON.stringify(pdtData.product_ids), price_ids: JSON.stringify(pdtData.price_ids), total:rate };
 
                 const formDataArray = $(this).serializeArray(); 
 
@@ -234,9 +284,7 @@
                     return accumulator
                 })
 
-                const data = { ...accountingData, ...formData };
-
-                console.log(data)
+                const data = { ...accountingData, ...formData, free_delivery: $('#deliver_charge_free').prop("checked") };
 
                 $.ajax({
                     url: "{{ route('admin.order-place.store') }}",
@@ -248,7 +296,7 @@
 
                         console.log(data);
                         if(data.status){
-                            window.location.href = "{{ route('admin.order-place.index') }}";
+                            // window.location.href = "{{ route('admin.order-place.index') }}";
                         }
                     },
 
@@ -257,11 +305,9 @@
                         throw new Error(`There are a major error occurred: ${error.message}`);
                     }
                 });
-
-                // $('[type="submit"]').attr("disabled", debouncingState);
             });
 
-            function productList({id, resale_rate, product_id, image, name, code, quantities, prices }) {
+            function productList({id, resale_rate, product_id, image, name, code, quantities, prices, main_rate }) {
                 const tagId = `product-list-item--${id}`;
 
                 if(ids.includes(tagId)){
@@ -288,6 +334,7 @@
                                 </button>
                             </div>
 
+                            <input type="hidden" name="product_main${product_id}_rate" value="${main_rate}"/>
                             <input type="hidden" name="product_resale_${product_id}_rate" value="${resale_rate}"/>
                             <input type="hidden" name="product_${product_id}_rate" value="${productRate}"/>
                             <input type="hidden" name="product_${product_id}_amount" value="${prices}"/>
@@ -338,8 +385,6 @@
                 $("#customer_email").val(data.email);
                 $("#customer_phone").val(data.phone);
                 $("#customer_address").val(data.address);
-
-                // console.log(customerData);
             });
 
             // select a product and initiate the product data
@@ -348,7 +393,6 @@
                 productData = { name: data.name, code: data.code, thumbnail: data.thumbnail , max_order: data.max_order , min_order: data.min_order , category_id: data.category_id, ...data.price };
 
                 $("#total_quantities").val(1)
-                // $("#price").val(productData.reseller_price);
                 $("#reseller_price").val(productData.reseller_price);
                 $("#default_price").val(productData.sale_price);
                 
@@ -370,6 +414,7 @@
                     image: productData.thumbnail, 
                     name: productData.name, 
                     code: productData.code, 
+                    main_rate: productData.reseller_price, 
                     resale_rate: $("#invoice_rate").val(), 
                     quantities: $("#total_quantities").val(), 
                     prices: $("#main_total_price").val(),
@@ -401,16 +446,19 @@
                 $("#total_quantities").val(1);
 
                 if($("#order_type").val() === "self"){
+                    $('#customer_selector').addClass('opacity-0 pe-none');
                     $("#invoice_rate").val(productData.reseller_price);
                     $("#invoice_rate").attr("disabled", "true");
                     $("#main_total_price").val(productData.reseller_price);
                     productRate = productData.reseller_price;
                 }else if($("#order_type").val() === "business"){
+                    $('#customer_selector').removeClass('opacity-0 pe-none');
                     $("#invoice_rate").val(productData.sale_price);
                     $("#invoice_rate").removeAttr("disabled");
                     $("#main_total_price").val(productData.sale_price);
                     productRate = productData.sale_price;
                 }else{
+                    $('#customer_selector').removeClass('opacity-0 pe-none');
                     $("#invoice_rate").val(productData.reseller_price);
                     $("#invoice_rate").attr("disabled", "true");
                     $("#main_total_price").val(productData.reseller_price);
@@ -418,7 +466,44 @@
                 }
             }
 
-            // $('#')
+            $('#sales_type').change(function(){
+                if($('#sales_type').val() == 'adjustment'){
+                    $('.show-balance').removeClass('d-none')
+                }else{
+                    $('.show-balance').addClass('d-none')
+                }
+            });
+
+            // control delivery charge
+            $('#inside_dhaka_charge').on("change click",function(){
+                $('#inside_dhaka_charge').prop('checked', true);
+                $('#outside_dhaka_charge').prop('checked', false);
+                $('#deliver_charge_free').prop('checked', false);
+
+                $('#delivery_charge').val('{{ $setting->inside_dhaka_charge }}')
+            }); 
+
+            function initiateDeliveryCharge(){
+                $('#inside_dhaka_charge').prop('checked', true);
+                $('#outside_dhaka_charge').prop('checked', false);
+                $('#deliver_charge_free').prop('checked', false);
+
+                $('#delivery_charge').val('{{ $setting->inside_dhaka_charge }}');
+            }
+
+            initiateDeliveryCharge();
+
+            $('#outside_dhaka_charge').on("change click",function(){
+                $('#outside_dhaka_charge').prop('checked', true);
+                $('#inside_dhaka_charge').prop('checked', false);
+                $('#deliver_charge_free').prop('checked', false);
+
+                $('#delivery_charge').val('{{ $setting->outside_dhaka_charge }}');
+            });
+
+            $('#deliver_charge_free').change(function(){
+                $('#deliver_charge_free').prop('checked', true);
+            });
         });
     </script>
 @endpush
