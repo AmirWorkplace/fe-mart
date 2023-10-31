@@ -8,7 +8,7 @@
             <div class="card">
                 <div class="card-header px-3 py-2">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="h6 mb-0 text-uppercase">Add Responsive Portfolio Description</h6>
+                        <h6 class="h6 mb-0 text-uppercase">Add Reseller Discount Offer's Products</h6>
                         <a href="{{ Route('admin.reseller-product-discount.index') }}" class="btn btn-primary btn-sm text-uppercase">
                             Go Back
                         </a>

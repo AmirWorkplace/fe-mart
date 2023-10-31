@@ -34,6 +34,8 @@ class OrderPlaceController extends Controller
     // Display a listing of the resource.
     public function index()
     {
+        info(AdditionalDataResource::getResellerEarning()['reserve_amount']);
+
         $model = Order::query()->where('user_id', Auth::id());
 
         if(UserManagement::role('admin')){
@@ -129,7 +131,8 @@ class OrderPlaceController extends Controller
     {  
         
         $user = Auth::user();
-        
+        $total_earning = AdditionalDataResource::getResellerEarning()['reserve_amount'];
+
         if(request()->ajax()){
             $request->validate([
                 'price_ids' => 'required',
@@ -176,6 +179,7 @@ class OrderPlaceController extends Controller
                 'order_note' => NULL,
                 'payment_method' => $request->order_type,
                 'sales_type' => $request->sales_type,
+                'total_earning' => $total_earning,
                 'status' => $status,
                 ...$status_time,
             ]);
@@ -198,16 +202,16 @@ class OrderPlaceController extends Controller
             }
 
             if($request->sales_type == 'adjustment'){
-                $balance = AdditionalDataResource::getResellerEarning()['reserve_amount'];
+                // $balance = AdditionalDataResource::getResellerEarning()['reserve_amount'];
 
                 if($order){
-                    if($balance <= intval($amount)){
+                    if($total_earning <= intval($amount)){
                         return redirect()->route('admin.order-place.create')->withErrors('You do not have enough balance for adjustment this order!');
                     }
     
                     Withdraw::create([
                         'user_id' => $user->id,
-                        'total_earning' => $balance,
+                        'total_earning' => $total_earning,
                         'withdrawal_method' => 'Adjustment Order',
                         'withdraw_amount' => ($order->shipping_charge + $order->sub_total + $order->total) - $order->discount,
                         'account_number' => '...',
@@ -259,8 +263,7 @@ class OrderPlaceController extends Controller
         if(is_array(json_decode($data->product_ids))){
             $selected_products = ProductResalePrice::with('product')->where('order_id', $id)->latest('updated_at')->get();
         }
-
-        // return view("{$this->route_path['view']}.edit", compact('data', 'selected_products'));
+        
         return redirect()->route($this->route_path['route'] . ".index");
     }
 
@@ -346,7 +349,8 @@ class OrderPlaceController extends Controller
     // Reseller order place from client view
     public function resellerOrderPlace(Request $request, $user_name){
         $cart = session()->get('cart');
-        
+        $total_earning = AdditionalDataResource::getResellerEarning()['reserve_amount'];
+
         $request->validate(['select_customer'=> 'required']);
         if(empty($cart)) return redirect()->back()->withErrors('Nothing is available in your cart!');
         
@@ -357,8 +361,7 @@ class OrderPlaceController extends Controller
         foreach($cart as $product){
             $cart_products[] = $product;
             $product_ids[] = $product['product_id'];
-        }
-        // return [$cart_products, $request->all()];
+        } 
 
         switch ($request->input('order_type')) {
             case 'self':
@@ -381,6 +384,7 @@ class OrderPlaceController extends Controller
                     'order_note' => null,
                     'payment_method' => 'cod',
                     'sales_type' => $request->order_type,
+                    'total_earning' => $total_earning,
                     'pending_at' => Carbon::now(),
                 ]);
     
@@ -439,6 +443,7 @@ class OrderPlaceController extends Controller
                     'order_note' => null,
                     'payment_method' => 'cod',
                     'sales_type' => $request->order_type,
+                    'total_earning' => $total_earning,
                     'pending_at' => Carbon::now(),
                 ]);
     
@@ -463,6 +468,7 @@ class OrderPlaceController extends Controller
                 return redirect()->route('frontend.home')->withSuccessMessage("Order Placed Successfully!");
 
             case 'business':
+                // return  $total_earning;
                 $customer = json_decode($request->select_customer, true);
 
                 $order = Order::create([
@@ -484,6 +490,7 @@ class OrderPlaceController extends Controller
                     'order_note' => null,
                     'payment_method' => 'cod',
                     'sales_type' => $request->order_type,
+                    'total_earning' => $total_earning,
                     'pending_at' => Carbon::now(),
                 ]);
     

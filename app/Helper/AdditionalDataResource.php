@@ -6,6 +6,7 @@ use App\Models\CustomerEntry;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductResalePrice;
+use App\Models\ResellerProductDiscount;
 use App\Models\User;
 use App\Models\Withdraw;
 use Illuminate\Support\Facades\Auth;
@@ -183,20 +184,34 @@ class AdditionalDataResource {
 
     $reseller_added_shipping_charge = array();
     $shipping_charge = array();
+    $array_cashback = array();
 
-    $orders = Order::select('id', 'shipping_charge', 'total')->where('user_id', Auth::id())->where('status', 'Delivered')->latest('id')->get();
+    $orders = Order::select('id', 'shipping_charge', 'total', 'pending_at')->where('user_id', Auth::id())->where('status', 'Delivered')->latest('id')->get();
 
     foreach ($orders as $order) {  
+        $prices = array();
         $shipping_charge[] = intval($order->shipping_charge);         
         $reseller_added_shipping_charge[] = intval($order->total);         
-        $prices = array();
-        $products = ProductResalePrice::select('id', 'main_rate', 'resale_prices', 'quantities')->where('order_id', $order->id)->get();
+        $products = ProductResalePrice::select('id', 'product_id', 'main_rate', 'resale_prices', 'quantities')->where('order_id', $order->id)->get();
         $resale_prices = $products->pluck('resale_prices')->toArray();
 
+        $total_cashback = 0;
         foreach ($products as $product) {
-            $prices[] = intval($product->main_rate) * intval($product->quantities);
+            $prices[] = intval($product->main_rate) * intval($product->quantities); 
+
+            $available_discount = ResellerProductDiscount::where('product_id', $product->product_id)
+                ->where('status', true)
+                ->where('start_time', '<=', date('Y-m-d', strtotime($order->pending_at)))
+                ->where('end_time', '>=', date('Y-m-d', strtotime($order->pending_at)))
+                ->first();
+
+            if($available_discount){
+                $discount = $product->quantities * $available_discount->discount;
+                $total_cashback += $discount;
+            }
         }
 
+        $array_cashback[] = $total_cashback;
         $sum_prices = array_sum($prices);
         $sum_resale_prices = array_sum($resale_prices);
         $earning = $sum_resale_prices - $sum_prices;
@@ -208,15 +223,25 @@ class AdditionalDataResource {
 
     $reseller_value = array_sum($total_data['reseller_value']) + array_sum($shipping_charge);
     $invoice_value = array_sum($total_data['invoice_value']) + array_sum($shipping_charge) + array_sum($reseller_added_shipping_charge);
-    $earning_amount = $reseller_value - $invoice_value;
+    $earning_value = $reseller_value - $invoice_value;
+    $cashback = array_sum($array_cashback);
+    $reserve_amount = ($earning_value - $previous_withdrawal) + $cashback;
 
     return array(
+        'cashback' => $cashback,
         'target_value' => $invoice_value,
         'resale_value' => $reseller_value,
-        'reseller_earning' => $earning_amount,
+        'reseller_earning' => $earning_value,
         'previous_withdrawal' => $previous_withdrawal,
-        'reserve_amount' => $earning_amount - $previous_withdrawal,
+        'earning_amount' => $earning_value - $previous_withdrawal,
+        'reserve_amount' => $reserve_amount,
     );
+  }
+
+  public static function getBalance(string|int $order_id, string|int $withdraw_id, string $date){
+    info(json_encode([$order_id,
+    $withdraw_id,
+    $date]));
   }
 }
 

@@ -127,8 +127,14 @@ class ResellerProductDiscountController extends Controller
      */
     public function edit(string $id)
     {
-        $categories = Category::where('parent_id', NULL)->where('status', true)->latest('id')->get();
         $data = ResellerProductDiscount::findOrFail($id);
+
+        if (request()->ajax() && request('status')) {
+            $data->update(['status' => !$data->status]);
+            return response()->json(['status' => 'success']);
+        }
+        
+        $categories = Category::where('parent_id', NULL)->where('status', true)->latest('id')->get();
         $product = Product::with('price')->findOrFail($data->product_id); 
 
         return view('admin.reseller-product-discount.edit', compact('data', 'categories', 'product'));

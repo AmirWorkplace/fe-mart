@@ -27,6 +27,7 @@ return new class extends Migration
             $table->float('total');
             $table->float('paid');
             $table->float('due');
+            $table->float('total_earning')->nullable();
             $table->string('payment_method')->default('cod');
             $table->unsignedBigInteger('coupon_id')->nullable();
             $table->string('status')->default('Pending');

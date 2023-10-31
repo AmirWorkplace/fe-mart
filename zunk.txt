@@ -2106,6 +2106,55 @@ Route::get('/experiment/product', function () {
         // $categories = Category::root()->with(['children'])->orderBy('name')->get();
         // $categories = Category::with('parent')->where('status', true)->get();
 
+                info($available_discount);
+
+    info(array(
+      'cashback' => $cashback,
+      'target_value' => $invoice_value,
+      'resale_value' => $reseller_value,
+      'reseller_earning' => $earning_amount,
+      'previous_withdrawal' => $previous_withdrawal,
+      'earning_amount' => $earning_amount - $previous_withdrawal,
+      'reserve_amount' => $reserve_amount,
+    ));   
+     // public string|array $total_earning;
+
+
+        // $total_earning = AdditionalDataResource::getResellerEarning()['reserve_amount'];
+        // info($total_earning);
+        // info($AdditionalDataResource::getResellerEarning()['reserve_amount']);
+
+    
+        // info(date('Y-m-01'));
+        // info(date('Y-m-t'));
+        // $current_month = /* date('Y-m-01') */ Carbon::now()->startOfMonth();
+        // $current_month = /* date('Y-m-01') */ Carbon::now()->startOfMonth();
+        // $current_month = Carbon::parse('2023-09-01');
+        // $next_month = Carbon::parse('2023-10-29');
+        // $current_month = Carbon::now()->startOfMonth();
+        // $next_month = Carbon::now()->startOfMonth()->addMonth();
+        
+        // info($current_month);
+        // info($next_month);
+        
+        // $orders = Order::select('id', 'customer_id', 'total', 'shipping_charge', 'payment_method', 'order_code', 'sales_type', 'pending_at')
+        //     ->filter(function ($order) use ($current_month, $next_month){
+        //         $order_date = Carbon::parse($order->created_at);
+        //         return $order_date >= $current_month && $order_date < $next_month;
+        //     })
+        //     ->where('user_id', Auth::id())
+        //     ->where('status', 'Delivered')
+        //     ->latest('created_at')#;
+        //     ->get();
+        
+        // $orders = $all_orders->filter(function ($order) use ($current_month, $next_month){
+        //     $order_date = Carbon::parse($order->created_at);
+        //     return $order_date >= $current_month && $order_date < $next_month;
+        // })
+        #->get()
+                        // $products = ProductResalePrice::select('id', 'main_rate', 'quantities')->where('order_id', $order->id)->get();
+                // $products = ProductResalePrice::select('id', 'resale_prices', 'quantities')->where('order_id', $order->id)->get();;
+
 
 |---------------------------------------------------------|
 |    Date	    Day 	Holiday                           |

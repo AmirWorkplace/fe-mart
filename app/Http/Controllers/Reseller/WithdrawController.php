@@ -80,6 +80,7 @@ class WithdrawController extends Controller
             return view('admin.withdraw.index');
 
         } else if(UserManagement::role('Reseller Admin')){
+            // return 0;
             if (request()->ajax()) {
                 $model = Withdraw::where('user_id', Auth::id());
                 return DataTables::eloquent($model)

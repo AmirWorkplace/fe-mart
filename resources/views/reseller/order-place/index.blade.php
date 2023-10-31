@@ -168,6 +168,24 @@
                     }
                 });
             });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const message = urlParams.get('message');
+            if(message){
+                Swal.fire({
+                    toast: true,
+                    text: message,
+                    position: 'top-right',
+                    icon: 'success',
+                    iconColor: 'white',
+                    customClass: {
+                        popup: 'success-toast'
+                    },
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
         });
 </script>
 @endpush

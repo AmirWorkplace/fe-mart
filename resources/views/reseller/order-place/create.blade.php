@@ -294,9 +294,9 @@
                     success: function(data){
                         $('[type="submit"]').removeAttr("disabled");
 
-                        console.log(data);
+                        // console.log(data);
                         if(data.status){
-                            // window.location.href = "{{ route('admin.order-place.index') }}";
+                            window.location.href = "{{ route('admin.order-place.index') }}?message=" + encodeURIComponent('Order placed successfully!');
                         }
                     },
 
