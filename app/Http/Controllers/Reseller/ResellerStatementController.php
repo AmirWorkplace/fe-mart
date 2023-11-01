@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Reseller;
 use App\Helper\UserManagement;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\Customer;
+use App\Models\CheckSalesTargetCashback;
 use App\Models\CustomerEntry;
 use App\Models\Order;
 use App\Models\ProductResalePrice;
 use App\Models\Reseller;
 use App\Models\ResellerProductDiscount;
+use App\Models\ResellerSalesTarget;
+use App\Models\ResellerStatement;
 use App\Models\Withdraw;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,32 +27,43 @@ class ResellerStatementController extends Controller
      */
     public function index()
     {
-        $current_month = Carbon::parse(date('Y-m-01'));
-        $next_month = Carbon::parse(date('Y-m-t'));
-
-                
         if(request()->ajax()){
-            $data = $this->getResellerStatementData(start_date: request('start_date'), end_date: request('end_date'));
+            $query = ResellerStatement::query();
+            $query->where("user_id", Auth::id());
 
-            if(count($data) <= 0){
-                $message = "<tr class='text-center'>
-                                <td colspan='5' class='text-danger text-capitalize'>
-                                    <b>No records are available in your date range!</b>
-                                </td>
-                            </tr>";
-
-                return response()->json(['status'=> false, 'message'=> $message]);
-            }
-
-            return response()->json(['status'=> true, 'data'=> $data]);
+            return DataTables::eloquent($query)
+                 ->filter(function ($query) {
+                    if (!empty(request('start_date')) && !empty(request('end_date'))) {
+                        $query->where('created_at', '>=', Carbon::parse(request('start_date')))
+                            ->where('created_at', '<=', Carbon::parse(request('end_date')));
+                    }
+                    if (!empty(request('status'))) {
+                        $query->where('status', request('status'));
+                    }
+                }, true)
+                ->addColumn('date', function($row){
+                    return Carbon::parse($row->created_at)->format('d/m/Y | h:i:s A');
+                })    
+                ->addColumn('description', function($row){
+                    return $row->description;
+                })    
+                ->addColumn('deposit', function($row){
+                    return "<p class='text-center'>{$row->deposit} Tk.</p>";
+                })    
+                ->addColumn('withdraw', function($row){
+                    return "<p class='text-center'>{$row->withdraw} Tk.</p>";
+                })    
+                ->addColumn('balance', function($row){
+                    return "<p class='text-center'>{$row->balance} Tk.</p>";
+                })
+                ->rawColumns(['date', 'description', 'deposit', 'withdraw', 'balance'])
+                ->make(true);   
         }
 
-        $data = $this->getResellerStatementData(start_date: $current_month, end_date: $next_month);
-
-        return view('reseller.statement.index', compact('data', 'current_month', 'next_month'));
+        return view('reseller.statement.statement');
     }
 
-    protected function getResellerStatementData(string $start_date, string $end_date){
+    /* protected function getResellerStatementData(string $start_date, string $end_date){
         $orders = Order::select('id', 'customer_id', 'total', 'shipping_charge', 'payment_method', 'order_code', 'sales_type', 'total_earning', 'pending_at')
             ->where('user_id', Auth::id())
             ->where('status', 'Delivered')
@@ -156,7 +170,7 @@ class ResellerStatementController extends Controller
         usort($data, function($a, $b) {return strtotime($a['date']) - strtotime($b['date']);});
 
         return $data;
-    }
+    } */
 
     /**
      * Show the form for creating a new resource.
@@ -203,6 +217,138 @@ class ResellerStatementController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // return [];
+        // $prices = array();
+        // $shipping_charge[] = intval($order->shipping_charge);         
+        // $reseller_added_shipping_charge[] = intval($order->total);         
+        // $resale_prices = $products->pluck('resale_prices')->toArray();
+        // $prices[] = intval($product->main_rate) * intval($product->quantities); 
+        // $products = ProductResalePrice::select('id', 'product_id', 'main_rate', 'resale_prices', 'quantities')->where('order_id', $order->id)->get();
+    }
+
+    // initiate reseller orders cashback, which cashback he got from his/her successful order.
+    public function initiateResellerOrdersCashback(){
+        $orders = Order::with('reseller_orders')->select('id', 'order_code', 'pending_at')->where('user_id', Auth::id())
+            ->where('is_cashback', false)
+            ->whereIn('status', ['Delivered', 'Successed', 'Succeed'])
+            ->latest('id')
+            ->get();
+
+        $user_id = Auth::id();
+        $all_cashback = array();
+        foreach ($orders as $order) {
+
+            $total_cashback = 0;
+            foreach ($order->reseller_orders as $product) {
+
+                $available_discount = ResellerProductDiscount::where('product_id', $product->product_id)
+                    ->where('status', true)
+                    ->where('start_time', '<=', date('Y-m-d', strtotime($order->pending_at)))
+                    ->where('end_time', '>=', date('Y-m-d', strtotime($order->pending_at)))
+                    ->first();
+
+                if($available_discount){
+                    $discount = $product->quantities * $available_discount->discount;
+                    $total_cashback += $discount;
+                }
+            }
+
+            if($total_cashback > 0){
+                $get_last_statement = ResellerStatement::where('user_id', $user_id)->latest('id')->first();
+                $last_statement_balance = $get_last_statement->balance ?? 0;
+                $balance = $last_statement_balance + $total_cashback;
+
+                $description = "Get Cashback from a order, invoice id at {$order->order_code}.";
+
+                ResellerStatement::create([
+                    'user_id'=> $user_id,
+                    'order_id'=> $order->id,
+                    'withdraw_id'=> NULL,
+                    'description'=> $description,
+                    'withdraw'=> 0,
+                    'deposit'=> $total_cashback,
+                    'balance'=> $balance,
+                    'status'=> true,
+                ]);
+            }
+
+            $all_cashback[$order->id] = $total_cashback;
+        }
+
+        // update cashback status
+        $order_ids = $orders->pluck('id')->toArray();
+        Order::whereIn('id', $order_ids)->update(['is_cashback' => true]);
+
+        return response()->json(['status' => true, 'cashback' => $all_cashback]);
+    }
+
+    public function initiateResellerSalesTargetCashback(){
+        $user_id = Auth::id();
+        $sales_target = ResellerSalesTarget::where('status', true)->get();
+
+        $message = array();
+        foreach ($sales_target as $sales_product) {
+            $is_exist_cashback = CheckSalesTargetCashback::where('user_id', $user_id)->where('offer_id', $sales_product->id)->exists();
+
+            if (!$is_exist_cashback) {
+                $start_date = Carbon::parse($sales_product->start_time);
+                $end_date = Carbon::parse($sales_product->end_time);
+
+                $orders = Order::with('reseller_orders')
+                    ->whereIn('status', ['Delivered', 'Successed', 'Succeed'])
+                    ->where('user_id', $user_id)
+                    // ->where('is_sale_target_cashback', false)
+                    ->whereBetween('pending_at', [$start_date, $end_date])
+                    ->get();
+
+                if(count($orders) > 0){
+                    $sales_at_target_time = [];
+                    foreach($orders as $order){
+                        $total_price = $order->shipping_charge + $order->total;
+
+                        foreach ($order->reseller_orders as $key => $reseller_order) {
+                            $total_price += $reseller_order->resale_rate * $reseller_order->quantities;
+                        }
+                        
+                        $sales_at_target_time[] = $total_price;
+                    }
+                    
+                    $sales_amount_at_target_time = array_sum($sales_at_target_time);
+                    if($sales_amount_at_target_time >= $sales_product->target_amount){
+                        $get_last_statement = ResellerStatement::where('user_id', $user_id)->latest('id')->first();
+                        $last_statement_balance = $get_last_statement->balance ?? 0;
+                        $balance = $last_statement_balance + $sales_product->discount_amount;
+
+                        $description = "Get Cashback to reached a maximum sales amount target. Your target was to sell products worth of {$sales_product->target_amount} Tk, and you sold products worth of {$sales_amount_at_target_time} Tk.";
+
+                        $statement = ResellerStatement::create([
+                            'user_id'=> $user_id,
+                            'order_id'=> $order->id,
+                            'withdraw_id'=> NULL,
+                            'description'=> $description,
+                            'withdraw'=> 0,
+                            'deposit'=> $sales_product->discount_amount,
+                            'balance'=> $balance,
+                            'status'=> true,
+                        ]);
+
+                        if($statement) {
+                            CheckSalesTargetCashback::create([
+                                'user_id'=> $user_id, 
+                                'offer_id' => $sales_product->id, 
+                                'statement_id'=> $statement->id, 
+                                'is_cashback'=> true
+                            ]);
+                        }
+                    }
+
+                    $message[$sales_product->id] = 'Sales Discount Added!';
+                }
+            } else {
+                $message[$sales_product->id] = 'No Order Available in your sales target!';
+            }
+        }
+        
+        return response()->json(['status'=> true, 'messages'=> $message]);
     }
 }

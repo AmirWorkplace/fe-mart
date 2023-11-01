@@ -39,6 +39,8 @@ return new class extends Migration
             $table->timestamp('canceled_at')->nullable();
             $table->timestamp('return_at')->nullable();
             $table->text('order_note')->nullable();
+            $table->boolean('is_cashback')->default(false);
+            $table->boolean('is_earning')->default(false);
             $table->timestamps();
         });
     }

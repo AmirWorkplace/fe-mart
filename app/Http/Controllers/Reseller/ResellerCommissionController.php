@@ -59,17 +59,17 @@ class ResellerCommissionController extends Controller
                         $prices[] = intval($product->main_rate) * intval($product->quantities);
                     }
 
-                    return number_format((array_sum($prices) + $row->shipping_charge + $row->total), 2) . ' Tk.';
+                    $value = number_format((array_sum($prices) + $row->shipping_charge + $row->total), 2) . ' Tk.';
+                    return "<p class='text-center'>{$value} Tk.</p>";
                 })
                 ->addColumn('reseller_value', function($row){
                     $products = ProductResalePrice::select('id', 'resale_prices', 'quantities')->where('order_id', $row->id)->get();
                     $resale_prices = array_sum($products->pluck('resale_prices')->toArray());
                     
-                    return number_format(($resale_prices + $row->shipping_charge), 2) . ' Tk.';
-                })
-                // ->addColumn('cashback', function($row){
-                //     $cashback_product_id = array(75,76);
-                // })
+                    $value = number_format(($resale_prices + $row->shipping_charge), 2) . ' Tk.';
+                     
+                    return "<p class='text-center'>{$value} Tk.</p>";
+                }) 
                 ->addColumn('reseller_earning', function($row){
                     $target_value = function() use($row) {
                         $prices = array();
@@ -79,7 +79,7 @@ class ResellerCommissionController extends Controller
                             $prices[] = intval($product->main_rate) * intval($product->quantities);
                         }
 
-                        return array_sum($prices) + $row->total + $row->shipping_charge;
+                        return array_sum($prices) + $row->total + $row->shipping_charge; 
                     };
 
                     $resale_value = function() use($row) {

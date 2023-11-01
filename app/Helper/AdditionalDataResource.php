@@ -6,9 +6,12 @@ use App\Models\CustomerEntry;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductResalePrice;
+use App\Models\Reseller;
 use App\Models\ResellerProductDiscount;
+use App\Models\ResellerStatement;
 use App\Models\User;
 use App\Models\Withdraw;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class AdditionalDataResource {
@@ -227,7 +230,7 @@ class AdditionalDataResource {
     $cashback = array_sum($array_cashback);
     $reserve_amount = ($earning_value - $previous_withdrawal) + $cashback;
 
-    return array(
+    /* return array(
         'cashback' => $cashback,
         'target_value' => $invoice_value,
         'resale_value' => $reseller_value,
@@ -235,13 +238,133 @@ class AdditionalDataResource {
         'previous_withdrawal' => $previous_withdrawal,
         'earning_amount' => $earning_value - $previous_withdrawal,
         'reserve_amount' => $reserve_amount,
+    ); */
+
+    
+    $get_last_statement = ResellerStatement::where('user_id', Auth::id())->latest('id')->first();
+    $last_statement_balance = $get_last_statement->balance ?? 0;
+
+    return array(
+      'cashback' => $cashback,
+      'target_value' => $invoice_value,
+      'resale_value' => $reseller_value,
+      'reseller_earning' => $earning_value,
+      'previous_withdrawal' => $previous_withdrawal,
+      'earning_amount' => $earning_value - $previous_withdrawal,
+      'reserve_amount' => $last_statement_balance,
     );
   }
 
-  public static function getBalance(string|int $order_id, string|int $withdraw_id, string $date){
-    info(json_encode([$order_id,
-    $withdraw_id,
-    $date]));
-  }
+  public static function getBalance(string|int $order_id, string|int $withdraw_id, string $date){}
+
+    public static function initiateResellerStatement(string $id, string|NULL $status = null, string|NULL $type = null){
+        $user = Auth::user();
+
+        if($type == 'withdraw' && ($status == 'Successed'|| $status == 'Succeed')){
+            $withdraw = Withdraw::findOrFail($id);
+
+            if(!$withdraw->is_withdraw){
+                $get_last_statement = ResellerStatement::where('user_id', $user->id)->latest('id')->first();
+                $last_statement_balance = $get_last_statement->balance ?? 0;
+
+                $ts_id = $withdraw->transaction_id ? ' of transaction ID are ' . $withdraw->transaction_id : '';
+                $description = "Withdraw from " . ucwords($withdraw->withdrawal_method) . " at {$withdraw->account_number}{$ts_id}.";
+
+                $balance = $last_statement_balance - $withdraw->withdraw_amount;
+
+                ResellerStatement::create([
+                    'user_id'=> $user->id,
+                    'order_id'=> null,
+                    'withdraw_id'=> $withdraw->id,
+                    'description'=> $description,
+                    'withdraw'=> $withdraw->withdraw_amount,
+                    'deposit'=> 0,
+                    'balance'=> $balance,
+                    'status'=> true,
+                ]);
+
+                $withdraw->is_withdraw = true;
+                $withdraw->save();
+                return response()->json(['status'=> true, 'message'=> 'Withdraw statement added successfully!']);
+            }
+            return response()->json(['status'=> false, 'message'=> 'Withdraw statement has been already added!']);
+        }
+
+        // find the order
+        $order = Order::with('reseller_orders')->findOrFail($id);
+
+        if(!$order->is_earning){
+            if($status == 'Delivered' || $status == 'delivered' || $status == 'Successed' || $status == 'Succeed'){
+                $reseller = Reseller::where('user_id', $user->id)->first();
+                $account_number = ' and Account number is ' . $reseller[$order->payment_method] ?? '';
+                
+                $order_type = $type == "adjustment" ? 'Adjustment Order.' : '';
+                
+                $sales_type = strtoupper($order->sales_type);
+                $payment_method = strtoupper($order->payment_method);
+                
+                $description = "Sell into yourself ({$user->name}), invoice ID is {$order->order_code}. Paid by ";
+
+                if($order->user_id != $order->customer_id){
+                    $customer = CustomerEntry::findOrFail($order->customer_id);
+
+                    $description = "Sell into {$customer->name}, Mobile ({$customer->phone}). Invoice ID is {$order->order_code}. Paid by ";
+                }
+
+                if(empty($order_type)){
+                    $description .= "{$payment_method} of {$sales_type} {$account_number}.";
+                } else {
+                    $description .= $order_type;
+                }
+
+                $set_original_prices = 0;
+                $set_resale_prices = 0;
+
+                foreach($order->reseller_orders as $resale_product){
+                    $set_original_prices += ($resale_product->main_rate * $resale_product->quantities);
+                    $set_resale_prices += ($resale_product->resale_rate * $resale_product->quantities);
+                }
+
+                $original_prices = $set_original_prices + $order->shipping_charge + $order->total;
+                $resale_prices = $set_resale_prices + $order->shipping_charge;
+
+                info(json_encode([
+                    'original_prices' => $original_prices,
+                    'resale_prices' => $resale_prices,
+                    'osp'=> $order->shipping_charge,
+                    'ot'=> $order->total,
+                ]));
+
+                $get_last_statement = ResellerStatement::where('user_id', $user->id)->latest('id')->first();
+                $last_statement_balance = $get_last_statement->balance ?? 0;
+
+                $deposit = $resale_prices - $original_prices;
+                $withdraw = $type == 'adjustment' ? $resale_prices : 0;
+                $balance = ($last_statement_balance + $deposit) - $withdraw;
+
+                ResellerStatement::create([
+                    'user_id'=> $user->id,
+                    'order_id'=> $order->id,
+                    'withdraw_id'=> NULL,
+                    'description'=> $description,
+                    'withdraw'=> $withdraw,
+                    'deposit'=> $deposit,
+                    'balance'=> $balance,
+                    'status'=> true,
+                ]);
+
+                $status_time = ['delivered_at'=> Carbon::now()];
+                if($status == 'Successed' || $status == 'Succeed') $status_time = ['successed_at'=> Carbon::now()]; 
+
+                $order->update(['status' => $status, 'is_earning'=> true, ...$status_time]);
+                return response()->json(['status' => 'success']);
+            }
+
+            return response()->json(['status'=> false, 'message'=> 'Earning statement has been already added!']);
+        }
+
+        $order->update(['status' => $status]);
+        return response()->json(['status' => 'success']);
+    }
 }
 

@@ -11,6 +11,8 @@ use App\Models\Location;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductResalePrice;
+use App\Models\Reseller;
+use App\Models\ResellerStatement;
 use App\Models\ShippingAddress;
 use App\Models\User;
 use App\Models\Withdraw;
@@ -34,8 +36,6 @@ class OrderPlaceController extends Controller
     // Display a listing of the resource.
     public function index()
     {
-        info(AdditionalDataResource::getResellerEarning()['reserve_amount']);
-
         $model = Order::query()->where('user_id', Auth::id());
 
         if(UserManagement::role('admin')){
@@ -62,6 +62,11 @@ class OrderPlaceController extends Controller
                         $status = '<span class="btn btn-xs text-white bg-danger">Canceled</span>';
                     } elseif ($row->status == 'Delivered') {
                         $status = '<span class="btn btn-xs text-white bg-success">Delivered</span>';
+                    }else if ($row->status == 'Succeed' || $row->status == 'Successed'){
+                        return "<select name='status' class='form-select select2 order_status fs-14 cursor-pointer' data-id='{$row->id}'>
+                                    <option value='Succeed' selected disabled>Succeed</option>
+                                    <option value='Delivered'>Delivered</option>
+                                </select>";
                     } else {
                         $status = '<select name="status" class="form-select select2 order_status fs-14" data-id="' . $row->id . '">';
 
@@ -117,6 +122,7 @@ class OrderPlaceController extends Controller
                 ->rawColumns(['checkbox', 'sub_total', 'product_names', 'order_status','actions'])
                 ->make(true);
         }
+
         return view("{$this->route_path['view']}.index");
     }
 
@@ -202,29 +208,8 @@ class OrderPlaceController extends Controller
             }
 
             if($request->sales_type == 'adjustment'){
-                // $balance = AdditionalDataResource::getResellerEarning()['reserve_amount'];
-
-                if($order){
-                    if($total_earning <= intval($amount)){
-                        return redirect()->route('admin.order-place.create')->withErrors('You do not have enough balance for adjustment this order!');
-                    }
-    
-                    Withdraw::create([
-                        'user_id' => $user->id,
-                        'total_earning' => $total_earning,
-                        'withdrawal_method' => 'Adjustment Order',
-                        'withdraw_amount' => ($order->shipping_charge + $order->sub_total + $order->total) - $order->discount,
-                        'account_number' => '...',
-                        'status' => 'Succeed'
-                    ]);
-    
-                    $status = 'Delivered';
-                    $status_time = ['delivered_at' => Carbon::now()];
-                }
+                AdditionalDataResource::initiateResellerStatement(id: $order->id, status: 'Succeed', type: 'adjustment');
             }
-
-            // clear cart
-            session()->forget("cart");
             return response()->json(["status"=> true, "message"=> "Order Placed Successfully!"]);
         }
     }
@@ -252,19 +237,17 @@ class OrderPlaceController extends Controller
     public function edit(string $id)
     {
         if (request()->ajax()) {
-            $data = Order::findOrFail(request('id'));
-            $data->update(['status' => request('status')]);
-            return response()->json(['status' => 'success']);
+            return AdditionalDataResource::initiateResellerStatement(id: request('id'), status: request('status'));
         }
         
-        $data = Order::findOrFail($id);
         $selected_products = array();
-        
+        $data = Order::findOrFail($id);
+
         if(is_array(json_decode($data->product_ids))){
             $selected_products = ProductResalePrice::with('product')->where('order_id', $id)->latest('updated_at')->get();
         }
         
-        return redirect()->route($this->route_path['route'] . ".index");
+        return redirect()->route($this->route_path['route'] . ".index", compact('selected_products'));
     }
 
     // Update the specified resource in storage.

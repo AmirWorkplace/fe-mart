@@ -32,6 +32,8 @@ Route::group(['as'=> 'admin.', 'prefix'=> 'reseller', 'middleware'=> ['admin_per
 
   // Reseller Statement management
   Route::resource('/statement', ResellerStatementController::class);
+  Route::get('/reseller-orders-cashback', [ResellerStatementController::class, 'initiateResellerOrdersCashback'])->name('reseller_orders_cashback');
+  Route::get('/reseller-sales-target-cashback', [ResellerStatementController::class, 'initiateResellerSalesTargetCashback'])->name('reseller_sales_target_cashback');
 });
 
 

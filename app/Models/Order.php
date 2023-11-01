@@ -9,7 +9,7 @@ class Order extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id', 'customer_id', 'price_ids', 'product_ids', 'user_name', 'user_phone', 'order_code', 'shipping_charge', 'shipping_address_id', 'sub_total', 'total', 'discount', 'sales_type', 'paid', 'due', 'coupon_id', 'payment_method', 'pending_at', 'confirmed_at', 'processing_at', 'delivered_at', 'successed_at', 'canceled_at', 'return_at', 'order_note', 'total_earning', 'status'
+        'user_id', 'customer_id', 'price_ids', 'product_ids', 'user_name', 'user_phone', 'order_code', 'shipping_charge', 'shipping_address_id', 'sub_total', 'total', 'discount', 'sales_type', 'paid', 'due', 'coupon_id', 'payment_method', 'pending_at', 'confirmed_at', 'processing_at', 'delivered_at', 'successed_at', 'canceled_at', 'return_at', 'order_note', 'total_earning', 'status', 'is_cashback', 'is_earning', 'is_sale_target_cashback'
     ];
 
     public function products()

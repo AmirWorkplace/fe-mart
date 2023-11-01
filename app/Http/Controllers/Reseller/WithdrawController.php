@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reseller;
 
+use App\Helper\AdditionalDataResource;
 use App\Helper\UserManagement;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -217,6 +218,7 @@ class WithdrawController extends Controller
 
                     case 'status':
                             Withdraw::where('id', request('id'))->update(['status'=> request('status')]);
+                            AdditionalDataResource::initiateResellerStatement(id: request('id'), status: request('status'), type: 'withdraw');
                             return response()->json(['status'=> true, 'message'=> 'Payment Request Status Changed Successfully!']);
 
                     default: 

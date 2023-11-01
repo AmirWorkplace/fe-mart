@@ -2154,6 +2154,267 @@ Route::get('/experiment/product', function () {
         #->get()
                         // $products = ProductResalePrice::select('id', 'main_rate', 'quantities')->where('order_id', $order->id)->get();
                 // $products = ProductResalePrice::select('id', 'resale_prices', 'quantities')->where('order_id', $order->id)->get();;
+                // $balance = AdditionalDataResource::getResellerEarning()['reserve_amount'];
+                // if($order){
+                //     if($total_earning <= intval($amount)){
+                //         return redirect()->route('admin.order-place.create')->withErrors('You do not have enough balance for adjustment this order!');
+                //     }
+    
+                //     Withdraw::create([
+                //         'user_id' => $user->id,
+                //         'total_earning' => $total_earning,
+                //         'withdrawal_method' => 'Adjustment Order',
+                //         'withdraw_amount' => ($order->shipping_charge + $order->sub_total + $order->total) - $order->discount,
+                //         'account_number' => '...',
+                //         'status' => 'Succeed'
+                //     ]);
+    
+                //     $order->status = 'Succeed';
+                //     $order->delivered_at = Carbon::now();
+                //     $order->save();
+                // }
+                        
+                        // if ($row->status == 'Succeed' || $row->status == 'Successed' || $row->status == 'Processing' || $row->status == 'Delivered') {
+                        //     $status .= ' selected disabled';
+                        // }
+                        // $status .= ' value="Succeed">Succeed</option>';
+
+
+            // clear cart
+            // session()->forget("cart");
+        // $current_month = Carbon::parse(date('Y-m-01'));
+        // $next_month = /* Carbon::parse(date('Y-m-t')) */ '2023-11-01T18:00:00.000000Z';
+
+        // $query = ResellerStatement::latest()
+        // ->where(function ($query) use ($current_month, $next_month) {
+        //     info(json_encode(['query' => $query->get(), $current_month, $next_month]));
+
+        //     $query->where('created_at', '>=', $current_month)
+        //         ->where('created_at', '<=', $next_month);
+        // });
+
+        // $statements = $query->get();
+
+        // return $statements;
+
+            // if($start_date = request('start_date') && $end_date = request('end_date')){
+            //     $query->where(function ($query) use ($start_date, $end_date) {
+            //         $query->where('created_at', '>=', $start_date)
+            //             ->where('created_at', '<=', $end_date);
+            //     });
+            // }
+
+        /*
+            info(json_encode([
+                Carbon::parse(request('start_date')),
+                Carbon::parse(request('end_date')),
+                request('start_date'),
+                request('end_date')
+            ]));
+        $current_month = Carbon::parse(date('Y-m-01'));
+        $next_month = Carbon::parse(date('Y-m-t'));         
+        if(request()->ajax()){
+            $data = $this->getResellerStatementData(start_date: request('start_date'), end_date: request('end_date'));
+
+            if(count($data) <= 0){
+                $message = "<tr class='text-center'>
+                                <td colspan='5' class='text-danger text-capitalize'>
+                                    <b>No records are available in your date range!</b>
+                                </td>
+                            </tr>";
+
+                return response()->json(['status'=> false, 'message'=> $message]);
+            }
+
+            return response()->json(['status'=> true, 'data'=> $data]);
+        }
+
+        $data = $this->getResellerStatementData(start_date: $current_month, end_date: $next_month);
+
+        return view('reseller.statement.index', compact('data', 'current_month', 'next_month')); */
+
+        /* $('#select_products').change(function(){
+            $.ajax({
+                url: "{{ route('admin.only_single_product', 0) }}",
+                method: 'GET',
+                type: 'GET',
+                data: {
+                    _method: 'POST',
+                    id: $('#select_product').val()
+                },
+
+                success: function(response){
+                    // console.log(response);
+                    if(response.status){
+                        resellerPrice = Number(response.product.price.reseller_price);
+                        $('#reseller_price').val(resellerPrice);
+                    }
+                },
+
+                error: function(error){
+                    console.log(error);
+                }
+            });
+        }); */
+        {{-- <div class="col-md-4 col-sm-6">
+                            <label for="reseller_price" class="form-label require"><b>Reseller Price</b></label>
+                            <input type="text" value="0" disabled class="form-control custom-input" id="reseller_price" name="reseller_price" required>
+                        </div>  --}}
+
+                        {{-- <div class="col-md-4 col-sm-6">
+                            <label for="price" class="form-label require"><b>Discount Price</b></label>
+                            <input type="text" value="0" class="form-control custom-input pe-none disabled" id="price" name="price" required>
+                        </div> --}}
+
+                    // var table = datatable();
+                    // function datatable(){
+            
+                    // }
+                        // table.fnDestroy(); // Destroy the existing table
+                        // table = datatable(); // Initialize a new table with the updated date range
+            
+                    // $('#filter_form').submit(function(event){
+                    //     event.preventDefault();
+                        // $.ajax({
+                        //     url: "{{ Route('admin.statement.index') }}",
+                        //     type: "GET",
+                        //     data: {
+                        //         start_date: $('#start_date').val(),
+                        //         end_date: $('#end_date').val()  
+                        //     },
+            
+                        //     success: function(response){
+                        //         console.log(response);
+                        //     },
+            
+                        //     error: function(error){
+                        //         console.log(error);
+                        //     }
+                        // });
+                    //     datatable();
+                    // });
+                    // console.log(@json($data));
+                    // initiate some variable for update on their state changes
+                    // let resellerPrice = Number('{ { $product->price->reseller_price }}');
+            
+                    // initiateChildCategory();
+                    
+                    /* $('#select_product').change(function(){
+                        $.ajax({
+                            url: "{{ route('admin.only_single_product', 0) }}",
+                            method: 'GET',
+                            type: 'GET',
+                            data: {
+                                _method: 'POST',
+                                id: $('#select_product').val()
+                            },
+            
+                            success: function(response){
+                                console.log(response);
+                                if(response.status){
+                                    resellerPrice = Number(response.product.price.reseller_price);
+                                    $('#reseller_price').val(resellerPrice);
+                                }
+                            },
+            
+                            error: function(error){
+                                console.log(error);
+                            }
+                        });
+                    }); */ 
+                    {{-- <div class="col-md-4 col-sm-6">
+                                        <label for="reseller_price" class="form-label require"><b>Reseller Price</b></label>
+                                        <input type="text" value="{{ $product->price->reseller_price }}" disabled class="form-control custom-input" id="reseller_price" name="reseller_price" required>
+                                    </div> --}}
+            
+                    // console.log("hi");
+
+        // $sales_target = ResellerSalesTarget::where('status', true)->get();
+        
+
+                    // Order::WhereIn('id', $order_ids)->update(['is_sale_target_cashback' => true]);
+                    // $order_ids = $orders->pluck('id')->toArray();
+
+            
+            // $x[$order->id] = $total_price;
+            // $total_price += $reseller_order->resale_prices;
+            // $x['$sales_product->id'] = $total_price;
+        // $user_id = Auth::id();
+        // $target_order_ids = array();
+
+        // $orders = Order::with('reseller_orders')->where('is_sale_target_cashback', false)->whereIn('status', ['Delivered', 'Successed', 'Succeed'])->where('user_id', $user_id)->get();
+
+        // foreach ($sales_target as $key => $sales_product) {
+        //     $targeted_product_ids = json_decode($sales_product->product_ids, true);
+
+        //     // $orders = Order::with('reseller_orders')->where('is_sale_target_cashback', false)->whereIn('status', ['Delivered', 'Successed', 'Succeed'])->where('user_id', $user_id)->whereJsonContains('product_ids', $targeted_product_ids);
+
+        //     // $x[$sales_product->id] = $orders->get();
+        // }
+
+        // $x = ["user_id" => $user_id];
+        // return $x;
+
+            // foreach ($orders as $order) {
+            //     $order->orWhereJsonContains('product_ids', $targeted_product_ids);
+            // }
+
+            // $resale_products = ProductResalePrice::whereIn('product_id', $targeted_product_ids)->where('reseller_id', $user_id)->where('is_sale_target_cashback', false)->get();
+
+
+        /* $orders = Order::with('reseller_orders')->select('id', 'order_code', 'pending_at')->where('user_id', Auth::id())
+            ->where('is_sale_target_cashback', false)
+            ->whereIn('status', ['Delivered', 'Successed', 'Succeed'])
+            ->latest('id')
+            ->get();
+
+        $user_id = Auth::id();
+        $all_cashback = array();
+        foreach ($orders as $order) {
+
+            $total_cashback = 0;
+            foreach ($order->reseller_orders as $product) {
+
+                $available_discount = ResellerSalesTarget::where('product_id', $product->product_id)
+                    ->where('status', true)
+                    ->where('start_time', '<=', date('Y-m-d', strtotime($order->pending_at)))
+                    ->where('end_time', '>=', date('Y-m-d', strtotime($order->pending_at)))
+                    ->first();
+
+                if($available_discount){
+                    $discount = $product->quantities * $available_discount->discount;
+                    $total_cashback += $discount;
+                }
+            }
+
+            if($total_cashback > 0){
+                $get_last_statement = ResellerStatement::where('user_id', $user_id)->latest('id')->first();
+                $last_statement_balance = $get_last_statement->balance ?? 0;
+                $balance = $last_statement_balance + $total_cashback;
+
+                $description = "Get Cashback from a order, invoice id at {$order->order_code}.";
+
+                ResellerStatement::create([
+                    'user_id'=> $user_id,
+                    'order_id'=> $order->id,
+                    'withdraw_id'=> NULL,
+                    'description'=> $description,
+                    'withdraw'=> 0,
+                    'deposit'=> $total_cashback,
+                    'balance'=> $balance,
+                    'status'=> true,
+                ]);
+            }
+
+            $all_cashback[$order->id] = $total_cashback;
+        }
+
+        // update cashback status
+        $order_ids = $orders->pluck('id')->toArray();
+        Order::whereIn('id', $order_ids)->update(['is_sale_target_cashback' => true]);
+
+        return response()->json($all_cashback); */ 
+    // }
 
 
 |---------------------------------------------------------|

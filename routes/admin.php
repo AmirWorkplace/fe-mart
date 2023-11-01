@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ResellerController;
 use App\Http\Controllers\Admin\ResellerProductDiscountController;
+use App\Http\Controllers\Admin\ResellerSalesTargetController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\SpecialOfferProductsController;
@@ -142,4 +143,7 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin', 'middleware' => ['admin_per
     Route::get('/load-children-categories-with-parent-category-products/{main_category_id}', [ResellerProductDiscountController::class, 'childrenCategoriesAndProducts'])
         ->name('children_categories_with_products');
     Route::get('/only-single-product/{id}', [ResellerProductDiscountController::class, 'onlySingleProduct'])->name('only_single_product');
+
+    // Reseller sales target
+    Route::resource('/reseller-sales-target', ResellerSalesTargetController::class);
 });
